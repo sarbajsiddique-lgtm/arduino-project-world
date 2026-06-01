@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Arduino Projects</title>
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#0f172a);
+color:white;
+overflow-x:hidden;
+}
+
+.navbar{
+padding:20px 30px;
+font-size:28px;
+font-weight:bold;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+box-shadow:0 0 20px rgba(0,255,255,0.2);
+}
+
+h1{
+text-align:center;
+margin-top:40px;
+font-size:55px;
+color:#00ffcc;
+text-shadow:0 0 25px #00ffcc;
+}
+
+.container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:30px;
+padding:40px;
+}
+
+.card{
+background:rgba(255,255,255,0.05);
+padding:30px;
+border-radius:20px;
+text-align:center;
+transition:0.4s;
+box-shadow:0 0 20px rgba(0,255,200,0.2);
+}
+
+.card:hover{
+transform:translateY(-10px) scale(1.03);
+box-shadow:0 0 40px #00ffcc;
+}
+
+.icon{
+font-size:55px;
+}
+
+.card h2{
+color:#00ffcc;
+margin-top:15px;
+}
+
+.card p{
+color:#ddd;
+}
+
+.view-btn{
+margin-top:15px;
+padding:12px 25px;
+border:none;
+border-radius:30px;
+background:linear-gradient(45deg,#00ffcc,#00ccff);
+color:black;
+font-weight:bold;
+font-size:16px;
+cursor:pointer;
+transition:0.3s;
+box-shadow:0 0 15px cyan;
+}
+
+.view-btn:hover{
+transform:scale(1.1);
+box-shadow:0 0 30px #00ffcc;
+}
+
+.btn{
+display:block;
+margin:40px auto;
+padding:15px 30px;
+border:none;
+border-radius:30px;
+background:linear-gradient(45deg,#00ffcc,#00ccff);
+font-size:18px;
+cursor:pointer;
+box-shadow:0 0 20px cyan;
+}
+
+@media(max-width:768px){
+
+h1{
+font-size:40px;
+}
+
+.container{
+padding:20px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+Arduino 🤖
+</div>
+
+<h1>Arduino Projects 🚀</h1>
+
+<div class="container">
+
+<!-- LED -->
+<div class="card">
+<div class="icon">💡</div>
+<h2>LED Blink</h2>
+<p>Basic LED project</p>
+
+<button class="view-btn"
+onclick="window.location.href='arduino_led_blink_project.html'">
+View Project
+</button>
+</div>
+
+<!-- ULTRASONIC -->
+<div class="card">
+<div class="icon">📡</div>
+<h2>Ultrasonic Sensor</h2>
+<p>Distance measurement</p>
+
+<button class="view-btn"
+onclick="window.location.href='ultrasonic_sensor_project.html'">
+View Project
+</button>
+</div>
+
+<!-- GAS -->
+<div class="card">
+<div class="icon">🔥</div>
+<h2>Gas Detector</h2>
+<p>Gas leakage safety</p>
+
+<button class="view-btn"
+onclick="window.location.href='gas_detector_project.html'">
+View Project
+</button>
+</div>
+
+<!-- TEMPERATURE -->
+<div class="card">
+<div class="icon">🌡️</div>
+<h2>Temperature Sensor</h2>
+<p>Temperature monitor</p>
+
+<button class="view-btn"
+onclick="window.location.href='temperature_sensor_project.html'">
+View Project
+</button>
+</div>
+
+<!-- ROBOT -->
+<div class="card">
+<div class="icon">🤖</div>
+<h2>Robot Car</h2>
+<p>Arduino robot project</p>
+
+<button class="view-btn"
+onclick="window.location.href='robot_car_project.html'">
+View Project
+</button>
+</div>
+
+<!-- SOIL -->
+<div class="card">
+<div class="icon">🌱</div>
+<h2>Soil Moisture</h2>
+<p>Plant monitoring</p>
+
+<button class="view-btn"
+onclick="window.location.href='soil_moisture_project.html'">
+View Project
+</button>
+</div>
+
+</div>
+
+<button class="btn"
+onclick="window.location.href='home.html'">
+⬅ Back
+</button>
+
+</body>
+</html>

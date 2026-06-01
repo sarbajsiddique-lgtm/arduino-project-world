@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>OLED Display</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#08142c);
+color:white;
+padding:40px;
+}
+
+.title{
+text-align:center;
+font-size:60px;
+color:#00ffe1;
+margin-bottom:50px;
+text-shadow:0 0 15px rgba(0,255,225,0.5);
+}
+
+.grid{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
+gap:25px;
+}
+
+.card{
+background:rgba(255,255,255,0.03);
+padding:30px;
+border-radius:25px;
+border:1px solid rgba(0,255,225,0.15);
+box-shadow:0 0 15px rgba(0,255,225,0.08);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-8px);
+box-shadow:0 0 25px rgba(0,255,225,0.25);
+}
+
+.card h2{
+color:#00ffe1;
+font-size:34px;
+margin-bottom:15px;
+}
+
+.card p{
+font-size:24px;
+line-height:1.6;
+}
+
+.btn{
+display:block;
+margin:50px auto;
+padding:15px 40px;
+border:none;
+border-radius:35px;
+background:linear-gradient(45deg,#00d9ff,#8f44ff);
+color:white;
+font-size:22px;
+font-weight:bold;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1 class="title">
+📱 OLED Display
+</h1>
+
+<div class="grid">
+
+<div class="card">
+<h2>📘 Introduction</h2>
+<p>
+OLED Display high quality graphics show karta hai.
+</p>
+</div>
+
+<div class="card">
+<h2>📍 Pins</h2>
+<p>
+VCC, GND, SDA, SCL
+</p>
+</div>
+
+<div class="card">
+<h2>⚡ Voltage</h2>
+<p>
+Operating Voltage = 3.3V - 5V
+</p>
+</div>
+
+<div class="card">
+<h2>🖼️ Diagram</h2>
+<p>
+Arduino with OLED connection.
+</p>
+</div>
+
+<div class="card">
+<h2>🌍 Applications</h2>
+<p>
+Smart displays, IoT projects, mini screens.
+</p>
+</div>
+
+<div class="card">
+<h2>🚀 Advantages</h2>
+<p>
+Sharp graphics and low power usage.
+</p>
+</div>
+
+</div>
+
+<button class="btn"
+onclick="window.location.href='arduino.html'">
+⬅ Back
+</button>
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arduino Coding</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+min-height:100vh;
+background:linear-gradient(135deg,#020617,#0f172a);
+color:white;
+}
+
+.navbar{
+padding:18px 30px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+font-size:22px;
+font-weight:bold;
+}
+
+h1{
+text-align:center;
+margin-top:50px;
+font-size:55px;
+color:#00ffcc;
+text-shadow:0 0 20px #00ffcc;
+}
+
+.container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:30px;
+padding:60px;
+}
+
+.card{
+background:rgba(255,255,255,0.05);
+border-radius:25px;
+padding:40px 20px;
+text-align:center;
+cursor:pointer;
+transition:.4s;
+box-shadow:0 0 25px rgba(0,255,204,.25);
+}
+
+.card:hover{
+transform:translateY(-10px) scale(1.05);
+box-shadow:
+0 0 30px #00ffcc,
+0 0 60px #00ccff;
+}
+
+.icon{
+font-size:65px;
+margin-bottom:20px;
+filter:drop-shadow(0 0 10px #00ffcc);
+}
+
+.card h2{
+font-size:35px;
+margin-bottom:12px;
+}
+
+.card p{
+font-size:16px;
+color:#cbd5e1;
+}
+
+.btn{
+display:block;
+width:140px;
+margin:40px auto;
+padding:15px;
+border:none;
+border-radius:30px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(45deg,#00ffcc,#00ccff);
+}
+
+.btn:hover{
+transform:scale(1.05);
+}
+
+@media(max-width:768px){
+
+h1{
+font-size:40px;
+}
+
+.container{
+padding:20px;
+}
+
+.card h2{
+font-size:28px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+Arduino AI 🤖
+</div>
+
+<h1>Arduino Coding 💻</h1>
+
+<div class="container">
+
+<div class="card" onclick="window.location.href='cpp-basics.html'">
+<div class="icon">⌨️</div>
+<h2>C++ Basics</h2>
+<p>Variables, loops, conditions</p>
+</div>
+
+<div class="card" onclick="window.location.href='arduino-ide.html'">
+<div class="icon">🛠️</div>
+<h2>Arduino IDE</h2>
+<p>Upload & Run Arduino Code</p>
+</div>
+
+<div class="card" onclick="window.location.href='sensor-coding.html'">
+<div class="icon">📡</div>
+<h2>Sensor Coding</h2>
+<p>Read & Process Sensor Data</p>
+</div>
+
+<div class="card" onclick="window.location.href='mini-projects.html'">
+<div class="icon">🚀</div>
+<h2>Mini Projects</h2>
+<p>Build Real Arduino Projects</p>
+</div>
+
+</div>
+
+<button class="btn" onclick="window.location.href='home.html'">
+⬅ Back
+</button>
+
+</body>
+</html>

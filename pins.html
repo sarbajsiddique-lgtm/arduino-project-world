@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arduino Pins</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#020617;
+  color:white;
+  text-align:center;
+}
+
+h1{
+  margin:20px;
+  color:#00ffcc;
+}
+
+/* BOARD */
+.board{
+  position:relative;
+  width:350px;
+  margin:auto;
+}
+
+/* IMAGE */
+.board img{
+  width:100%;
+  border-radius:10px;
+}
+
+/* PIN BUTTON */
+.pin{
+  position:absolute;
+  width:20px;
+  height:20px;
+  background:#00ffcc;
+  border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 0 10px #00ffcc;
+}
+
+/* INFO BOX */
+.info{
+  margin-top:30px;
+  padding:20px;
+  background:#111;
+  width:80%;
+  max-width:400px;
+  margin-left:auto;
+  margin-right:auto;
+  border-radius:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Arduino Pin Guide 🔌</h1>
+
+<div class="board">
+
+  <!-- Arduino Image -->
+  <img src="images/arduino.png">
+
+  <!-- Pins -->
+  <div class="pin" style="top:50px; left:40px;" onclick="showPin('vcc')"></div>
+  <div class="pin" style="top:90px; left:40px;" onclick="showPin('gnd')"></div>
+  <div class="pin" style="top:130px; left:300px;" onclick="showPin('d13')"></div>
+  <div class="pin" style="top:200px; left:300px;" onclick="showPin('a0')"></div>
+
+</div>
+
+<!-- INFO -->
+<div class="info" id="infoBox">
+Click any pin 👆
+</div>
+
+<script>
+
+function showPin(type){
+
+let text="";
+
+/* VCC */
+if(type==="vcc"){
+text="VCC = Power supply (5V). Sensor ko power deta hai.";
+}
+
+/* GND */
+if(type==="gnd"){
+text="GND = Ground. Circuit complete karta hai.";
+}
+
+/* D13 */
+if(type==="d13"){
+text="D13 = Digital Output. LED control ke liye use hota hai.";
+}
+
+/* A0 */
+if(type==="a0"){
+text="A0 = Analog Input. Sensor value read karta hai.";
+}
+
+document.getElementById("infoBox").innerText=text;
+
+}
+
+</script>
+
+</body>
+</html>

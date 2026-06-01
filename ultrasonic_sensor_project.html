@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📡 Ultrasonic Sensor Project - Arduino</title>
+<style>
+/* ================================= */
+/* GLOBAL */
+/* ================================= */
+*{margin:0;padding:0;box-sizing:border-box;}
+ 
+html,body{
+  width:100%;min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#020617,#000814,#001d3d);
+  background-attachment:fixed;
+  overflow-x:hidden;color:white;scroll-behavior:smooth;
+}
+ 
+body::before{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#00ffee10;filter:blur(180px);top:-200px;left:-200px;z-index:-2;
+}
+body::after{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#b026ff10;filter:blur(180px);bottom:-200px;right:-200px;z-index:-2;
+}
+ 
+/* ================================= */
+/* PARTICLES */
+/* ================================= */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:-1;}
+.particle{
+  position:absolute;width:5px;height:5px;border-radius:50%;
+  background:#00ffee55;animation:floatParticle 12s linear infinite;
+}
+@keyframes floatParticle{
+  from{transform:translateY(100vh);opacity:0;}
+  to{transform:translateY(-100vh);opacity:1;}
+}
+ 
+/* ================================= */
+/* LOADER */
+/* ================================= */
+#loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#020617;display:flex;justify-content:center;
+  align-items:center;z-index:99999;transition:opacity 0.8s;
+}
+#loader h1{
+  font-size:60px;font-weight:bold;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+  animation:pulse 1.5s infinite alternate;
+}
+@keyframes pulse{
+  from{opacity:0.6;transform:scale(1);}
+  to{opacity:1;transform:scale(1.04);}
+}
+ 
+/* ================================= */
+/* NAVBAR */
+/* ================================= */
+.navbar{
+  padding:18px 30px;background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:26px;font-weight:bold;position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+}
+.navbar span{color:#00ffee;text-shadow:0 0 10px #00ffee88;}
+ 
+/* ================================= */
+/* TITLE */
+/* ================================= */
+h1{
+  text-align:center;font-size:55px;font-weight:700;
+  margin:40px 0 10px;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+}
+.subtitle{text-align:center;color:#cbd5e1;margin-bottom:40px;font-size:18px;}
+ 
+/* ================================= */
+/* BADGE */
+/* ================================= */
+.badge{
+  display:inline-block;padding:8px 20px;border-radius:30px;
+  background:linear-gradient(45deg,#00ffcc,#00ccff);
+  color:black;font-weight:bold;margin-bottom:16px;
+  box-shadow:0 0 15px cyan;font-size:14px;
+}
+ 
+/* ================================= */
+/* CONTAINER / CARD */
+/* ================================= */
+.container{max-width:1000px;margin:auto;padding:0 30px 60px;}
+ 
+.card{
+  background:rgba(8,21,56,0.85);border:2px solid #00e5ff;
+  border-radius:20px;padding:28px;margin-bottom:24px;
+  box-shadow:0 0 20px rgba(0,255,255,0.15);
+  backdrop-filter:blur(10px);transition:0.3s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 0 35px rgba(0,229,255,0.3);
+}
+.card h2{color:#00ffee;margin-bottom:14px;font-size:22px;}
+.card p,.card li{font-size:16px;line-height:1.8;color:#dbeafe;}
+ul{padding-left:22px;}
+ul li{margin-bottom:6px;}
+ 
+/* ================================= */
+/* CODE BLOCK */
+/* ================================= */
+pre{
+  background:#000;color:#00ff99;padding:20px;
+  border-radius:12px;overflow:auto;margin-top:10px;
+  font-size:15px;line-height:1.7;
+  box-shadow:0 0 20px rgba(0,255,153,0.2);
+}
+ 
+/* ================================= */
+/* BUTTONS */
+/* ================================= */
+button,.btn{
+  padding:12px 28px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#00e5ff,#7b61ff);
+  color:white;font-size:16px;font-weight:bold;
+  cursor:pointer;margin-top:14px;transition:0.3s;
+}
+button:hover,.btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,229,255,0.4);}
+ 
+.download-btn{
+  padding:14px 30px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#00ffcc,#00ccff);
+  color:black;font-size:17px;font-weight:bold;
+  cursor:pointer;box-shadow:0 0 20px cyan;transition:0.3s;
+  display:block;margin:30px auto 0;
+}
+.download-btn:hover{transform:scale(1.06);box-shadow:0 0 35px #00ffcc;}
+ 
+/* ================================= */
+/* CIRCUIT */
+/* ================================= */
+.circuit-wrap{overflow-x:auto;margin-top:12px;}
+.circuit-note{font-size:12px;color:#546e7a;margin-top:8px;}
+ 
+/* Ultrasonic pulse animation */
+@keyframes sonarPulse{
+  0%{r:0;opacity:0.8;stroke-width:2}
+  100%{r:38;opacity:0;stroke-width:0.5}
+}
+.sonar-ring{animation:sonarPulse 1.8s ease-out infinite;}
+.sonar-ring:nth-child(2){animation-delay:0.6s;}
+.sonar-ring:nth-child(3){animation-delay:1.2s;}
+ 
+/* ================================= */
+/* SUCCESS / TIP BOX */
+/* ================================= */
+.success-box{
+  background:rgba(0,255,100,0.07);border:1px solid #00ff6455;
+  border-left:4px solid #00ff64;border-radius:10px;
+  padding:14px 18px;margin-top:12px;color:#a7f3d0;font-size:15px;line-height:1.7;
+}
+.tip-box{
+  background:rgba(0,200,255,0.07);border:1px solid #00e5ff44;
+  border-left:4px solid #00e5ff;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#bae6fd;font-size:15px;line-height:1.7;
+}
+ 
+/* ================================= */
+/* STEPS */
+/* ================================= */
+.steps-list{list-style:none;padding:0;}
+.steps-list li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.steps-list li:last-child{border-bottom:none;}
+.step-num{
+  min-width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(45deg,#00e5ff,#7b61ff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;color:white;
+}
+ 
+/* ================================= */
+/* DISTANCE DEMO */
+/* ================================= */
+.demo-wrap{
+  background:#000;border-radius:12px;padding:20px;
+  margin-top:16px;text-align:center;
+  box-shadow:0 0 20px rgba(0,255,153,0.15);
+}
+.demo-label{font-family:monospace;font-size:13px;color:#546e7a;margin-bottom:10px;}
+.distance-bar-bg{
+  width:100%;height:18px;background:rgba(255,255,255,0.06);
+  border-radius:10px;overflow:hidden;margin-bottom:12px;
+}
+.distance-bar{
+  height:100%;border-radius:10px;
+  background:linear-gradient(90deg,#00ff99,#00e5ff);
+  transition:width 0.3s;
+  box-shadow:0 0 10px rgba(0,255,153,0.4);
+}
+.distance-val{
+  font-family:monospace;font-size:32px;font-weight:700;
+  color:#00ff99;text-shadow:0 0 12px rgba(0,255,153,0.5);
+}
+.distance-unit{font-size:16px;color:#546e7a;}
+.demo-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+.demo-btns button{padding:8px 16px;font-size:13px;margin-top:0;}
+ 
+/* ================================= */
+/* MOBILE */
+/* ================================= */
+@media(max-width:768px){
+  h1{font-size:34px;}
+  .container{padding:0 14px 40px;}
+  .card{padding:18px;}
+  .navbar{font-size:20px;}
+  pre{font-size:13px;}
+}
+</style>
+</head>
+<body>
+ 
+<!-- LOADER -->
+<div id="loader"><h1>📡 Loading...</h1></div>
+ 
+<!-- PARTICLES -->
+<div id="particles"></div>
+ 
+<!-- NAVBAR -->
+<nav class="navbar">
+  <span>⚡</span> Arduino Ultrasonic Sensor Project
+</nav>
+ 
+<div class="container">
+ 
+  <h1>📡 Ultrasonic Sensor</h1>
+  <p class="subtitle">Arduino se distance measure karo — HC-SR04 sensor ke saath</p>
+ 
+  <!-- 1. INTRODUCTION -->
+  <div class="card">
+    <span class="badge">PROJECT #02 · BEGINNER</span>
+    <h2>1. 📡 Project Introduction</h2>
+    <p>
+      Ultrasonic Sensor (HC-SR04) Arduino ka ek bahut popular project hai.
+      Yeh sensor sound waves (ultrasonic) bhejta hai aur unka echo wapas
+      receive karta hai — is time difference se distance calculate hoti hai.
+      Is project mein Arduino Uno HC-SR04 se distance measure karke
+      Serial Monitor par cm mein display karega.
+    </p>
+    <div class="tip-box">
+      💡 <strong>Fun Fact:</strong> HC-SR04 ka range 2cm se 400cm tak hota hai,
+      accuracy ±3mm hoti hai — bilkul bat ki tarah kaam karta hai! 🦇
+    </div>
+  </div>
+ 
+  <!-- 2. COMPONENTS -->
+  <div class="card">
+    <h2>2. 📋 Components Required</h2>
+    <ul>
+      <li>🟩 Arduino Uno × 1</li>
+      <li>📡 HC-SR04 Ultrasonic Sensor × 1</li>
+      <li>🔗 Jumper Wires × 4</li>
+      <li>🧱 Breadboard × 1</li>
+      <li>🔌 USB Cable × 1</li>
+      <li>💡 LED (optional, distance alert ke liye) × 1</li>
+    </ul>
+    <div class="tip-box">
+      ⚡ <strong>HC-SR04 ke 4 pins:</strong><br>
+      <strong>VCC</strong> → 5V &nbsp;|&nbsp;
+      <strong>GND</strong> → GND &nbsp;|&nbsp;
+      <strong>TRIG</strong> → Pin 9 &nbsp;|&nbsp;
+      <strong>ECHO</strong> → Pin 10
+    </div>
+  </div>
+ 
+  <!-- 3. CIRCUIT -->
+  <div class="card">
+    <h2>3. 🔌 Circuit Diagram</h2>
+    <div class="circuit-wrap">
+      <svg width="100%" viewBox="0 0 720 360" role="img">
+        <title>Arduino HC-SR04 Ultrasonic Sensor Circuit</title>
+ 
+        <!-- Arduino board -->
+        <rect x="30" y="60" width="185" height="240" rx="12"
+              fill="#1D9E75" opacity="0.08" stroke="#1D9E75" stroke-width="1.5"/>
+        <rect x="30" y="60" width="185" height="30" rx="12"
+              fill="#1D9E75" opacity="0.18"/>
+        <text x="122" y="81" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#1D9E75" letter-spacing="2">ARDUINO UNO</text>
+ 
+        <!-- Pin connectors -->
+        <rect x="213" y="100" width="12" height="10" rx="2" fill="#b0bec5" stroke="#78909c" stroke-width="0.5"/>
+        <text x="207" y="109" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">5V</text>
+ 
+        <rect x="213" y="122" width="12" height="10" rx="2" fill="#546e7a" stroke="#37474f" stroke-width="0.5"/>
+        <text x="207" y="131" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">GND</text>
+ 
+        <rect x="213" y="144" width="12" height="10" rx="2" fill="#ff9800" stroke="#e65100" stroke-width="0.5"/>
+        <text x="207" y="153" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">Pin 9</text>
+ 
+        <rect x="213" y="166" width="12" height="10" rx="2" fill="#2196f3" stroke="#0d47a1" stroke-width="0.5"/>
+        <text x="207" y="175" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">Pin 10</text>
+ 
+        <!-- HC-SR04 Sensor body -->
+        <rect x="430" y="80" width="200" height="100" rx="10"
+              fill="#1a2a3a" stroke="#00e5ff" stroke-width="1.5"/>
+        <rect x="430" y="80" width="200" height="22" rx="10"
+              fill="rgba(0,229,255,0.12)"/>
+        <text x="530" y="96" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#00e5ff" letter-spacing="1">HC-SR04</text>
+ 
+        <!-- Sensor eyes (TRIG + ECHO circles) -->
+        <circle cx="480" cy="148" r="22" fill="#0a1525" stroke="#00e5ff" stroke-width="1.5"/>
+        <circle cx="480" cy="148" r="14" fill="#001133" stroke="#00aaff" stroke-width="1"/>
+        <circle cx="480" cy="148" r="7" fill="#003366"/>
+        <text x="480" y="183" text-anchor="middle" font-family="monospace" font-size="9" fill="#80deea">TRIG</text>
+ 
+        <circle cx="580" cy="148" r="22" fill="#0a1525" stroke="#00e5ff" stroke-width="1.5"/>
+        <circle cx="580" cy="148" r="14" fill="#001133" stroke="#00aaff" stroke-width="1"/>
+        <circle cx="580" cy="148" r="7" fill="#003366"/>
+        <text x="580" y="183" text-anchor="middle" font-family="monospace" font-size="9" fill="#80deea">ECHO</text>
+ 
+        <!-- Sensor pins at bottom -->
+        <rect x="448" y="178" width="10" height="16" rx="2" fill="#b0bec5" stroke="#78909c" stroke-width="0.5"/>
+        <text x="453" y="208" text-anchor="middle" font-family="monospace" font-size="9" fill="#ff5252">VCC</text>
+ 
+        <rect x="468" y="178" width="10" height="16" rx="2" fill="#546e7a" stroke="#37474f" stroke-width="0.5"/>
+        <text x="473" y="208" text-anchor="middle" font-family="monospace" font-size="9" fill="#69f0ae">GND</text>
+ 
+        <rect x="488" y="178" width="10" height="16" rx="2" fill="#ff9800" stroke="#e65100" stroke-width="0.5"/>
+        <text x="493" y="208" text-anchor="middle" font-family="monospace" font-size="9" fill="#ffcc80">TRIG</text>
+ 
+        <rect x="508" y="178" width="10" height="16" rx="2" fill="#2196f3" stroke="#0d47a1" stroke-width="0.5"/>
+        <text x="513" y="208" text-anchor="middle" font-family="monospace" font-size="9" fill="#82b1ff">ECHO</text>
+ 
+        <!-- SONAR PULSE ANIMATION -->
+        <g transform="translate(640,148)">
+          <circle class="sonar-ring" cx="0" cy="0" r="0" fill="none" stroke="#00e5ff" stroke-width="2" opacity="0"/>
+          <circle class="sonar-ring" cx="0" cy="0" r="0" fill="none" stroke="#00e5ff" stroke-width="2" opacity="0"/>
+          <circle class="sonar-ring" cx="0" cy="0" r="0" fill="none" stroke="#00e5ff" stroke-width="2" opacity="0"/>
+        </g>
+        <text x="650" y="200" text-anchor="middle" font-family="monospace" font-size="9" fill="#00e5ff">WAVES</text>
+ 
+        <!-- Wires -->
+        <!-- VCC: red -->
+        <line x1="225" y1="105" x2="380" y2="105" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+        <line x1="380" y1="105" x2="380" y2="220" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+        <line x1="380" y1="220" x2="453" y2="220" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+        <line x1="453" y1="220" x2="453" y2="194" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+ 
+        <!-- GND: green -->
+        <line x1="225" y1="127" x2="395" y2="127" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <line x1="395" y1="127" x2="395" y2="230" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <line x1="395" y1="230" x2="473" y2="230" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <line x1="473" y1="230" x2="473" y2="194" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+ 
+        <!-- TRIG: orange -->
+        <line x1="225" y1="149" x2="350" y2="149" stroke="#ff9800" stroke-width="2" stroke-linecap="round"/>
+        <line x1="350" y1="149" x2="350" y2="240" stroke="#ff9800" stroke-width="2" stroke-linecap="round"/>
+        <line x1="350" y1="240" x2="493" y2="240" stroke="#ff9800" stroke-width="2" stroke-linecap="round"/>
+        <line x1="493" y1="240" x2="493" y2="194" stroke="#ff9800" stroke-width="2" stroke-linecap="round"/>
+ 
+        <!-- ECHO: blue -->
+        <line x1="225" y1="171" x2="330" y2="171" stroke="#2196f3" stroke-width="2" stroke-linecap="round"/>
+        <line x1="330" y1="171" x2="330" y2="250" stroke="#2196f3" stroke-width="2" stroke-linecap="round"/>
+        <line x1="330" y1="250" x2="513" y2="250" stroke="#2196f3" stroke-width="2" stroke-linecap="round"/>
+        <line x1="513" y1="250" x2="513" y2="194" stroke="#2196f3" stroke-width="2" stroke-linecap="round"/>
+ 
+        <!-- Labels -->
+        <text x="296" y="95" text-anchor="middle" font-family="monospace" font-size="10" fill="#E24B4A">5V (Red)</text>
+        <text x="296" y="118" text-anchor="middle" font-family="monospace" font-size="10" fill="#1D9E75">GND (Green)</text>
+        <text x="296" y="140" text-anchor="middle" font-family="monospace" font-size="10" fill="#ff9800">TRIG (Orange)</text>
+        <text x="296" y="162" text-anchor="middle" font-family="monospace" font-size="10" fill="#2196f3">ECHO (Blue)</text>
+ 
+        <!-- USB -->
+        <rect x="38" y="278" width="48" height="18" rx="4"
+              fill="none" stroke="#37474f" stroke-width="1"/>
+        <text x="62" y="291" text-anchor="middle"
+              font-family="monospace" font-size="10" fill="#37474f">USB</text>
+ 
+        <!-- Legend -->
+        <line x1="40" y1="330" x2="65" y2="330" stroke="#E24B4A" stroke-width="2"/>
+        <text x="71" y="334" font-family="monospace" font-size="10" fill="#80deea">VCC</text>
+        <line x1="120" y1="330" x2="145" y2="330" stroke="#1D9E75" stroke-width="2"/>
+        <text x="151" y="334" font-family="monospace" font-size="10" fill="#80deea">GND</text>
+        <line x1="210" y1="330" x2="235" y2="330" stroke="#ff9800" stroke-width="2"/>
+        <text x="241" y="334" font-family="monospace" font-size="10" fill="#80deea">TRIG</text>
+        <line x1="300" y1="330" x2="325" y2="330" stroke="#2196f3" stroke-width="2"/>
+        <text x="331" y="334" font-family="monospace" font-size="10" fill="#80deea">ECHO</text>
+      </svg>
+    </div>
+    <p style="margin-top:10px;color:#80deea;">
+      📌 Connection: <strong>VCC→5V | GND→GND | TRIG→Pin 9 | ECHO→Pin 10</strong>
+    </p>
+    <p class="circuit-note">* Sonar animation sirf visual preview hai</p>
+  </div>
+ 
+  <!-- 4. CODE -->
+  <div class="card">
+    <h2>4. 💻 Arduino Code</h2>
+    <pre id="code">// Ultrasonic Sensor Project - Arduino Uno
+// HC-SR04 — Distance Measurement
+// TRIG → Pin 9 | ECHO → Pin 10
+ 
+const int trigPin = 9;   // TRIG pin
+const int echoPin = 10;  // ECHO pin
+ 
+long duration;           // Sound wave travel time
+float distanceCm;        // Distance in cm
+float distanceInch;      // Distance in inches
+ 
+void setup() {
+  pinMode(trigPin, OUTPUT);  // TRIG = OUTPUT
+  pinMode(echoPin, INPUT);   // ECHO  = INPUT
+  Serial.begin(9600);
+  Serial.println("=== Ultrasonic Sensor Ready ===");
+}
+ 
+void loop() {
+  // TRIG pin ko trigger karo
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);   // 10 microsecond pulse
+  digitalWrite(trigPin, LOW);
+ 
+  // ECHO pin se time measure karo
+  duration = pulseIn(echoPin, HIGH);
+ 
+  // Distance calculate karo
+  // Sound speed = 343 m/s = 0.0343 cm/us
+  // Distance = (duration / 2) * 0.0343
+  distanceCm    = (duration / 2.0) * 0.0343;
+  distanceInch  = distanceCm / 2.54;
+ 
+  // Serial Monitor pe print karo
+  Serial.print("Distance: ");
+  Serial.print(distanceCm, 1);
+  Serial.print(" cm  |  ");
+  Serial.print(distanceInch, 1);
+  Serial.println(" inches");
+ 
+  // Alert: object 10cm se paas ho
+  if (distanceCm < 10) {
+    Serial.println("⚠️  WARNING: Object Too Close!");
+  }
+ 
+  delay(500);  // 0.5 sec baad phir measure karo
+}</pre>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;">
+      <button onclick="copyCode()">📋 Code Copy Karo</button>
+      <span id="copy-msg" style="color:#00ff99;font-size:14px;display:none;">✓ Copied!</span>
+    </div>
+    <div style="margin-top:16px;">
+      <p style="color:#80deea;font-size:14px;margin-bottom:10px;">⚡ Measure speed badlo:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="changeDelay(200)"  style="padding:8px 16px;font-size:14px;">Fast (0.2s)</button>
+        <button onclick="changeDelay(500)"  style="padding:8px 16px;font-size:14px;">Normal (0.5s)</button>
+        <button onclick="changeDelay(1000)" style="padding:8px 16px;font-size:14px;">Slow (1s)</button>
+        <button onclick="changeDelay(2000)" style="padding:8px 16px;font-size:14px;">Very Slow (2s)</button>
+      </div>
+      <p id="speed-note" style="color:#00ff99;font-size:13px;margin-top:8px;font-family:monospace;"></p>
+    </div>
+  </div>
+ 
+  <!-- LIVE DEMO -->
+  <div class="card">
+    <h2>🎮 Live Distance Demo (Simulator)</h2>
+    <div class="demo-wrap">
+      <div class="demo-label">SIMULATED DISTANCE</div>
+      <div class="distance-bar-bg">
+        <div class="distance-bar" id="dist-bar" style="width:30%"></div>
+      </div>
+      <div class="distance-val" id="dist-val">60</div>
+      <div class="distance-unit">cm</div>
+    </div>
+    <div class="demo-btns">
+      <button onclick="setDist(5)"   style="margin-top:0;padding:8px 16px;font-size:13px;">5 cm (Very Close)</button>
+      <button onclick="setDist(20)"  style="margin-top:0;padding:8px 16px;font-size:13px;">20 cm</button>
+      <button onclick="setDist(60)"  style="margin-top:0;padding:8px 16px;font-size:13px;">60 cm</button>
+      <button onclick="setDist(150)" style="margin-top:0;padding:8px 16px;font-size:13px;">150 cm</button>
+      <button onclick="setDist(350)" style="margin-top:0;padding:8px 16px;font-size:13px;">350 cm (Max)</button>
+    </div>
+    <p id="dist-note" style="color:#00ff99;font-size:13px;margin-top:12px;font-family:monospace;text-align:center;"></p>
+  </div>
+ 
+  <!-- 5. UPLOAD -->
+  <div class="card">
+    <h2>5. ⬆️ Code Upload Kaise Karo</h2>
+    <ul class="steps-list">
+      <li><div class="step-num">1</div><span>Arduino IDE open karo</span></li>
+      <li><div class="step-num">2</div><span><strong>Tools → Board → Arduino Uno</strong> select karo</span></li>
+      <li><div class="step-num">3</div><span><strong>Tools → Port</strong> mein sahi COM port select karo</span></li>
+      <li><div class="step-num">4</div><span>Upar diya code paste karo</span></li>
+      <li><div class="step-num">5</div><span><strong>→ Upload</strong> button dabao (ya Ctrl+U)</span></li>
+      <li><div class="step-num">6</div><span><strong>Tools → Serial Monitor</strong> kholo (9600 baud) — distance dekhega</span></li>
+    </ul>
+  </div>
+ 
+  <!-- 6. TESTING -->
+  <div class="card">
+    <h2>6. ✅ Testing</h2>
+    <p>Serial Monitor mein distance cm mein print honi chahiye — sensor ke saamne haath rakh ke check karo.</p>
+    <div class="success-box">
+      🎉 <strong>Success:</strong> Distance change ho rahi hai? Congratulations — project complete!
+    </div>
+    <div class="tip-box" style="margin-top:12px;">
+      📏 <strong>Test karo:</strong> Sensor se 10cm, 30cm, 100cm door object rakho — values change honi chahiye.
+    </div>
+  </div>
+ 
+  <!-- 7. ERROR FIXING -->
+  <div class="card">
+    <h2>7. 🛠️ Common Errors &amp; Fix</h2>
+    <ul>
+      <li><strong>Distance 0 aa rahi?</strong> → TRIG aur ECHO pins check karo (9 aur 10 hone chahiye)</li>
+      <li><strong>Galat value?</strong> → Wires dhang se connect hain? VCC = 5V (3.3V nahi)</li>
+      <li><strong>"Upload fail"?</strong> → USB cable aur COM port check karo</li>
+      <li><strong>Values random hain?</strong> → Sensor ke saamne clear space rakho, koi obstacle nahi</li>
+      <li><strong>Range kam lag rahi?</strong> → HC-SR04 soft/fabric objects detect nahi karta achhe se</li>
+    </ul>
+    <div class="tip-box">
+      💡 <strong>Shortcut:</strong> pulseIn() timeout set karo — 
+      <code style="background:#000;padding:2px 6px;border-radius:4px;color:#00ff99;">pulseIn(echoPin, HIGH, 30000)</code>
+      — 30ms se zyada wait nahi karega (400cm+ range ignore)
+    </div>
+  </div>
+ 
+  <!-- 8. FINAL -->
+  <div class="card">
+    <h2>8. 🎉 Final Project Ready</h2>
+    <p>Project complete ho gaya! Aap chahein toh:</p>
+    <ul style="margin-top:10px;">
+      <li>LCD Display add karo — distance screen pe dikhao</li>
+      <li>Buzzer add karo — paas aane par beep kare</li>
+      <li>LED bar add karo — distance ke hisaab se LEDs jalein</li>
+      <li>Parking sensor ya robot obstacle detection banao</li>
+    </ul>
+    <div class="success-box" style="margin-top:14px;">
+      ✅ Aapne HC-SR04 Ultrasonic Sensor project successfully complete kar liya!
+    </div>
+  </div>
+ 
+  <!-- 9. DOCUMENTATION -->
+  <div class="card">
+    <h2>9. 📝 Project Documentation</h2>
+    <ul>
+      <li><strong>Project Name:</strong> Ultrasonic Distance Sensor</li>
+      <li><strong>Difficulty:</strong> Beginner</li>
+      <li><strong>Components:</strong> Arduino Uno, HC-SR04, Jumper Wires, USB Cable</li>
+      <li><strong>Pins Used:</strong> TRIG → Pin 9 (OUTPUT), ECHO → Pin 10 (INPUT), VCC → 5V, GND → GND</li>
+      <li><strong>Working:</strong> pulseIn() se echo time measure karo, (duration/2 × 0.0343) = distance cm</li>
+      <li><strong>Range:</strong> 2cm – 400cm | Accuracy: ±3mm</li>
+      <li><strong>Baud Rate:</strong> 9600 (Serial Monitor)</li>
+    </ul>
+  </div>
+ 
+  <button class="download-btn" onclick="downloadPage()">⬇️ Page Download Karo (HTML)</button>
+ 
+</div><!-- /container -->
+ 
+<script>
+// LOADER
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const l = document.getElementById('loader');
+    l.style.opacity = '0';
+    setTimeout(() => l.style.display = 'none', 800);
+  }, 1200);
+});
+ 
+// PARTICLES
+(function(){
+  const c = document.getElementById('particles');
+  for(let i = 0; i < 20; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText =
+      'left:' + Math.random()*100 + '%;' +
+      'animation-delay:' + Math.random()*12 + 's;' +
+      'animation-duration:' + (10+Math.random()*8) + 's;' +
+      'width:' + (3+Math.random()*5) + 'px;' +
+      'height:' + (3+Math.random()*5) + 'px;' +
+      'opacity:' + (0.2+Math.random()*0.5) + ';';
+    c.appendChild(p);
+  }
+})();
+ 
+// COPY CODE
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('code').innerText).then(()=>{
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'inline';
+    setTimeout(()=> msg.style.display = 'none', 2000);
+  });
+}
+ 
+// CHANGE DELAY
+function changeDelay(ms){
+  const note = document.getElementById('speed-note');
+  note.textContent = '→ delay(' + ms + ') set hua — har ' + ms + 'ms baad distance measure hogi';
+}
+ 
+// DISTANCE DEMO
+function setDist(cm){
+  document.getElementById('dist-val').textContent = cm;
+  const pct = Math.min((cm / 400) * 100, 100);
+  document.getElementById('dist-bar').style.width = pct + '%';
+  const bar = document.getElementById('dist-bar');
+  if(cm < 10){
+    bar.style.background = 'linear-gradient(90deg,#ff1744,#ff5252)';
+    document.getElementById('dist-note').textContent = '⚠️ WARNING: Object bahut paas hai! (' + cm + ' cm)';
+  } else if(cm < 50){
+    bar.style.background = 'linear-gradient(90deg,#ff9800,#ffcc02)';
+    document.getElementById('dist-note').textContent = '⚠️ Caution: Object paas aa raha hai (' + cm + ' cm)';
+  } else {
+    bar.style.background = 'linear-gradient(90deg,#00ff99,#00e5ff)';
+    document.getElementById('dist-note').textContent = '✅ Safe distance: ' + cm + ' cm  |  ' + (cm/2.54).toFixed(1) + ' inches';
+  }
+}
+ 
+// DOWNLOAD
+function downloadPage(){
+  const a = document.createElement('a');
+  a.href = window.location.href;
+  a.download = 'ultrasonic_sensor_project.html';
+  a.click();
+}
+</script>
+</body>
+</html>
+ 

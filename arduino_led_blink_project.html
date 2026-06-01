@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💡 LED Blink Project - Arduino</title>
+<style>
+/* ================================= */
+/* GLOBAL */
+/* ================================= */
+*{margin:0;padding:0;box-sizing:border-box;}
+ 
+html,body{
+  width:100%;min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#020617,#000814,#001d3d);
+  background-attachment:fixed;
+  overflow-x:hidden;color:white;scroll-behavior:smooth;
+}
+ 
+body::before{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#00ffee10;filter:blur(180px);top:-200px;left:-200px;z-index:-2;
+}
+body::after{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#b026ff10;filter:blur(180px);bottom:-200px;right:-200px;z-index:-2;
+}
+ 
+/* ================================= */
+/* PARTICLES */
+/* ================================= */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:-1;}
+.particle{
+  position:absolute;width:5px;height:5px;border-radius:50%;
+  background:#00ffee55;animation:floatParticle 12s linear infinite;
+}
+@keyframes floatParticle{
+  from{transform:translateY(100vh);opacity:0;}
+  to{transform:translateY(-100vh);opacity:1;}
+}
+ 
+/* ================================= */
+/* LOADER */
+/* ================================= */
+#loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#020617;display:flex;justify-content:center;
+  align-items:center;z-index:99999;transition:opacity 0.8s;
+}
+#loader h1{
+  font-size:60px;font-weight:bold;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+  animation:pulse 1.5s infinite alternate;
+}
+@keyframes pulse{
+  from{opacity:0.6;transform:scale(1);}
+  to{opacity:1;transform:scale(1.04);}
+}
+ 
+/* ================================= */
+/* NAVBAR */
+/* ================================= */
+.navbar{
+  padding:18px 30px;background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:26px;font-weight:bold;position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+}
+.navbar span{color:#00ffee;text-shadow:0 0 10px #00ffee88;}
+ 
+/* ================================= */
+/* TITLE */
+/* ================================= */
+h1{
+  text-align:center;font-size:55px;font-weight:700;
+  margin:40px 0 10px;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+}
+.subtitle{text-align:center;color:#cbd5e1;margin-bottom:40px;font-size:18px;}
+ 
+/* ================================= */
+/* BADGE */
+/* ================================= */
+.badge{
+  display:inline-block;padding:8px 20px;border-radius:30px;
+  background:linear-gradient(45deg,#00ffcc,#00ccff);
+  color:black;font-weight:bold;margin-bottom:16px;
+  box-shadow:0 0 15px cyan;font-size:14px;
+}
+ 
+/* ================================= */
+/* CONTAINER / CARD */
+/* ================================= */
+.container{max-width:1000px;margin:auto;padding:0 30px 60px;}
+ 
+.card{
+  background:rgba(8,21,56,0.85);border:2px solid #00e5ff;
+  border-radius:20px;padding:28px;margin-bottom:24px;
+  box-shadow:0 0 20px rgba(0,255,255,0.15);
+  backdrop-filter:blur(10px);transition:0.3s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 0 35px rgba(0,229,255,0.3);
+}
+.card h2{color:#00ffee;margin-bottom:14px;font-size:22px;}
+.card p,.card li{font-size:16px;line-height:1.8;color:#dbeafe;}
+ul{padding-left:22px;}
+ul li{margin-bottom:6px;}
+ 
+/* ================================= */
+/* CODE BLOCK */
+/* ================================= */
+pre{
+  background:#000;color:#00ff99;padding:20px;
+  border-radius:12px;overflow:auto;margin-top:10px;
+  font-size:15px;line-height:1.7;
+  box-shadow:0 0 20px rgba(0,255,153,0.2);
+}
+ 
+/* ================================= */
+/* BUTTONS */
+/* ================================= */
+button,.btn{
+  padding:12px 28px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#00e5ff,#7b61ff);
+  color:white;font-size:16px;font-weight:bold;
+  cursor:pointer;margin-top:14px;transition:0.3s;
+}
+button:hover,.btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,229,255,0.4);}
+ 
+.download-btn{
+  padding:14px 30px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#00ffcc,#00ccff);
+  color:black;font-size:17px;font-weight:bold;
+  cursor:pointer;box-shadow:0 0 20px cyan;transition:0.3s;
+  display:block;margin:30px auto 0;
+}
+.download-btn:hover{transform:scale(1.06);box-shadow:0 0 35px #00ffcc;}
+ 
+/* ================================= */
+/* CIRCUIT */
+/* ================================= */
+.circuit-wrap{overflow-x:auto;margin-top:12px;}
+.circuit-note{font-size:12px;color:#546e7a;margin-top:8px;}
+ 
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0.15}}
+@keyframes glow{0%,49%{filter:drop-shadow(0 0 8px #ff6600)}50%,100%{filter:none}}
+.led-body{animation:blink 2s step-start infinite;}
+.led-glow{animation:glow 2s step-start infinite;}
+ 
+/* ================================= */
+/* SUCCESS BOX */
+/* ================================= */
+.success-box{
+  background:rgba(0,255,100,0.07);border:1px solid #00ff6455;
+  border-left:4px solid #00ff64;border-radius:10px;
+  padding:14px 18px;margin-top:12px;color:#a7f3d0;font-size:15px;line-height:1.7;
+}
+.tip-box{
+  background:rgba(0,200,255,0.07);border:1px solid #00e5ff44;
+  border-left:4px solid #00e5ff;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#bae6fd;font-size:15px;line-height:1.7;
+}
+ 
+/* ================================= */
+/* STEPS */
+/* ================================= */
+.steps-list{list-style:none;padding:0;}
+.steps-list li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.steps-list li:last-child{border-bottom:none;}
+.step-num{
+  min-width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(45deg,#00e5ff,#7b61ff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;color:white;
+}
+ 
+/* ================================= */
+/* MOBILE */
+/* ================================= */
+@media(max-width:768px){
+  h1{font-size:34px;}
+  .container{padding:0 14px 40px;}
+  .card{padding:18px;}
+  .navbar{font-size:20px;}
+  pre{font-size:13px;}
+}
+</style>
+</head>
+<body>
+ 
+<!-- LOADER -->
+<div id="loader"><h1>💡 Loading...</h1></div>
+ 
+<!-- PARTICLES -->
+<div id="particles"></div>
+ 
+<!-- NAVBAR -->
+<nav class="navbar">
+  <span>⚡</span> Arduino LED Blink Project
+</nav>
+ 
+<div class="container">
+ 
+  <h1>💡 LED Blink</h1>
+  <p class="subtitle">Arduino ka sabse pehla aur classic project</p>
+ 
+  <!-- 1. INTRODUCTION -->
+  <div class="card">
+    <span class="badge">PROJECT #01 · BEGINNER</span>
+    <h2>1. 💡 Project Introduction</h2>
+    <p>
+      LED Blink Arduino ka sabse basic aur beginner-friendly project hai.
+      Is project mein Arduino Uno Pin 13 par connected LED ko 1 second ON
+      aur 1 second OFF karta hai — baar baar. Yeh project coding, wiring,
+      aur upload — teeno ka practice karwata hai.
+    </p>
+    
+    <div class="tip-box">
+      💡 <strong>Fun Fact:</strong> Arduino IDE mein pehle se "Blink" example
+      available hai: <em>File → Examples → 01.Basics → Blink</em>
+    </div>
+  </div>
+ 
+  <!-- 2. COMPONENTS -->
+  <div class="card">
+    <h2>2. 📋 Components Required</h2>
+    <ul>
+      <li>🟩 Arduino Uno × 1</li>
+      <li>💡 LED (Red ya Green) × 1</li>
+      <li>⚡ 220Ω Resistor × 1</li>
+      <li>🔗 Jumper Wires × 2</li>
+      <li>🧱 Breadboard × 1</li>
+      <li>🔌 USB Cable × 1</li>
+    </ul>
+    <div class="tip-box">
+      ⚡ <strong>Resistor kyun?</strong> Arduino Pin 13 max 40mA deta hai,
+      LED ko sirf ~20mA chahiye. 220Ω resistor current limit karta hai:
+      I = 5V ÷ 220Ω ≈ 22mA ✓
+    </div>
+  </div>
+ 
+  <!-- 3. CIRCUIT -->
+  <div class="card">
+    <h2>3. 🔌 Circuit Diagram</h2>
+    <div class="circuit-wrap">
+      <svg width="100%" viewBox="0 0 680 340" role="img">
+        <title>Arduino LED Blink Circuit</title>
+ 
+        <!-- Arduino board -->
+        <rect x="30" y="50" width="185" height="240" rx="12"
+              fill="#1D9E75" opacity="0.08" stroke="#1D9E75" stroke-width="1.5"/>
+        <rect x="30" y="50" width="185" height="30" rx="12"
+              fill="#1D9E75" opacity="0.18"/>
+        <text x="122" y="71" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#1D9E75" letter-spacing="2">ARDUINO UNO</text>
+ 
+        <!-- Pin 13 connector -->
+        <rect x="213" y="95" width="12" height="10" rx="2" fill="#b0bec5" stroke="#78909c" stroke-width="0.5"/>
+        <text x="207" y="104" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">Pin 13</text>
+ 
+        <!-- GND connector -->
+        <rect x="213" y="125" width="12" height="10" rx="2" fill="#546e7a" stroke="#37474f" stroke-width="0.5"/>
+        <text x="207" y="134" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">GND</text>
+ 
+        <!-- USB -->
+        <rect x="38" y="265" width="48" height="18" rx="4"
+              fill="none" stroke="#37474f" stroke-width="1"/>
+        <text x="62" y="278" text-anchor="middle"
+              font-family="monospace" font-size="10" fill="#37474f">USB</text>
+ 
+        <!-- Red wire Pin13 → Resistor -->
+        <line x1="225" y1="100" x2="355" y2="100" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+ 
+        <!-- Resistor -->
+        <line x1="355" y1="100" x2="372" y2="100" stroke="#E24B4A" stroke-width="2"/>
+        <rect x="372" y="89" width="62" height="22" rx="5"
+              fill="#1a1f2e" stroke="#78909c" stroke-width="1.5"/>
+        <rect x="380" y="89" width="5" height="22" fill="#D85A30" opacity="0.85" rx="1"/>
+        <rect x="391" y="89" width="5" height="22" fill="#D85A30" opacity="0.85" rx="1"/>
+        <rect x="402" y="89" width="5" height="22" fill="#80deea" opacity="0.6" rx="1"/>
+        <rect x="416" y="89" width="5" height="22" fill="#ffd700" opacity="0.9" rx="1"/>
+        <line x1="434" y1="100" x2="452" y2="100" stroke="#E24B4A" stroke-width="2"/>
+        <text x="403" y="83" text-anchor="middle"
+              font-family="monospace" font-size="10" fill="#80deea">220Ω</text>
+ 
+        <!-- LED animated -->
+        <g class="led-glow">
+          <g class="led-body">
+            <line x1="452" y1="86" x2="452" y2="114" stroke="#78909c" stroke-width="2"/>
+            <polygon points="452,86 486,100 452,114" fill="#FF5722" opacity="0.9" stroke="#BF360C" stroke-width="1"/>
+            <line x1="486" y1="86" x2="486" y2="114" stroke="#78909c" stroke-width="2"/>
+            <circle cx="494" cy="100" r="13" fill="#FF7043" opacity="0.6" stroke="#BF360C" stroke-width="1"/>
+            <line x1="511" y1="86" x2="521" y2="78" stroke="#FFCC80" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+            <line x1="513" y1="98" x2="524" y2="95" stroke="#FFCC80" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+            <line x1="511" y1="112" x2="521" y2="119" stroke="#FFCC80" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+          </g>
+        </g>
+        <text x="473" y="128" text-anchor="middle"
+              font-family="monospace" font-size="10" fill="#80deea">LED</text>
+ 
+        <!-- Wire: LED anode → right → down -->
+        <line x1="507" y1="100" x2="548" y2="100" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+        <line x1="548" y1="100" x2="548" y2="240" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+ 
+        <!-- GND wire Arduino → right -->
+        <line x1="225" y1="130" x2="452" y2="130" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <!-- LED cathode → down to GND rail -->
+        <line x1="452" y1="114" x2="452" y2="130" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <!-- GND rail down then across -->
+        <line x1="452" y1="130" x2="452" y2="240" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <line x1="452" y1="240" x2="548" y2="240" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+ 
+        <!-- Labels -->
+        <text x="290" y="90" text-anchor="middle" font-family="monospace" font-size="10" fill="#E24B4A">+5V (Pin 13)</text>
+        <text x="500" y="256" text-anchor="middle" font-family="monospace" font-size="10" fill="#1D9E75">GND</text>
+ 
+        <!-- Legend -->
+        <line x1="40" y1="310" x2="65" y2="310" stroke="#E24B4A" stroke-width="2"/>
+        <text x="71" y="314" font-family="monospace" font-size="11" fill="#80deea">+ve wire</text>
+        <line x1="175" y1="310" x2="200" y2="310" stroke="#1D9E75" stroke-width="2"/>
+        <text x="206" y="314" font-family="monospace" font-size="11" fill="#80deea">GND wire</text>
+        <circle cx="340" cy="310" r="6" fill="#FF5722" opacity="0.85"/>
+        <text x="352" y="314" font-family="monospace" font-size="11" fill="#80deea">LED (animated)</text>
+      </svg>
+    </div>
+    <p style="margin-top:10px;color:#80deea;">📌 Connection: <strong>Pin 13 → Resistor → LED (anode) → LED (cathode) → GND</strong></p>
+    <p class="circuit-note">* Animation sirf visual preview hai</p>
+  </div>
+ 
+  <!-- 4. CODE -->
+  <div class="card">
+    <h2>4. 💻 Arduino Code</h2>
+    <pre id="code">// LED Blink Project - Arduino Uno
+// Pin 13 pe LED connect karo
+ 
+const int ledPin = 13;  // LED pin
+int delayTime = 1000;   // 1 second
+ 
+void setup() {
+  pinMode(ledPin, OUTPUT);   // Pin 13 OUTPUT set karo
+  Serial.begin(9600);
+  Serial.println("LED Blink Start!");
+}
+ 
+void loop() {
+  digitalWrite(ledPin, HIGH); // LED ON
+  Serial.println("LED: ON");
+  delay(delayTime);
+ 
+  digitalWrite(ledPin, LOW);  // LED OFF
+  Serial.println("LED: OFF");
+  delay(delayTime);
+}</pre>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;">
+      <button onclick="copyCode()">📋 Code Copy Karo</button>
+      <span id="copy-msg" style="color:#00ff99;font-size:14px;display:none;">✓ Copied!</span>
+    </div>
+    <div style="margin-top:16px;">
+      <p style="color:#80deea;font-size:14px;margin-bottom:10px;">⚡ Blink speed badlo:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="changeSpeed(250)" style="padding:8px 16px;font-size:14px;">Fast (0.25s)</button>
+        <button onclick="changeSpeed(500)" style="padding:8px 16px;font-size:14px;">Normal (0.5s)</button>
+        <button onclick="changeSpeed(1000)" style="padding:8px 16px;font-size:14px;">Slow (1s)</button>
+        <button onclick="changeSpeed(2000)" style="padding:8px 16px;font-size:14px;">Very Slow (2s)</button>
+      </div>
+      <p id="speed-note" style="color:#00ff99;font-size:13px;margin-top:8px;font-family:monospace;"></p>
+    </div>
+  </div>
+ 
+  <!-- 5. UPLOAD -->
+  <div class="card">
+    <h2>5. ⬆️ Code Upload Kaise Karo</h2>
+    <ul class="steps-list">
+      <li><div class="step-num">1</div><span>Arduino IDE open karo</span></li>
+      <li><div class="step-num">2</div><span><strong>Tools → Board → Arduino Uno</strong> select karo</span></li>
+      <li><div class="step-num">3</div><span><strong>Tools → Port</strong> mein sahi COM port select karo</span></li>
+      <li><div class="step-num">4</div><span>Upar diya code paste karo</span></li>
+      <li><div class="step-num">5</div><span><strong>→ Upload</strong> button dabao (ya Ctrl+U)</span></li>
+    </ul>
+  </div>
+ 
+  <!-- 6. TESTING -->
+  <div class="card">
+    <h2>6. ✅ Testing</h2>
+    <p>LED 1 second ON aur 1 second OFF honi chahiye — baar baar blink karegi.</p>
+    <div class="success-box">
+      🎉 <strong>Success:</strong> LED blink kar rahi hai? Congratulations — project complete!
+    </div>
+  </div>
+ 
+  <!-- 7. ERROR FIXING -->
+  <div class="card">
+    <h2>7. 🛠️ Common Errors &amp; Fix</h2>
+    <ul>
+      <li><strong>LED nahi jali?</strong> → LED polarity check karo (lamba leg = anode = +)</li>
+      <li><strong>Upload fail?</strong> → USB cable aur COM port check karo</li>
+      <li><strong>"Board not found"?</strong> → Tools → Board → Arduino Uno select karo</li>
+      <li><strong>LED dim?</strong> → Resistor sahi lagao (220Ω)</li>
+    </ul>
+    <div class="tip-box">
+      💡 <strong>Shortcut:</strong> Arduino Uno pe pehle se Pin 13 onboard LED hai — bina wiring ke bhi test kar sakte ho!
+    </div>
+  </div>
+ 
+  <!-- 8. FINAL -->
+  <div class="card">
+    <h2>8. 🎉 Final Project Ready</h2>
+    <p>Project complete ho gaya! Aap chahein toh:</p>
+    <ul style="margin-top:10px;">
+      <li>LED ko kisi box/case mein fit karo</li>
+      <li>Multiple LEDs add karo alag patterns ke liye</li>
+      <li>Button se control add karo</li>
+    </ul>
+    <div class="success-box" style="margin-top:14px;">
+      ✅ Aapne apna pehla Arduino project successfully complete kar liya!
+    </div>
+  </div>
+ 
+  <!-- 9. DOCUMENTATION -->
+  <div class="card">
+    <h2>9. 📝 Project Documentation</h2>
+    <ul>
+      <li><strong>Project Name:</strong> LED Blink</li>
+      <li><strong>Difficulty:</strong> Beginner</li>
+      <li><strong>Components:</strong> Arduino Uno, LED, 220Ω Resistor, USB Cable, Wires</li>
+      <li><strong>Pin Used:</strong> Digital Pin 13 (OUTPUT), GND</li>
+      <li><strong>Working:</strong> digitalWrite HIGH/LOW se LED ON/OFF hoti hai</li>
+      <li><strong>Delay:</strong> 1000ms (1 second) ON + 1 second OFF</li>
+    </ul>
+  </div>
+ 
+  <button class="download-btn" onclick="downloadPage()">⬇️ Page Download Karo (HTML)</button>
+ 
+</div><!-- /container -->
+ 
+<script>
+// LOADER
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const l = document.getElementById('loader');
+    l.style.opacity = '0';
+    setTimeout(() => l.style.display = 'none', 800);
+  }, 1200);
+});
+ 
+// PARTICLES
+(function(){
+  const c = document.getElementById('particles');
+  for(let i = 0; i < 20; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText =
+      'left:' + Math.random()*100 + '%;' +
+      'animation-delay:' + Math.random()*12 + 's;' +
+      'animation-duration:' + (10+Math.random()*8) + 's;' +
+      'width:' + (3+Math.random()*5) + 'px;' +
+      'height:' + (3+Math.random()*5) + 'px;' +
+      'opacity:' + (0.2+Math.random()*0.5) + ';';
+    c.appendChild(p);
+  }
+})();
+ 
+// COPY CODE
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('code').innerText).then(()=>{
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'inline';
+    setTimeout(()=> msg.style.display = 'none', 2000);
+  });
+}
+ 
+// CHANGE SPEED
+function changeSpeed(ms){
+  const note = document.getElementById('speed-note');
+  note.textContent = '→ delay(' + ms + ') set hua — LED ' + ms + 'ms ON, ' + ms + 'ms OFF mein blink karegi';
+  const dur = (ms*2/1000) + 's';
+  document.querySelectorAll('.led-body,.led-glow').forEach(el => {
+    el.style.animationDuration = dur;
+  });
+}
+ 
+// DOWNLOAD PAGE
+function downloadPage(){
+  const a = document.createElement('a');
+  a.href = window.location.href;
+  a.download = 'led_blink_project.html';
+  a.click();
+}
+</script>
+</body>
+</html>

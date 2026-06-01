@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌱 Soil Moisture Project - Arduino</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  width:100%;min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#020617,#000814,#001d3d);
+  background-attachment:fixed;
+  overflow-x:hidden;color:white;scroll-behavior:smooth;
+}
+body::before{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#00ffee10;filter:blur(180px);top:-200px;left:-200px;z-index:-2;
+}
+body::after{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#1a7a2010;filter:blur(180px);bottom:-200px;right:-200px;z-index:-2;
+}
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:-1;}
+.particle{
+  position:absolute;border-radius:50%;
+  background:#00ffee55;animation:floatParticle 12s linear infinite;
+}
+@keyframes floatParticle{
+  from{transform:translateY(100vh);opacity:0;}
+  to{transform:translateY(-100vh);opacity:1;}
+}
+#loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#020617;display:flex;justify-content:center;
+  align-items:center;z-index:99999;transition:opacity 0.8s;
+}
+#loader h1{
+  font-size:60px;font-weight:bold;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+  animation:pulse 1.5s infinite alternate;
+}
+@keyframes pulse{
+  from{opacity:0.6;transform:scale(1);}
+  to{opacity:1;transform:scale(1.04);}
+}
+.navbar{
+  padding:18px 30px;background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:26px;font-weight:bold;position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+}
+.navbar span{color:#00ffee;text-shadow:0 0 10px #00ffee88;}
+h1{
+  text-align:center;font-size:55px;font-weight:700;
+  margin:40px 0 10px;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+}
+.subtitle{text-align:center;color:#cbd5e1;margin-bottom:40px;font-size:18px;}
+.badge{
+  display:inline-block;padding:8px 20px;border-radius:30px;
+  background:linear-gradient(45deg,#2e7d32,#66bb6a);
+  color:white;font-weight:bold;margin-bottom:16px;
+  box-shadow:0 0 15px rgba(102,187,106,0.5);font-size:14px;
+}
+.container{max-width:1000px;margin:auto;padding:0 30px 60px;}
+.card{
+  background:rgba(8,21,56,0.85);border:2px solid #00e5ff;
+  border-radius:20px;padding:28px;margin-bottom:24px;
+  box-shadow:0 0 20px rgba(0,255,255,0.15);
+  backdrop-filter:blur(10px);transition:0.3s;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 0 35px rgba(0,229,255,0.3);}
+.card h2{color:#00ffee;margin-bottom:14px;font-size:22px;}
+.card p,.card li{font-size:16px;line-height:1.8;color:#dbeafe;}
+ul{padding-left:22px;}
+ul li{margin-bottom:6px;}
+pre{
+  background:#000;color:#00ff99;padding:20px;
+  border-radius:12px;overflow:auto;margin-top:10px;
+  font-size:15px;line-height:1.7;
+  box-shadow:0 0 20px rgba(0,255,153,0.2);
+}
+button,.btn{
+  padding:12px 28px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#00e5ff,#7b61ff);
+  color:white;font-size:16px;font-weight:bold;
+  cursor:pointer;margin-top:14px;transition:0.3s;
+}
+button:hover,.btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,229,255,0.4);}
+.download-btn{
+  padding:14px 30px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#2e7d32,#66bb6a);
+  color:white;font-size:17px;font-weight:bold;
+  cursor:pointer;box-shadow:0 0 20px rgba(102,187,106,0.4);transition:0.3s;
+  display:block;margin:30px auto 0;
+}
+.download-btn:hover{transform:scale(1.06);box-shadow:0 0 35px rgba(102,187,106,0.6);}
+.success-box{
+  background:rgba(0,255,100,0.07);border:1px solid #00ff6455;
+  border-left:4px solid #00ff64;border-radius:10px;
+  padding:14px 18px;margin-top:12px;color:#a7f3d0;font-size:15px;line-height:1.7;
+}
+.tip-box{
+  background:rgba(0,200,255,0.07);border:1px solid #00e5ff44;
+  border-left:4px solid #00e5ff;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#bae6fd;font-size:15px;line-height:1.7;
+}
+.warn-box{
+  background:rgba(255,165,0,0.07);border:1px solid #ffa50044;
+  border-left:4px solid #ffa500;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#fed7aa;font-size:15px;line-height:1.7;
+}
+.steps-list{list-style:none;padding:0;}
+.steps-list li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.steps-list li:last-child{border-bottom:none;}
+.step-num{
+  min-width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(45deg,#2e7d32,#66bb6a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;color:white;
+}
+
+/* ====== PLANT DEMO ====== */
+.demo-wrap{
+  background:radial-gradient(ellipse at 50% 110%,#0a1f0a 0%,#000814 100%);
+  border-radius:16px;padding:28px 20px 20px;
+  margin-top:16px;text-align:center;
+  box-shadow:0 0 24px rgba(102,187,106,0.12);
+  position:relative;overflow:hidden;
+}
+
+/* Pot scene */
+.pot-scene{
+  display:inline-block;position:relative;
+  width:220px;height:240px;margin:0 auto 10px;
+}
+
+/* Soil in pot */
+#soil-fill{
+  position:absolute;bottom:48px;left:26px;
+  width:168px;height:60px;
+  border-radius:0 0 4px 4px;
+  background:linear-gradient(180deg,#3b1f0a,#5c2d0e);
+  transition:background 0.6s;
+  overflow:hidden;
+}
+#soil-wet-layer{
+  position:absolute;bottom:0;left:0;width:100%;
+  height:0%;background:linear-gradient(180deg,#6b3a0f,#8b4513);
+  transition:height 1s ease;border-radius:0 0 4px 4px;
+}
+/* water droplets in soil */
+.soil-drop{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  background:#42a5f580;animation:dropFade 2s ease-in-out infinite;
+}
+@keyframes dropFade{0%,100%{opacity:0;}50%{opacity:1;}}
+
+/* Moisture probe */
+.probe-wrap{
+  position:absolute;bottom:48px;right:40px;
+  width:18px;height:80px;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:4;
+}
+.probe-head{
+  width:14px;height:10px;background:#bdbdbd;
+  border-radius:3px 3px 0 0;border:1px solid #757575;
+}
+.probe-body{
+  width:4px;flex:1;
+  background:linear-gradient(180deg,#bdbdbd,#9e9e9e);
+}
+.probe-tip{
+  width:0;height:0;
+  border-left:4px solid transparent;
+  border-right:4px solid transparent;
+  border-top:8px solid #9e9e9e;
+}
+/* probe glow when reading */
+@keyframes probeGlow{
+  0%,100%{filter:drop-shadow(0 0 2px #42a5f5);}
+  50%{filter:drop-shadow(0 0 8px #00e5ff);}
+}
+.probe-reading{animation:probeGlow 1.5s ease-in-out infinite;}
+
+/* Pot body SVG area */
+.pot-svg{position:absolute;bottom:0;left:0;width:100%;height:100%;pointer-events:none;}
+
+/* Plant stem and leaves */
+.plant-svg{
+  position:absolute;bottom:105px;left:50%;
+  transform:translateX(-50%);
+  transition:all 0.8s ease;
+}
+
+/* Leaf sway */
+@keyframes leafSway{
+  0%,100%{transform:rotate(-3deg);}
+  50%{transform:rotate(3deg);}
+}
+.leaf-sway{transform-origin:bottom center;animation:leafSway 3s ease-in-out infinite;}
+
+/* Drooping plant */
+@keyframes droop{
+  0%,100%{transform:rotate(0deg);}
+  50%{transform:rotate(-8deg);}
+}
+.plant-droop{transform-origin:bottom center;animation:droop 2s ease-in-out infinite;}
+
+/* Water drop falling */
+@keyframes waterFall{
+  0%{transform:translateY(0);opacity:1;}
+  100%{transform:translateY(50px);opacity:0;}
+}
+.water-drop{
+  position:absolute;width:8px;height:12px;
+  background:rgba(66,165,245,0.7);border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation:waterFall 1s ease-in infinite;
+  display:none;
+}
+
+/* Status bar */
+.moisture-bar-wrap{
+  width:240px;margin:10px auto;
+  background:rgba(255,255,255,0.06);
+  border-radius:30px;height:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.moisture-bar-fill{
+  height:100%;border-radius:30px;
+  transition:width 0.8s ease, background 0.6s;
+  background:linear-gradient(90deg,#42a5f5,#00e5ff);
+  width:55%;
+}
+
+.moisture-pct{
+  font-family:monospace;font-size:36px;font-weight:700;
+  color:#42a5f5;text-shadow:0 0 14px rgba(66,165,245,0.6);
+  transition:color 0.5s;
+}
+.moisture-raw{font-family:monospace;font-size:13px;color:#546e7a;margin-top:2px;}
+.plant-status{
+  display:inline-block;padding:6px 20px;border-radius:20px;
+  font-size:13px;font-weight:700;margin-top:8px;
+  background:rgba(0,255,100,0.12);color:#00ff99;
+  border:1px solid #00ff6444;transition:all 0.4s;
+}
+
+.demo-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+.demo-btns button{padding:8px 16px;font-size:13px;margin-top:0;}
+#demo-note{
+  font-family:monospace;font-size:13px;margin-top:10px;
+  color:#00ff99;min-height:20px;
+}
+
+/* Watering can animation */
+#water-can{
+  position:absolute;top:10px;right:10px;
+  font-size:28px;opacity:0;
+  transition:opacity 0.4s;
+  transform:rotate(-30deg);
+}
+.watering #water-can{opacity:1;}
+.watering .water-drop{display:block;}
+
+@media(max-width:768px){
+  h1{font-size:34px;}
+  .container{padding:0 14px 40px;}
+  .card{padding:18px;}
+  .navbar{font-size:20px;}
+  pre{font-size:13px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader"><h1>🌱 Loading...</h1></div>
+<div id="particles"></div>
+
+<nav class="navbar">
+  <span>⚡</span> Arduino Soil Moisture Project
+</nav>
+
+<div class="container">
+
+  <h1>🌱 Soil Moisture</h1>
+  <p class="subtitle">Arduino se plant ki mitti ka moisture monitor karo — automatic watering ke saath!</p>
+
+  <!-- 1. INTRO -->
+  <div class="card">
+    <span class="badge">PROJECT #06 · BEGINNER</span>
+    <h2>1. 🌱 Project Introduction</h2>
+    <p>
+      Soil Moisture project mein Arduino Uno ek capacitive/resistive soil moisture sensor
+      se mitti ki naami (moisture) measure karta hai. Agar mitti dry ho jaaye toh
+      buzzer beep karta hai ya relay se water pump ON ho jaata hai —
+      bilkul automatic watering system! Sensor ka analog value 0–1023 range mein
+      aata hai jise percentage mein convert karte hain.
+    </p>
+    <div class="tip-box">
+      💡 <strong>Fun Fact:</strong> Capacitive soil moisture sensor resistive se
+      zyada accurate hota hai aur kharaab bhi nahi hota — kyunki uske metal
+      prongs soil ke directly contact mein nahi aate!
+    </div>
+  </div>
+
+  <!-- 2. COMPONENTS -->
+  <div class="card">
+    <h2>2. 📋 Components Required</h2>
+    <ul>
+      <li>🟩 Arduino Uno × 1</li>
+      <li>💧 Soil Moisture Sensor Module × 1 (YL-69 ya Capacitive v1.2)</li>
+      <li>🔔 Buzzer × 1 (dry alert ke liye)</li>
+      <li>💡 Green LED × 1 (wet indicator)</li>
+      <li>💡 Red LED × 1 (dry indicator)</li>
+      <li>⚡ 220Ω Resistors × 2 (LEDs ke liye)</li>
+      <li>🔗 Jumper Wires × 6</li>
+      <li>🧱 Breadboard × 1</li>
+      <li>🔌 USB Cable × 1</li>
+    </ul>
+    <div class="tip-box">
+      ⚡ <strong>Sensor Pins:</strong><br>
+      <strong>VCC</strong> → 5V &nbsp;|&nbsp;
+      <strong>GND</strong> → GND &nbsp;|&nbsp;
+      <strong>AOUT</strong> → A0 (analog) &nbsp;|&nbsp;
+      <strong>DOUT</strong> → Pin 2 (digital, optional)<br><br>
+      🔔 <strong>Buzzer</strong> → Pin 8 &nbsp;|&nbsp;
+      💚 <strong>Green LED</strong> → Pin 9 &nbsp;|&nbsp;
+      🔴 <strong>Red LED</strong> → Pin 10
+    </div>
+  </div>
+
+  <!-- 3. CIRCUIT DIAGRAM -->
+  <div class="card">
+    <h2>3. 🔌 Circuit Diagram</h2>
+    <div style="overflow-x:auto;margin-top:12px;">
+      <svg width="100%" viewBox="0 0 760 400" role="img">
+        <title>Arduino Soil Moisture Circuit</title>
+        <defs>
+          <!-- soil texture pattern -->
+          <pattern id="soilPat" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+            <rect width="8" height="8" fill="#3b1f0a"/>
+            <circle cx="2" cy="3" r="1" fill="#5c2d0e" opacity="0.6"/>
+            <circle cx="6" cy="6" r="1.2" fill="#2a1205" opacity="0.5"/>
+          </pattern>
+          <!-- water gradient -->
+          <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#42a5f5" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#1565c0" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Arduino board -->
+        <rect x="20" y="60" width="185" height="290" rx="12"
+              fill="#1D9E75" opacity="0.08" stroke="#1D9E75" stroke-width="1.5"/>
+        <rect x="20" y="60" width="185" height="30" rx="12"
+              fill="#1D9E75" opacity="0.18"/>
+        <text x="112" y="81" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#1D9E75" letter-spacing="2">ARDUINO UNO</text>
+
+        <!-- Arduino Pins -->
+        <rect x="203" y="100" width="12" height="10" rx="2" fill="#E24B4A"/>
+        <text x="197" y="109" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">5V</text>
+
+        <rect x="203" y="118" width="12" height="10" rx="2" fill="#546e7a"/>
+        <text x="197" y="127" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">GND</text>
+
+        <rect x="203" y="136" width="12" height="10" rx="2" fill="#42a5f5"/>
+        <text x="197" y="145" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">A0 (AOUT)</text>
+
+        <rect x="203" y="154" width="12" height="10" rx="2" fill="#ab47bc"/>
+        <text x="197" y="163" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 2 (DOUT)</text>
+
+        <rect x="203" y="172" width="12" height="10" rx="2" fill="#ffee58"/>
+        <text x="197" y="181" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 8 (Buzzer)</text>
+
+        <rect x="203" y="190" width="12" height="10" rx="2" fill="#66bb6a"/>
+        <text x="197" y="199" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 9 (Green LED)</text>
+
+        <rect x="203" y="208" width="12" height="10" rx="2" fill="#ef5350"/>
+        <text x="197" y="217" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 10 (Red LED)</text>
+
+        <!-- ===== SOIL POT (realistic) ===== -->
+        <!-- Pot body -->
+        <path d="M390 310 L360 250 L460 250 L430 310 Z"
+              fill="#8B4513" stroke="#6d3410" stroke-width="1.5"/>
+        <!-- Pot rim -->
+        <ellipse cx="410" cy="250" rx="52" ry="10" fill="#a0522d" stroke="#6d3410" stroke-width="1"/>
+        <!-- Pot bottom -->
+        <ellipse cx="410" cy="310" rx="22" ry="5" fill="#6d3410"/>
+        <!-- soil fill -->
+        <ellipse cx="410" cy="252" rx="48" ry="9" fill="url(#soilPat)"/>
+        <!-- wet layer -->
+        <ellipse id="cir-wet" cx="410" cy="254" rx="44" ry="7"
+                 fill="url(#waterGrad)" opacity="0.0"
+                 style="transition:opacity 0.8s;"/>
+
+        <!-- Sensor probe (realistic) -->
+        <!-- PCB board -->
+        <rect x="430" y="220" width="30" height="18" rx="3"
+              fill="#2e7d32" stroke="#43a047" stroke-width="1"/>
+        <text x="445" y="232" text-anchor="middle"
+              font-family="monospace" font-size="7" fill="#a5d6a7">SENSOR</text>
+        <!-- two metal prongs -->
+        <rect x="437" y="237" width="4" height="32" rx="2"
+              fill="#bdbdbd" stroke="#9e9e9e" stroke-width="0.5"/>
+        <rect x="447" y="237" width="4" height="32" rx="2"
+              fill="#bdbdbd" stroke="#9e9e9e" stroke-width="0.5"/>
+        <!-- prong tips -->
+        <ellipse cx="439" cy="269" rx="2" ry="3" fill="#9e9e9e"/>
+        <ellipse cx="449" cy="269" rx="2" ry="3" fill="#9e9e9e"/>
+        <!-- sensor glow -->
+        <ellipse id="sensor-glow" cx="444" cy="265" rx="12" ry="8"
+                 fill="#42a5f5" opacity="0" style="transition:opacity 0.5s;"/>
+
+        <!-- Wires: sensor to Arduino -->
+        <!-- VCC red -->
+        <polyline points="215,105 300,105 300,225 430,225"
+                  fill="none" stroke="#E24B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- GND green -->
+        <polyline points="215,123 292,123 292,232 430,232"
+                  fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- AOUT blue -->
+        <polyline points="215,141 284,141 284,235 430,235"
+                  fill="none" stroke="#42a5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- DOUT purple -->
+        <polyline points="215,159 276,159 276,238 430,238"
+                  fill="none" stroke="#ab47bc" stroke-width="1.5" stroke-dasharray="5,3" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- ===== BUZZER ===== -->
+        <ellipse cx="560" cy="140" rx="20" ry="12"
+                 fill="#1a2233" stroke="#ffee58" stroke-width="1.5"/>
+        <ellipse cx="560" cy="138" rx="12" ry="7"
+                 fill="#0d1a2e" stroke="#ffee58" stroke-width="1"/>
+        <text x="560" y="162" text-anchor="middle"
+              font-family="monospace" font-size="9" fill="#ffee58">BUZZER</text>
+        <line x1="554" y1="152" x2="554" y2="175" stroke="#78909c" stroke-width="1.5"/>
+        <line x1="566" y1="152" x2="566" y2="175" stroke="#78909c" stroke-width="1.5"/>
+        <!-- Buzzer wire -->
+        <polyline points="215,177 540,177 540,148 540,148"
+                  fill="none" stroke="#ffee58" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="540" y1="148" x2="554" y2="148" stroke="#ffee58" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- ===== GREEN LED ===== -->
+        <ellipse cx="610" cy="195" rx="10" ry="13"
+                 fill="#2e7d32" opacity="0.85" stroke="#1b5e20" stroke-width="1"/>
+        <circle cx="610" cy="195" r="6" fill="#69f0ae" opacity="0.5"/>
+        <text x="610" y="218" text-anchor="middle"
+              font-family="monospace" font-size="8" fill="#a5d6a7">GREEN</text>
+        <line x1="605" y1="208" x2="605" y2="235" stroke="#78909c" stroke-width="1.5"/>
+        <line x1="615" y1="208" x2="615" y2="235" stroke="#78909c" stroke-width="1.5"/>
+        <!-- 220Ω for green -->
+        <rect x="590" y="235" width="40" height="13" rx="4"
+              fill="#1a1f2e" stroke="#78909c" stroke-width="1"/>
+        <text x="610" y="245" text-anchor="middle"
+              font-family="monospace" font-size="8" fill="#80deea">220Ω</text>
+        <!-- green LED wire -->
+        <polyline points="215,195 582,195 582,205 590,205 590,241 610,241"
+                  fill="none" stroke="#66bb6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- green LED GND -->
+        <line x1="615" y1="248" x2="615" y2="280" stroke="#546e7a" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- ===== RED LED ===== -->
+        <ellipse cx="665" cy="195" rx="10" ry="13"
+                 fill="#c62828" opacity="0.85" stroke="#b71c1c" stroke-width="1"/>
+        <circle cx="665" cy="195" r="6" fill="#ff5252" opacity="0.5"/>
+        <text x="665" y="218" text-anchor="middle"
+              font-family="monospace" font-size="8" fill="#ef9a9a">RED</text>
+        <line x1="660" y1="208" x2="660" y2="235" stroke="#78909c" stroke-width="1.5"/>
+        <line x1="670" y1="208" x2="670" y2="235" stroke="#78909c" stroke-width="1.5"/>
+        <!-- 220Ω for red -->
+        <rect x="645" y="235" width="40" height="13" rx="4"
+              fill="#1a1f2e" stroke="#78909c" stroke-width="1"/>
+        <text x="665" y="245" text-anchor="middle"
+              font-family="monospace" font-size="8" fill="#80deea">220Ω</text>
+        <!-- red LED wire -->
+        <polyline points="215,213 572,213 572,220 637,220 637,241 660,241"
+                  fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- red LED GND -->
+        <line x1="670" y1="248" x2="670" y2="280" stroke="#546e7a" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+        <!-- GND common rail -->
+        <line x1="554" y1="175" x2="554" y2="280"
+              stroke="#546e7a" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="554" y1="280" x2="670" y2="280"
+              stroke="#546e7a" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="612" y="295" text-anchor="middle"
+              font-family="monospace" font-size="8" fill="#546e7a">Common GND</text>
+
+        <!-- USB -->
+        <rect x="28" y="328" width="48" height="18" rx="4"
+              fill="none" stroke="#37474f" stroke-width="1"/>
+        <text x="52" y="341" text-anchor="middle"
+              font-family="monospace" font-size="10" fill="#37474f">USB</text>
+
+        <!-- Legend -->
+        <line x1="30"  y1="378" x2="55"  y2="378" stroke="#E24B4A" stroke-width="2"/>
+        <text x="60"   y="382" font-family="monospace" font-size="9" fill="#80deea">5V</text>
+        <line x1="90"  y1="378" x2="115" y2="378" stroke="#1D9E75" stroke-width="2"/>
+        <text x="120"  y="382" font-family="monospace" font-size="9" fill="#80deea">GND</text>
+        <line x1="165" y1="378" x2="190" y2="378" stroke="#42a5f5" stroke-width="2"/>
+        <text x="195"  y="382" font-family="monospace" font-size="9" fill="#80deea">Analog</text>
+        <line x1="260" y1="378" x2="285" y2="378" stroke="#ab47bc" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="290"  y="382" font-family="monospace" font-size="9" fill="#80deea">Digital</text>
+        <line x1="360" y1="378" x2="385" y2="378" stroke="#ffee58" stroke-width="2"/>
+        <text x="390"  y="382" font-family="monospace" font-size="9" fill="#80deea">Buzzer</text>
+        <line x1="455" y1="378" x2="480" y2="378" stroke="#546e7a" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="485"  y="382" font-family="monospace" font-size="9" fill="#80deea">Common GND</text>
+      </svg>
+    </div>
+    <p style="margin-top:10px;color:#80deea;">
+      📌 <strong>AOUT→A0</strong> (analog %) &nbsp;|&nbsp;
+      <strong>DOUT→Pin2</strong> (threshold digital) &nbsp;|&nbsp;
+      <strong>Buzzer→Pin8</strong> &nbsp;|&nbsp;
+      <strong>Green LED→Pin9 | Red LED→Pin10</strong>
+    </p>
+    <p style="font-size:12px;color:#546e7a;margin-top:6px;">
+      * Sensor ke metal prongs soil mein daalo — jitni gehri, utna accurate reading
+    </p>
+  </div>
+
+  <!-- 4. CODE -->
+  <div class="card">
+    <h2>4. 💻 Arduino Code</h2>
+    <div class="warn-box">
+      📦 <strong>Library:</strong> Koi extra library zarurat nahi — standard analogRead() use hoga!
+    </div>
+    <pre id="code">// ============================================
+// Soil Moisture Monitor - Arduino Uno
+// Sensor AOUT → A0 | Buzzer → Pin 8
+// Green LED → Pin 9 | Red LED → Pin 10
+// ============================================
+
+#define MOISTURE_PIN  A0   // Analog sensor pin
+#define DOUT_PIN      2    // Digital out (optional)
+#define BUZZER_PIN    8    // Buzzer alert
+#define GREEN_LED     9    // Wet = green ON
+#define RED_LED       10   // Dry = red ON
+
+// ---- Calibration values ----
+// In air (completely dry): ~1023
+// In water (completely wet): ~300
+// Adjust these after testing your sensor!
+#define DRY_VALUE   850    // Isse upar = dry
+#define WET_VALUE   400    // Isse neeche = wet
+#define WARN_VALUE  650    // Warning zone
+
+int  rawValue    = 0;
+int  moisturePct = 0;
+
+// ============================================
+void setup() {
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(GREEN_LED,  OUTPUT);
+  pinMode(RED_LED,    OUTPUT);
+  pinMode(DOUT_PIN,   INPUT);
+
+  Serial.begin(9600);
+  Serial.println("=== Soil Moisture Monitor Ready ===");
+  Serial.println("Sensor mitti mein daalo aur readings dekho!");
+  delay(1000);
+}
+
+// ============================================
+void loop() {
+  // Analog value padhna (0 = wet, 1023 = dry)
+  rawValue = analogRead(MOISTURE_PIN);
+
+  // Percentage mein convert (0% dry, 100% wet)
+  moisturePct = map(rawValue, DRY_VALUE, WET_VALUE, 0, 100);
+  moisturePct = constrain(moisturePct, 0, 100);
+
+  // Serial Monitor output
+  Serial.println("================================");
+  Serial.print("💧 Raw Value    : ");
+  Serial.println(rawValue);
+  Serial.print("💧 Moisture     : ");
+  Serial.print(moisturePct);
+  Serial.println(" %");
+
+  // ---- Status check ----
+  if (moisturePct >= 60) {
+    // WET - Plant khush hai!
+    digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(RED_LED,   LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+    Serial.println("✅ Status: WET — Plant is happy!");
+
+  } else if (moisturePct >= 30) {
+    // MEDIUM - Theek hai
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED,   LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+    Serial.println("⚠️ Status: MEDIUM — Monitor karo");
+
+  } else {
+    // DRY - Paani chahiye!
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED,   HIGH);
+    // Buzzer beep karo
+    tone(BUZZER_PIN, 1000, 200);
+    Serial.println("🚨 Status: DRY — Paani do plant ko!");
+  }
+
+  Serial.println("================================");
+  delay(2000); // Har 2 second mein read karo
+}
+
+// ============================================
+// BONUS: Moisture bar Serial mein print karo
+void printMoistureBar(int pct) {
+  Serial.print("[");
+  int filled = pct / 5; // 20 blocks total
+  for(int i = 0; i < 20; i++){
+    Serial.print(i < filled ? "█" : "░");
+  }
+  Serial.print("] ");
+  Serial.print(pct);
+  Serial.println("%");
+}</pre>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;">
+      <button onclick="copyCode()">📋 Code Copy Karo</button>
+      <span id="copy-msg" style="color:#00ff99;font-size:14px;display:none;">✓ Copied!</span>
+    </div>
+    <div style="margin-top:16px;">
+      <p style="color:#80deea;font-size:14px;margin-bottom:8px;">🔧 Calibration threshold change karo:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="setThresh(750,350)" style="padding:8px 14px;font-size:13px;">Capacitive Sensor</button>
+        <button onclick="setThresh(850,400)" style="padding:8px 14px;font-size:13px;">YL-69 (Default)</button>
+        <button onclick="setThresh(950,300)" style="padding:8px 14px;font-size:13px;">Resistive Sensor</button>
+      </div>
+      <p id="thresh-note" style="color:#00ff99;font-size:13px;margin-top:8px;font-family:monospace;"></p>
+    </div>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div class="card">
+    <h2>🎮 Live Plant Demo (Simulator)</h2>
+    <div class="demo-wrap" id="demo-wrap">
+      <div id="water-can">🪣</div>
+
+      <!-- Pot scene -->
+      <div class="pot-scene">
+        <!-- Plant SVG -->
+        <div class="plant-svg" id="plant-wrap">
+          <svg id="plant-svg" width="120" height="110" viewBox="0 0 120 110">
+            <!-- Main stem -->
+            <line x1="60" y1="108" x2="60" y2="30" stroke="#4caf50" stroke-width="4" stroke-linecap="round"/>
+            <!-- Left leaf -->
+            <g class="leaf-sway" id="leaf-left" style="transform-origin:60px 75px;">
+              <path d="M60 75 Q35 55 25 35 Q45 45 60 75"
+                    fill="#388e3c" stroke="#2e7d32" stroke-width="1" opacity="0.9"/>
+            </g>
+            <!-- Right leaf -->
+            <g class="leaf-sway" id="leaf-right"
+               style="transform-origin:60px 55px;animation-delay:1s;">
+              <path d="M60 55 Q85 35 95 15 Q75 30 60 55"
+                    fill="#4caf50" stroke="#388e3c" stroke-width="1" opacity="0.9"/>
+            </g>
+            <!-- Top small leaf -->
+            <g id="leaf-top" class="leaf-sway"
+               style="transform-origin:60px 35px;animation-delay:0.5s;">
+              <path d="M60 35 Q45 20 50 5 Q60 18 60 35"
+                    fill="#66bb6a" stroke="#4caf50" stroke-width="1"/>
+              <path d="M60 35 Q75 20 70 5 Q60 18 60 35"
+                    fill="#81c784" stroke="#4caf50" stroke-width="1"/>
+            </g>
+            <!-- water drops (hidden by default) -->
+            <ellipse class="water-drop" id="wd1" cx="40" cy="60" rx="3" ry="4"
+                     fill="#42a5f5" opacity="0.7" style="display:none;"/>
+            <ellipse class="water-drop" id="wd2" cx="70" cy="40" rx="3" ry="4"
+                     fill="#42a5f5" opacity="0.7" style="display:none;"/>
+          </svg>
+        </div>
+
+        <!-- Pot SVG -->
+        <svg class="pot-svg" viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg">
+          <!-- Pot body -->
+          <path d="M40 155 L20 220 L140 220 L120 155 Z" fill="#8B4513" stroke="#6d3410" stroke-width="1.5"/>
+          <!-- Soil surface -->
+          <ellipse cx="80" cy="158" rx="42" ry="9" fill="#3b1f0a" stroke="#5c2d0e" stroke-width="1"/>
+          <!-- Wet soil overlay -->
+          <ellipse id="wet-soil" cx="80" cy="160" rx="38" ry="7"
+                   fill="#42a5f5" opacity="0" style="transition:opacity 0.8s;"/>
+          <!-- soil texture dots -->
+          <circle cx="65" cy="158" r="2" fill="#5c2d0e" opacity="0.7"/>
+          <circle cx="78" cy="162" r="1.5" fill="#2a1205" opacity="0.6"/>
+          <circle cx="92" cy="157" r="2" fill="#5c2d0e" opacity="0.7"/>
+          <circle cx="72" cy="165" r="1.5" fill="#6d3410" opacity="0.5"/>
+          <!-- Pot rim -->
+          <ellipse cx="80" cy="155" rx="44" ry="10" fill="#a0522d" stroke="#6d3410" stroke-width="1.5"/>
+          <!-- Pot bottom -->
+          <ellipse cx="80" cy="220" rx="20" ry="5" fill="#5c2a0a"/>
+          <!-- Pot drainage holes -->
+          <ellipse cx="72" cy="222" rx="3" ry="2" fill="#3b1205" opacity="0.6"/>
+          <ellipse cx="88" cy="222" rx="3" ry="2" fill="#3b1205" opacity="0.6"/>
+          <!-- Pot highlight -->
+          <path d="M42 160 L28 210" stroke="#c68642" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+          <!-- Sensor prongs in soil -->
+          <rect x="94" y="148" width="5" height="22" rx="2" fill="#bdbdbd" stroke="#9e9e9e" stroke-width="0.5"/>
+          <rect x="103" y="148" width="5" height="22" rx="2" fill="#bdbdbd" stroke="#9e9e9e" stroke-width="0.5"/>
+          <!-- Sensor PCB -->
+          <rect x="90" y="136" width="22" height="14" rx="3" fill="#2e7d32" stroke="#43a047" stroke-width="1"/>
+          <text x="101" y="146" text-anchor="middle" font-family="monospace" font-size="6" fill="#a5d6a7">SENSOR</text>
+          <!-- Sensor glow -->
+          <ellipse id="s-glow" cx="101" cy="165" rx="10" ry="6"
+                   fill="#42a5f5" opacity="0" style="transition:opacity 0.6s;"/>
+        </svg>
+      </div>
+
+      <!-- Moisture percentage display -->
+      <div class="moisture-pct" id="moist-pct">55<span style="font-size:22px">%</span></div>
+      <div class="moisture-raw" id="raw-val">Raw: 620 / 1023 — A0 pin</div>
+
+      <!-- Moisture bar -->
+      <div class="moisture-bar-wrap">
+        <div class="moisture-bar-fill" id="moist-bar" style="width:55%;"></div>
+      </div>
+
+      <div class="plant-status" id="plant-status">💧 Moisture OK — Plant Happy!</div>
+      <div id="demo-note" style="font-family:monospace;font-size:13px;margin-top:8px;color:#00ff99;">
+        🌱 Neeche buttons se moisture level set karo
+      </div>
+
+      <!-- Buttons -->
+      <div class="demo-btns">
+        <button onclick="setMoisture(5)"  style="padding:8px 14px;font-size:12px;">5% 🏜️ Bone Dry</button>
+        <button onclick="setMoisture(25)" style="padding:8px 14px;font-size:12px;">25% 🌵 Dry</button>
+        <button onclick="setMoisture(55)" style="padding:8px 14px;font-size:12px;">55% 🌱 OK</button>
+        <button onclick="setMoisture(80)" style="padding:8px 14px;font-size:12px;">80% 💧 Wet</button>
+        <button onclick="setMoisture(100)" style="padding:8px 14px;font-size:12px;">100% 🌊 Soaked</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. UPLOAD -->
+  <div class="card">
+    <h2>5. ⬆️ Code Upload Kaise Karo</h2>
+    <ul class="steps-list">
+      <li><div class="step-num">1</div><span>Arduino IDE open karo</span></li>
+      <li><div class="step-num">2</div><span>Circuit connections check karo — sensor ke prongs soil mein daalo</span></li>
+      <li><div class="step-num">3</div><span><strong>Tools → Board → Arduino Uno</strong> select karo</span></li>
+      <li><div class="step-num">4</div><span><strong>Tools → Port</strong> mein sahi COM port select karo</span></li>
+      <li><div class="step-num">5</div><span>Upar diya code paste karo</span></li>
+      <li><div class="step-num">6</div><span><strong>→ Upload</strong> dabao (Ctrl+U)</span></li>
+      <li><div class="step-num">7</div><span><strong>Serial Monitor (9600)</strong> mein moisture % dekhte raho</span></li>
+    </ul>
+    <div class="tip-box">
+      🔧 <strong>Calibration Important!</strong> Pehle sensor ko hawa mein rakho — raw value note karo (DRY_VALUE).
+      Phir pani mein daalo — raw value note karo (WET_VALUE). Code mein yahi values daalo!
+    </div>
+  </div>
+
+  <!-- 6. TESTING -->
+  <div class="card">
+    <h2>6. ✅ Testing</h2>
+    <p>Sensor ko kisi gile kapde ya mitti ke paas rakho — reading change honi chahiye. Green LED wet pe, Red LED dry pe jalni chahiye.</p>
+    <div class="success-box">
+      🎉 <strong>Success:</strong> Moisture % change ho raha hai? LEDs sahi kaam kar rahi hain? Project complete!
+    </div>
+    <div class="tip-box" style="margin-top:12px;">
+      🧪 <strong>Test tips:</strong><br>
+      • Sensor ko ek glass paani mein daalo — ~100% dikhna chahiye<br>
+      • Hawa mein rakho — ~0% dikhna chahiye<br>
+      • Yahi dry/wet calibration values hain!
+    </div>
+  </div>
+
+  <!-- 7. ERROR FIXING -->
+  <div class="card">
+    <h2>7. 🛠️ Common Errors &amp; Fix</h2>
+    <ul>
+      <li><strong>Always 0% ya 100%?</strong> → DRY_VALUE aur WET_VALUE calibrate karo apne sensor se</li>
+      <li><strong>Reading fluctuate karti hai?</strong> → Solder connections check karo; 3 readings average karo</li>
+      <li><strong>Sensor kharaab ho gaya?</strong> → Resistive (YL-69) jaldi kharaab hote hain — capacitive use karo</li>
+      <li><strong>Buzzer nahi baj raha?</strong> → Active buzzer use karo ya tone() function check karo</li>
+      <li><strong>LED nahi jal rahi?</strong> → LED polarity (anode/cathode) aur 220Ω resistor check karo</li>
+    </ul>
+    <div class="tip-box">
+      💡 <strong>Upgrade Ideas:</strong><br>
+      💧 <strong>Relay + Water Pump</strong> add karo — fully automatic watering system!<br>
+      📺 <strong>16x2 LCD</strong> add karo — moisture % display karo screen pe<br>
+      📱 <strong>ESP8266</strong> add karo — phone pe notification aaye jab plant dry ho!<br>
+      📊 <strong>Multiple sensors</strong> — alag-alag plants monitor karo
+    </div>
+  </div>
+
+  <!-- 8. FINAL -->
+  <div class="card">
+    <h2>8. 🎉 Final Project Ready</h2>
+    <p>Soil Moisture project complete ho gaya! Aap chahein toh:</p>
+    <ul style="margin-top:10px;">
+      <li>Relay module add karo — automatic water pump ON karo</li>
+      <li>RTC module add karo — watering schedule set karo</li>
+      <li>IoT (Blynk / ThingSpeak) add karo — phone se monitor karo</li>
+      <li>Solar panel add karo — bahar garden mein lagao</li>
+    </ul>
+    <div class="success-box" style="margin-top:14px;">
+      ✅ Aapne Arduino Soil Moisture Monitor project successfully complete kar liya!
+    </div>
+  </div>
+
+  <!-- 9. DOCUMENTATION -->
+  <div class="card">
+    <h2>9. 📝 Project Documentation</h2>
+    <ul>
+      <li><strong>Project Name:</strong> Soil Moisture Monitor with Auto Alert</li>
+      <li><strong>Difficulty:</strong> Beginner</li>
+      <li><strong>Sensor:</strong> Soil Moisture Sensor (YL-69 / Capacitive v1.2)</li>
+      <li><strong>Pins:</strong> AOUT→A0, DOUT→Pin2, Buzzer→Pin8, GreenLED→Pin9, RedLED→Pin10</li>
+      <li><strong>Dry Threshold:</strong> 850 (adjustable)</li>
+      <li><strong>Wet Threshold:</strong> 400 (adjustable)</li>
+      <li><strong>Read Interval:</strong> 2000ms</li>
+      <li><strong>Baud Rate:</strong> 9600</li>
+      <li><strong>Output:</strong> Serial Monitor + LED indicators + Buzzer alert</li>
+    </ul>
+  </div>
+
+  <button class="download-btn" onclick="downloadPage()">⬇️ Page Download Karo (HTML)</button>
+
+</div>
+
+<script>
+// LOADER
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const l = document.getElementById('loader');
+    l.style.opacity = '0';
+    setTimeout(() => l.style.display = 'none', 800);
+  }, 1200);
+});
+
+// PARTICLES (green-tinted)
+(function(){
+  const c = document.getElementById('particles');
+  for(let i = 0; i < 22; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const green = Math.random() > 0.5;
+    p.style.cssText =
+      'left:' + Math.random()*100 + '%;' +
+      'animation-delay:' + Math.random()*12 + 's;' +
+      'animation-duration:' + (10+Math.random()*8) + 's;' +
+      'width:' + (3+Math.random()*5) + 'px;' +
+      'height:' + (3+Math.random()*5) + 'px;' +
+      'opacity:' + (0.15+Math.random()*0.4) + ';' +
+      'background:' + (green ? '#69f0ae55' : '#42a5f555') + ';';
+    c.appendChild(p);
+  }
+})();
+
+// COPY CODE
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('code').innerText).then(()=>{
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'inline';
+    setTimeout(()=> msg.style.display = 'none', 2000);
+  });
+}
+
+// THRESH NOTE
+function setThresh(dry, wet){
+  document.getElementById('thresh-note').textContent =
+    '→ DRY_VALUE=' + dry + ', WET_VALUE=' + wet + ' set hua code mein';
+}
+
+// ====== PLANT MOISTURE DEMO ======
+let waterAnim = null;
+let dropTimers = [];
+
+function setMoisture(pct){
+  // Update bar
+  const bar = document.getElementById('moist-bar');
+  bar.style.width = pct + '%';
+
+  // Update percentage text
+  document.getElementById('moist-pct').innerHTML =
+    pct + '<span style="font-size:22px">%</span>';
+
+  // Raw value (inverse mapping: 100%→400, 0%→850)
+  const raw = Math.round(850 - (pct / 100) * (850 - 400));
+  document.getElementById('raw-val').textContent =
+    'Raw: ' + raw + ' / 1023 — A0 pin';
+
+  const status   = document.getElementById('plant-status');
+  const note     = document.getElementById('demo-note');
+  const pct_el   = document.getElementById('moist-pct');
+  const wetSoil  = document.getElementById('wet-soil');
+  const sGlow    = document.getElementById('s-glow');
+  const wrap     = document.getElementById('demo-wrap');
+
+  // Stop previous water anim
+  clearTimeout(waterAnim);
+  dropTimers.forEach(t => clearTimeout(t));
+  dropTimers = [];
+  wrap.classList.remove('watering');
+  ['wd1','wd2'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+
+  // Update plant visuals & status
+  if(pct >= 60){
+    // WET
+    bar.style.background = 'linear-gradient(90deg,#42a5f5,#00e5ff)';
+    pct_el.style.color = '#42a5f5';
+    pct_el.style.textShadow = '0 0 14px rgba(66,165,245,0.6)';
+    status.style.cssText = 'display:inline-block;padding:6px 20px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;background:rgba(66,165,245,0.15);color:#42a5f5;border:1px solid #42a5f555;transition:all 0.4s;';
+    status.textContent = '💧 Wet — Plant Bilkul Khush Hai!';
+    note.style.color = '#42a5f5';
+    note.textContent = '✅ Green LED ON — Buzzer OFF — Moisture sufficient';
+
+    // Show water in soil
+    wetSoil.style.opacity = Math.min((pct - 60) / 40 * 0.5 + 0.2, 0.55);
+    sGlow.style.opacity   = '0.45';
+
+    // Show watering can if 100
+    if(pct === 100){
+      wrap.classList.add('watering');
+      showWaterDrops();
+      waterAnim = setTimeout(()=> wrap.classList.remove('watering'), 3000);
+    }
+
+    // Plant stands upright — restore animation
+    document.getElementById('leaf-left').style.animation  = 'leafSway 3s ease-in-out infinite';
+    document.getElementById('leaf-right').style.animation = 'leafSway 3s ease-in-out infinite 1s';
+    document.getElementById('leaf-top').style.animation   = 'leafSway 3s ease-in-out infinite 0.5s';
+
+  } else if(pct >= 30){
+    // MEDIUM
+    bar.style.background = 'linear-gradient(90deg,#66bb6a,#a5d6a7)';
+    pct_el.style.color = '#66bb6a';
+    pct_el.style.textShadow = '0 0 14px rgba(102,187,106,0.6)';
+    status.style.cssText = 'display:inline-block;padding:6px 20px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;background:rgba(102,187,106,0.1);color:#66bb6a;border:1px solid #66bb6a55;transition:all 0.4s;';
+    status.textContent = '🌱 Medium — Monitor Karte Raho';
+    note.style.color = '#66bb6a';
+    note.textContent = '⚠️ LEDs OFF — Monitoring — Thodi der mein paani dena hoga';
+
+    wetSoil.style.opacity = '0.05';
+    sGlow.style.opacity   = '0.2';
+    document.getElementById('leaf-left').style.animation  = 'leafSway 4s ease-in-out infinite';
+    document.getElementById('leaf-right').style.animation = 'leafSway 4s ease-in-out infinite 1s';
+
+  } else {
+    // DRY
+    bar.style.background = 'linear-gradient(90deg,#ef5350,#ff7043)';
+    pct_el.style.color = '#ef5350';
+    pct_el.style.textShadow = '0 0 14px rgba(239,83,80,0.7)';
+    status.style.cssText = 'display:inline-block;padding:6px 20px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;background:rgba(239,83,80,0.12);color:#ff5252;border:1px solid #ef535055;transition:all 0.4s;';
+    status.textContent = '🚨 DRY — Paani Do Plant Ko!';
+    note.style.color = '#ff5252';
+    note.textContent = '🔴 Red LED ON — Buzzer BEEPING — Water needed urgently!';
+
+    wetSoil.style.opacity = '0';
+    sGlow.style.opacity   = '0.1';
+
+    // Droop animation for dry plant
+    document.getElementById('leaf-left').style.animation  = 'droop 2s ease-in-out infinite';
+    document.getElementById('leaf-right').style.animation = 'droop 2s ease-in-out infinite 0.6s';
+    document.getElementById('leaf-top').style.animation   = 'droop 2.5s ease-in-out infinite 0.3s';
+  }
+}
+
+function showWaterDrops(){
+  const ids = ['wd1','wd2'];
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    let t = setInterval(()=>{
+      el.style.display = 'block';
+      el.style.animation = 'none';
+      el.style.transform = 'translateY(0)';
+      el.style.opacity = '1';
+      setTimeout(()=>{
+        el.style.transition = 'transform 1s, opacity 1s';
+        el.style.transform = 'translateY(50px)';
+        el.style.opacity = '0';
+        setTimeout(()=>{
+          el.style.display = 'none';
+          el.style.transition = '';
+          el.style.transform = '';
+          el.style.opacity = '1';
+        }, 1000);
+      }, 50);
+    }, 900 + i * 400);
+    dropTimers.push(t);
+    setTimeout(()=> clearInterval(t), 3000);
+  });
+}
+
+// DOWNLOAD
+function downloadPage(){
+  const a = document.createElement('a');
+  a.href = window.location.href;
+  a.download = 'soil_moisture_project.html';
+  a.click();
+}
+
+// Initial state
+setMoisture(55);
+</script>
+</body>
+</html>

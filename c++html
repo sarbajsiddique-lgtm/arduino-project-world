@@ -1,0 +1,83 @@
+<!-- ===== C++ POPUP ===== -->
+
+<div id="cppPopup" class="popup">
+
+<div class="popup-box">
+
+<span class="close" onclick="closeCpp()">✖</span>
+
+<h1 class="popup-title">C++ Full Course 🚀</h1>
+
+<div class="chapter-grid">
+
+<!-- Beginner -->
+
+<div class="chapter-card cyan">
+
+<div class="chapter-icon">🌱</div>
+
+<h2>Beginner</h2>
+
+<p>Variables</p>
+<p>Data Types</p>
+<p>Input / Output</p>
+<p>Conditions</p>
+
+<button>Open</button>
+
+</div>
+
+<!-- Intermediate -->
+
+<div class="chapter-card green">
+
+<div class="chapter-icon">⚡</div>
+
+<h2>Intermediate</h2>
+
+<p>Loops</p>
+<p>Functions</p>
+<p>Arrays</p>
+<p>Strings</p>
+
+<button>Open</button>
+
+</div>
+
+<!-- Advanced -->
+
+<div class="chapter-card red">
+
+<div class="chapter-icon">🔥</div>
+
+<h2>Advanced</h2>
+
+<p>Pointers</p>
+<p>Classes</p>
+<p>Objects</p>
+<p>Inheritance</p>
+
+<button>Open</button>
+
+</div>
+
+<!-- Pro -->
+
+<div class="chapter-card purple">
+
+<div class="chapter-icon">🚀</div>
+
+<h2>Pro</h2>
+
+<p>STL</p>
+<p>File Handling</p>
+<p>DSA</p>
+<p>Projects</p>
+
+<button>Open</button>
+
+</div>
+
+</div>
+</div>
+</div>

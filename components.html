@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Basic Components</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#08142c);
+color:white;
+overflow-x:hidden;
+}
+
+/* NAVBAR */
+
+.navbar{
+padding:16px 25px;
+background:rgba(255,255,255,0.04);
+backdrop-filter:blur(10px);
+font-size:22px;
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+/* TITLE */
+
+.title{
+text-align:center;
+font-size:58px;
+color:#00ffe1;
+margin-top:50px;
+text-shadow:0 0 20px rgba(0,255,225,0.5);
+}
+
+/* COMPONENT GRID */
+
+.chapter-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:25px;
+padding:50px;
+}
+
+/* CARD */
+
+.chapter{
+background:rgba(255,255,255,0.03);
+padding:28px;
+border-radius:25px;
+border:1px solid rgba(0,255,225,0.12);
+transition:0.4s;
+cursor:pointer;
+box-shadow:0 0 12px rgba(0,255,225,0.05);
+}
+
+.chapter:hover{
+transform:translateY(-10px) scale(1.02);
+box-shadow:0 0 25px rgba(0,255,225,0.2);
+border:1px solid rgba(0,255,225,0.35);
+}
+
+/* HEADING */
+
+.chapter h2{
+color:#00ffe1;
+font-size:30px;
+margin-bottom:15px;
+}
+
+/* PARAGRAPH */
+
+.chapter p{
+font-size:18px;
+line-height:1.7;
+color:#d7d7d7;
+}
+
+/* BUTTON */
+
+.btn{
+display:block;
+margin:20px auto 60px;
+padding:15px 40px;
+border:none;
+border-radius:40px;
+background:linear-gradient(45deg,#00d9ff,#8f44ff);
+color:white;
+font-size:18px;
+cursor:pointer;
+transition:0.3s;
+box-shadow:0 0 20px rgba(0,217,255,0.25);
+}
+
+.btn:hover{
+transform:scale(1.05);
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+.title{
+font-size:38px;
+}
+
+.chapter-grid{
+grid-template-columns:1fr;
+padding:25px;
+}
+
+.chapter h2{
+font-size:24px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+Arduino AI 🤖
+</div>
+
+<!-- TITLE -->
+
+<h1 class="title">Basic Components 🚀</h1>
+
+<!-- CHAPTERS -->
+
+<div class="chapter-grid">
+
+<!-- Arduino UNO -->
+
+<div class="chapter"
+onclick="window.location.href='arduino-uno.html'">
+
+<h2>🔌 Arduino UNO</h2>
+
+<p>
+Arduino Uno ek powerful microcontroller board hai
+jo beginners aur advanced projects dono ke liye use hota hai.
+</p>
+
+</div>
+
+<!-- Breadboard -->
+
+<div class="chapter"
+onclick="window.location.href='breadboard.html'">
+
+<h2>📟 Breadboard</h2>
+
+<p>
+Breadboard ek solderless board hai jisme circuits
+temporary test aur build kiye jate hain.
+</p>
+
+</div>
+
+<!-- LED -->
+
+<div class="chapter"
+onclick="window.location.href='led.html'">
+
+<h2>💡 LED</h2>
+
+<p>
+LED ek light emitting component hai jo Arduino
+projects me indication aur lighting ke liye use hota hai.
+</p>
+
+</div>
+
+<!-- Resistor -->
+
+<div class="chapter"
+onclick="window.location.href='resistor.html'">
+
+<h2>🎚️ Resistor</h2>
+
+<p>
+Resistor current ko control karta hai aur electronic
+circuits ko safe banata hai.
+</p>
+
+</div>
+
+<!-- Capacitor -->
+
+<div class="chapter"
+onclick="window.location.href='capacitor.html'">
+
+<h2>⚡ Capacitor</h2>
+
+<p>
+Capacitor electric charge ko store karta hai aur
+filtering aur timing circuits me use hota hai.
+</p>
+
+</div>
+
+<!-- Push Button -->
+
+<div class="chapter"
+onclick="window.location.href='push-button.html'">
+
+<h2>🔘 Push Button</h2>
+
+<p>
+Push Button ek input device hai jo press karne par
+signal bhejta hai.
+</p>
+
+</div>
+
+<!-- Potentiometer -->
+
+<div class="chapter"
+onclick="window.location.href='potentiometer.html'">
+
+<h2>🎛️ Potentiometer</h2>
+
+<p>
+Potentiometer ek variable resistor hai jo voltage
+aur values adjust karne ke liye use hota hai.
+</p>
+
+</div>
+
+<!-- Diode -->
+
+<div class="chapter"
+onclick="window.location.href='diode.html'">
+
+<h2>➡️ Diode</h2>
+
+<p>
+Diode current ko sirf ek direction me flow
+karne deta hai.
+</p>
+
+</div>
+
+<!-- Transistor -->
+
+<div class="chapter"
+onclick="window.location.href='transistor.html'">
+
+<h2>🔋 Transistor</h2>
+
+<p>
+Transistor switching aur amplification ke liye
+electronic circuits me use hota hai.
+</p>
+
+</div>
+
+<!-- Jumper Wires -->
+
+<div class="chapter"
+onclick="window.location.href='jumper-wires.html'">
+
+<h2>🧵 Jumper Wires</h2>
+
+<p>
+Jumper wires components ko connect karne ke liye
+Arduino circuits me use hote hain.
+</p>
+
+</div>
+
+<!-- Battery -->
+
+<div class="chapter"
+onclick="window.location.href='battery.html'">
+
+<h2>🔋 Battery</h2>
+
+<p>
+Battery Arduino aur electronic circuits ko
+portable power supply deti hai.
+</p>
+
+</div>
+
+<!-- Buzzer -->
+
+<div class="chapter"
+onclick="window.location.href='buzzer.html'">
+
+<h2>🔊 Buzzer</h2>
+
+<p>
+Buzzer sound produce karta hai aur alerts aur
+notifications ke liye use hota hai.
+</p>
+
+</div>
+
+</div>
+
+<!-- BACK BUTTON -->
+
+<button class="btn"
+onclick="window.location.href='arduino.html'">
+
+⬅ Back
+
+</button>
+
+</body>
+</html>

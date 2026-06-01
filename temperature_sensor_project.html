@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌡️ Temperature Sensor Project - Arduino</title>
+<style>
+/* ================================= */
+/* GLOBAL */
+/* ================================= */
+*{margin:0;padding:0;box-sizing:border-box;}
+ 
+html,body{
+  width:100%;min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#020617,#000814,#001d3d);
+  background-attachment:fixed;
+  overflow-x:hidden;color:white;scroll-behavior:smooth;
+}
+ 
+body::before{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#00ffee10;filter:blur(180px);top:-200px;left:-200px;z-index:-2;
+}
+body::after{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#b026ff10;filter:blur(180px);bottom:-200px;right:-200px;z-index:-2;
+}
+ 
+/* ================================= */
+/* PARTICLES */
+/* ================================= */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:-1;}
+.particle{
+  position:absolute;width:5px;height:5px;border-radius:50%;
+  background:#00ffee55;animation:floatParticle 12s linear infinite;
+}
+@keyframes floatParticle{
+  from{transform:translateY(100vh);opacity:0;}
+  to{transform:translateY(-100vh);opacity:1;}
+}
+ 
+/* ================================= */
+/* LOADER */
+/* ================================= */
+#loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#020617;display:flex;justify-content:center;
+  align-items:center;z-index:99999;transition:opacity 0.8s;
+}
+#loader h1{
+  font-size:60px;font-weight:bold;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+  animation:pulse 1.5s infinite alternate;
+}
+@keyframes pulse{
+  from{opacity:0.6;transform:scale(1);}
+  to{opacity:1;transform:scale(1.04);}
+}
+ 
+/* ================================= */
+/* NAVBAR */
+/* ================================= */
+.navbar{
+  padding:18px 30px;background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:26px;font-weight:bold;position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+}
+.navbar span{color:#00ffee;text-shadow:0 0 10px #00ffee88;}
+ 
+/* ================================= */
+/* TITLE */
+/* ================================= */
+h1{
+  text-align:center;font-size:55px;font-weight:700;
+  margin:40px 0 10px;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+}
+.subtitle{text-align:center;color:#cbd5e1;margin-bottom:40px;font-size:18px;}
+ 
+/* ================================= */
+/* BADGE */
+/* ================================= */
+.badge{
+  display:inline-block;padding:8px 20px;border-radius:30px;
+  background:linear-gradient(45deg,#ff6b6b,#ffa500);
+  color:white;font-weight:bold;margin-bottom:16px;
+  box-shadow:0 0 15px rgba(255,107,107,0.5);font-size:14px;
+}
+ 
+/* ================================= */
+/* CONTAINER / CARD */
+/* ================================= */
+.container{max-width:1000px;margin:auto;padding:0 30px 60px;}
+ 
+.card{
+  background:rgba(8,21,56,0.85);border:2px solid #00e5ff;
+  border-radius:20px;padding:28px;margin-bottom:24px;
+  box-shadow:0 0 20px rgba(0,255,255,0.15);
+  backdrop-filter:blur(10px);transition:0.3s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 0 35px rgba(0,229,255,0.3);
+}
+.card h2{color:#00ffee;margin-bottom:14px;font-size:22px;}
+.card p,.card li{font-size:16px;line-height:1.8;color:#dbeafe;}
+ul{padding-left:22px;}
+ul li{margin-bottom:6px;}
+ 
+/* ================================= */
+/* CODE BLOCK */
+/* ================================= */
+pre{
+  background:#000;color:#00ff99;padding:20px;
+  border-radius:12px;overflow:auto;margin-top:10px;
+  font-size:15px;line-height:1.7;
+  box-shadow:0 0 20px rgba(0,255,153,0.2);
+}
+ 
+/* ================================= */
+/* BUTTONS */
+/* ================================= */
+button,.btn{
+  padding:12px 28px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#00e5ff,#7b61ff);
+  color:white;font-size:16px;font-weight:bold;
+  cursor:pointer;margin-top:14px;transition:0.3s;
+}
+button:hover,.btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,229,255,0.4);}
+ 
+.download-btn{
+  padding:14px 30px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#ff6b6b,#ffa500);
+  color:white;font-size:17px;font-weight:bold;
+  cursor:pointer;box-shadow:0 0 20px rgba(255,107,107,0.4);transition:0.3s;
+  display:block;margin:30px auto 0;
+}
+.download-btn:hover{transform:scale(1.06);box-shadow:0 0 35px rgba(255,107,107,0.6);}
+ 
+/* ================================= */
+/* CIRCUIT */
+/* ================================= */
+.circuit-wrap{overflow-x:auto;margin-top:12px;}
+.circuit-note{font-size:12px;color:#546e7a;margin-top:8px;}
+ 
+/* Thermometer mercury animation */
+@keyframes mercuryRise{
+  0%{height:10px;y:110px;}
+  50%{height:35px;y:85px;}
+  100%{height:10px;y:110px;}
+}
+@keyframes tempGlow{
+  0%,100%{filter:drop-shadow(0 0 4px #ff6b6b);}
+  50%{filter:drop-shadow(0 0 12px #ff1744);}
+}
+.mercury-bar{animation:mercuryRise 3s ease-in-out infinite;}
+.thermo-glow{animation:tempGlow 3s ease-in-out infinite;}
+ 
+/* ================================= */
+/* SUCCESS / TIP / WARNING BOX */
+/* ================================= */
+.success-box{
+  background:rgba(0,255,100,0.07);border:1px solid #00ff6455;
+  border-left:4px solid #00ff64;border-radius:10px;
+  padding:14px 18px;margin-top:12px;color:#a7f3d0;font-size:15px;line-height:1.7;
+}
+.tip-box{
+  background:rgba(0,200,255,0.07);border:1px solid #00e5ff44;
+  border-left:4px solid #00e5ff;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#bae6fd;font-size:15px;line-height:1.7;
+}
+.warn-box{
+  background:rgba(255,165,0,0.07);border:1px solid #ffa50044;
+  border-left:4px solid #ffa500;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#fed7aa;font-size:15px;line-height:1.7;
+}
+ 
+/* ================================= */
+/* STEPS */
+/* ================================= */
+.steps-list{list-style:none;padding:0;}
+.steps-list li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.steps-list li:last-child{border-bottom:none;}
+.step-num{
+  min-width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(45deg,#ff6b6b,#ffa500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;color:white;
+}
+ 
+/* ================================= */
+/* TEMP DEMO */
+/* ================================= */
+.demo-wrap{
+  background:#000;border-radius:12px;padding:24px 20px;
+  margin-top:16px;text-align:center;
+  box-shadow:0 0 20px rgba(255,107,107,0.12);
+}
+.demo-label{font-family:monospace;font-size:13px;color:#546e7a;margin-bottom:14px;}
+ 
+/* Thermometer SVG */
+.thermo-demo{margin:0 auto 14px;}
+ 
+.temp-val{
+  font-family:monospace;font-size:42px;font-weight:700;
+  color:#ff6b6b;text-shadow:0 0 14px rgba(255,107,107,0.5);
+}
+.temp-unit{font-size:16px;color:#546e7a;}
+.temp-f{font-family:monospace;font-size:16px;color:#ffa500;margin-top:4px;}
+.status-tag{
+  display:inline-block;padding:5px 18px;border-radius:20px;
+  font-size:13px;font-weight:700;margin-top:8px;transition:0.3s;
+}
+.demo-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+.demo-btns button{padding:8px 14px;font-size:13px;margin-top:0;}
+ 
+/* ================================= */
+/* MOBILE */
+/* ================================= */
+@media(max-width:768px){
+  h1{font-size:34px;}
+  .container{padding:0 14px 40px;}
+  .card{padding:18px;}
+  .navbar{font-size:20px;}
+  pre{font-size:13px;}
+}
+</style>
+</head>
+<body>
+ 
+<!-- LOADER -->
+<div id="loader"><h1>🌡️ Loading...</h1></div>
+ 
+<!-- PARTICLES -->
+<div id="particles"></div>
+ 
+<!-- NAVBAR -->
+<nav class="navbar">
+  <span>⚡</span> Arduino Temperature Sensor Project
+</nav>
+ 
+<div class="container">
+ 
+  <h1>🌡️ Temperature Sensor</h1>
+  <p class="subtitle">Arduino se temperature monitor karo — DHT11 sensor ke saath</p>
+ 
+  <!-- 1. INTRODUCTION -->
+  <div class="card">
+    <span class="badge">PROJECT #04 · BEGINNER</span>
+    <h2>1. 🌡️ Project Introduction</h2>
+    <p>
+      Temperature Sensor project mein Arduino Uno DHT11 sensor se
+      temperature aur humidity dono measure karta hai. DHT11 ek digital sensor
+      hai jo accurate aur reliable readings deta hai. Is project mein
+      temperature Celsius aur Fahrenheit dono mein Serial Monitor par
+      display hogi — aur agar temperature zyada ho toh LED alert bhi milega!
+    </p>
+    <div class="tip-box">
+      💡 <strong>Fun Fact:</strong> DHT11 temperature 0°C – 50°C range mein
+      aur humidity 20% – 80% range mein measure kar sakta hai —
+      ±2°C accuracy ke saath!
+    </div>
+  </div>
+ 
+  <!-- 2. COMPONENTS -->
+  <div class="card">
+    <h2>2. 📋 Components Required</h2>
+    <ul>
+      <li>🟩 Arduino Uno × 1</li>
+      <li>🌡️ DHT11 Temperature &amp; Humidity Sensor × 1</li>
+      <li>⚡ 10kΩ Pull-up Resistor × 1</li>
+      <li>💡 Red LED × 1 (heat alert ke liye)</li>
+      <li>⚡ 220Ω Resistor × 1 (LED ke liye)</li>
+      <li>🔗 Jumper Wires × 5</li>
+      <li>🧱 Breadboard × 1</li>
+      <li>🔌 USB Cable × 1</li>
+    </ul>
+    <div class="tip-box">
+      ⚡ <strong>DHT11 ke 3 pins (module version):</strong><br>
+      <strong>VCC</strong> → 5V &nbsp;|&nbsp;
+      <strong>GND</strong> → GND &nbsp;|&nbsp;
+      <strong>DATA</strong> → Pin 2
+      <br><br>
+      ⚡ <strong>DHT11 ke 4 pins (bare sensor version):</strong><br>
+      Pin 1 → 5V &nbsp;|&nbsp; Pin 2 → Data (Pin 2 + 10kΩ to VCC) &nbsp;|&nbsp; Pin 3 → NC &nbsp;|&nbsp; Pin 4 → GND
+    </div>
+  </div>
+ 
+  <!-- 3. CIRCUIT -->
+  <div class="card">
+    <h2>3. 🔌 Circuit Diagram</h2>
+    <div class="circuit-wrap">
+      <svg width="100%" viewBox="0 0 740 360" role="img">
+        <title>Arduino DHT11 Temperature Sensor Circuit</title>
+ 
+        <!-- Arduino board -->
+        <rect x="20" y="50" width="185" height="260" rx="12"
+              fill="#1D9E75" opacity="0.08" stroke="#1D9E75" stroke-width="1.5"/>
+        <rect x="20" y="50" width="185" height="30" rx="12"
+              fill="#1D9E75" opacity="0.18"/>
+        <text x="112" y="71" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#1D9E75" letter-spacing="2">ARDUINO UNO</text>
+ 
+        <!-- Pins -->
+        <rect x="203" y="95"  width="12" height="10" rx="2" fill="#E24B4A" stroke="#78909c" stroke-width="0.5"/>
+        <text x="197" y="104" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">5V</text>
+ 
+        <rect x="203" y="117" width="12" height="10" rx="2" fill="#546e7a" stroke="#37474f" stroke-width="0.5"/>
+        <text x="197" y="126" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">GND</text>
+ 
+        <rect x="203" y="139" width="12" height="10" rx="2" fill="#42a5f5" stroke="#0d47a1" stroke-width="0.5"/>
+        <text x="197" y="148" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">Pin 2</text>
+ 
+        <rect x="203" y="161" width="12" height="10" rx="2" fill="#ef5350" stroke="#b71c1c" stroke-width="0.5"/>
+        <text x="197" y="170" text-anchor="end" font-family="monospace" font-size="11" fill="#80deea">Pin 8</text>
+ 
+        <!-- DHT11 sensor body -->
+        <rect x="340" y="70" width="100" height="120" rx="10"
+              fill="#1a2233" stroke="#42a5f5" stroke-width="1.5"/>
+        <rect x="340" y="70" width="100" height="24" rx="10"
+              fill="rgba(66,165,245,0.15)"/>
+        <text x="390" y="87" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#42a5f5" letter-spacing="1">DHT11</text>
+ 
+        <!-- Sensor grid (humidity holes) -->
+        <rect x="352" y="100" width="76" height="56" rx="4"
+              fill="#0d1a2e" stroke="#1e3a5f" stroke-width="1"/>
+        <!-- dot grid -->
+        <circle cx="364" cy="112" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="378" cy="112" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="392" cy="112" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="406" cy="112" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="364" cy="126" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="378" cy="126" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="392" cy="126" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="406" cy="126" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="364" cy="140" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="378" cy="140" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="392" cy="140" r="2.5" fill="#42a5f5" opacity="0.4"/>
+        <circle cx="406" cy="140" r="2.5" fill="#42a5f5" opacity="0.4"/>
+ 
+        <!-- DHT11 pins bottom -->
+        <rect x="352" y="188" width="10" height="18" rx="2" fill="#E24B4A"/>
+        <rect x="372" y="188" width="10" height="18" rx="2" fill="#42a5f5"/>
+        <rect x="392" y="188" width="10" height="18" rx="2" fill="#546e7a"/>
+        <rect x="412" y="188" width="10" height="18" rx="2" fill="#546e7a" opacity="0.3"/>
+        <text x="357" y="218" text-anchor="middle" font-family="monospace" font-size="9" fill="#E24B4A">VCC</text>
+        <text x="377" y="218" text-anchor="middle" font-family="monospace" font-size="9" fill="#42a5f5">DATA</text>
+        <text x="397" y="218" text-anchor="middle" font-family="monospace" font-size="9" fill="#69f0ae">GND</text>
+        <text x="417" y="218" text-anchor="middle" font-family="monospace" font-size="9" fill="#546e7a">NC</text>
+ 
+        <!-- Thermometer animation -->
+        <g class="thermo-glow">
+          <!-- thermometer body -->
+          <rect x="496" y="72" width="14" height="80" rx="7"
+                fill="#1a0a00" stroke="#ff6b6b" stroke-width="1.5"/>
+          <!-- mercury bar animated -->
+          <rect class="mercury-bar" x="500" y="100" width="6" height="24" rx="3"
+                fill="#ff1744"/>
+          <!-- bulb -->
+          <circle cx="503" cy="155" r="12"
+                  fill="#ff1744" stroke="#ff6b6b" stroke-width="1.5" opacity="0.9"/>
+          <!-- scale marks -->
+          <line x1="510" y1="80"  x2="514" y2="80"  stroke="#ff9800" stroke-width="1"/>
+          <line x1="510" y1="96"  x2="514" y2="96"  stroke="#ff9800" stroke-width="1"/>
+          <line x1="510" y1="112" x2="514" y2="112" stroke="#ff9800" stroke-width="1"/>
+          <line x1="510" y1="128" x2="514" y2="128" stroke="#ff9800" stroke-width="1"/>
+          <line x1="510" y1="144" x2="514" y2="144" stroke="#ff9800" stroke-width="1"/>
+          <text x="516" y="83"  font-family="monospace" font-size="8" fill="#ff9800">50°</text>
+          <text x="516" y="115" font-family="monospace" font-size="8" fill="#ff9800">25°</text>
+          <text x="516" y="148" font-family="monospace" font-size="8" fill="#ff9800">0°</text>
+        </g>
+ 
+        <!-- LED -->
+        <g>
+          <ellipse cx="620" cy="105" rx="12" ry="15" fill="#E24B4A" opacity="0.85" stroke="#b71c1c" stroke-width="1"/>
+          <circle cx="620" cy="105" r="8" fill="#ff5252" opacity="0.6"/>
+          <text x="620" y="128" text-anchor="middle" font-family="monospace" font-size="9" fill="#ef9a9a">LED</text>
+          <line x1="615" y1="120" x2="615" y2="148" stroke="#78909c" stroke-width="1.5"/>
+          <line x1="625" y1="120" x2="625" y2="148" stroke="#78909c" stroke-width="1.5"/>
+        </g>
+ 
+        <!-- 220Ω resistor for LED -->
+        <rect x="600" y="148" width="40" height="14" rx="4"
+              fill="#1a1f2e" stroke="#78909c" stroke-width="1"/>
+        <text x="620" y="158" text-anchor="middle" font-family="monospace" font-size="8" fill="#80deea">220Ω</text>
+ 
+        <!-- 10kΩ pull-up -->
+        <rect x="460" y="88" width="36" height="14" rx="4"
+              fill="#1a1f2e" stroke="#78909c" stroke-width="1"/>
+        <text x="478" y="98" text-anchor="middle" font-family="monospace" font-size="8" fill="#80deea">10kΩ</text>
+        <text x="478" y="78" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffd700">pull-up</text>
+ 
+        <!-- WIRES -->
+        <!-- VCC red -->
+        <polyline points="215,100 310,100 310,225 357,225 357,206"
+                  fill="none" stroke="#E24B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- GND green -->
+        <polyline points="215,122 300,122 300,240 397,240 397,206"
+                  fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- DATA blue Pin2 -->
+        <polyline points="215,144 377,144 377,206"
+                  fill="none" stroke="#42a5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Pull-up: VCC to DATA -->
+        <line x1="460" y1="95" x2="450" y2="95" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="450" y1="95" x2="450" y2="100" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="450" y1="100" x2="310"  y2="100" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="4,2" stroke-linecap="round"/>
+        <line x1="496" y1="95" x2="510" y2="95" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="510" y1="95" x2="510" y2="144" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="510" y1="144" x2="495" y2="144" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- LED Pin8 red -->
+        <polyline points="215,166 590,166 590,148 615,148"
+                  fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- LED GND -->
+        <polyline points="625,162 625,250 300,250 300,240"
+                  fill="none" stroke="#546e7a" stroke-width="1.5" stroke-dasharray="5,3" stroke-linecap="round" stroke-linejoin="round"/>
+ 
+        <!-- Wire labels -->
+        <text x="255" y="91"  font-family="monospace" font-size="9" fill="#E24B4A">5V (Red)</text>
+        <text x="255" y="113" font-family="monospace" font-size="9" fill="#1D9E75">GND (Green)</text>
+        <text x="255" y="135" font-family="monospace" font-size="9" fill="#42a5f5">DATA → Pin 2</text>
+        <text x="255" y="157" font-family="monospace" font-size="9" fill="#ef5350">LED Alert → Pin 8</text>
+ 
+        <!-- USB -->
+        <rect x="28" y="288" width="48" height="18" rx="4" fill="none" stroke="#37474f" stroke-width="1"/>
+        <text x="52" y="301" text-anchor="middle" font-family="monospace" font-size="10" fill="#37474f">USB</text>
+ 
+        <!-- Legend -->
+        <line x1="30"  y1="340" x2="55"  y2="340" stroke="#E24B4A" stroke-width="2"/>
+        <text x="60"   y="344" font-family="monospace" font-size="10" fill="#80deea">VCC</text>
+        <line x1="110" y1="340" x2="135" y2="340" stroke="#1D9E75" stroke-width="2"/>
+        <text x="140"  y="344" font-family="monospace" font-size="10" fill="#80deea">GND</text>
+        <line x1="200" y1="340" x2="225" y2="340" stroke="#42a5f5" stroke-width="2"/>
+        <text x="230"  y="344" font-family="monospace" font-size="10" fill="#80deea">DATA</text>
+        <line x1="300" y1="340" x2="325" y2="340" stroke="#ffd700" stroke-width="2" stroke-dasharray="4,2"/>
+        <text x="330"  y="344" font-family="monospace" font-size="10" fill="#80deea">10kΩ Pull-up</text>
+        <line x1="450" y1="340" x2="475" y2="340" stroke="#ef5350" stroke-width="2"/>
+        <text x="480"  y="344" font-family="monospace" font-size="10" fill="#80deea">LED Alert</text>
+      </svg>
+    </div>
+    <p style="margin-top:10px;color:#80deea;">
+      📌 Connection: <strong>VCC→5V | GND→GND | DATA→Pin 2 (10kΩ pull-up) | LED→Pin 8</strong>
+    </p>
+    <p class="circuit-note">* Thermometer mercury animation sirf visual preview hai</p>
+  </div>
+ 
+  <!-- 4. CODE -->
+  <div class="card">
+    <h2>4. 💻 Arduino Code</h2>
+    <div class="warn-box">
+      📦 <strong>Library Install karo pehle:</strong>
+      Arduino IDE → <strong>Tools → Manage Libraries → "DHT sensor library" by Adafruit</strong> install karo
+    </div>
+    <pre id="code">// Temperature & Humidity Monitor - Arduino Uno
+// DHT11 Sensor | DATA → Pin 2 | LED Alert → Pin 8
+// Library: DHT sensor library by Adafruit
+ 
+#include &lt;DHT.h&gt;
+ 
+#define DHTPIN     2      // DHT11 DATA pin
+#define DHTTYPE    DHT11  // Sensor type
+#define LED_PIN    8      // Heat alert LED
+#define TEMP_LIMIT 35.0   // 35°C se zyada = alert!
+ 
+DHT dht(DHTPIN, DHTTYPE);
+ 
+float tempC    = 0.0;  // Temperature Celsius
+float tempF    = 0.0;  // Temperature Fahrenheit
+float humidity = 0.0;  // Humidity %
+ 
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(9600);
+  dht.begin();
+  Serial.println("=== Temperature Monitor Ready ===");
+  delay(2000);  // DHT11 startup time
+}
+ 
+void loop() {
+  // Sensor se data padho
+  humidity = dht.readHumidity();
+  tempC    = dht.readTemperature();       // Celsius
+  tempF    = dht.readTemperature(true);   // Fahrenheit
+ 
+  // Reading valid hai ya nahi check karo
+  if (isnan(humidity) || isnan(tempC)) {
+    Serial.println("❌ Sensor Error! Wiring check karo.");
+    delay(2000);
+    return;
+  }
+ 
+  // Serial Monitor pe print karo
+  Serial.println("================================");
+  Serial.print("🌡️  Temperature : ");
+  Serial.print(tempC, 1);
+  Serial.print(" °C  |  ");
+  Serial.print(tempF, 1);
+  Serial.println(" °F");
+ 
+  Serial.print("💧 Humidity    : ");
+  Serial.print(humidity, 1);
+  Serial.println(" %");
+ 
+  // Heat Index calculate karo
+  float heatIndex = dht.computeHeatIndex(tempF, humidity);
+  Serial.print("🔥 Heat Index  : ");
+  Serial.print(heatIndex, 1);
+  Serial.println(" °F");
+ 
+  // Temperature alert
+  if (tempC >= TEMP_LIMIT) {
+    digitalWrite(LED_PIN, HIGH);  // LED ON
+    Serial.println("⚠️  WARNING: High Temperature Alert!");
+  } else {
+    digitalWrite(LED_PIN, LOW);   // LED OFF
+    Serial.println("✅ Temperature Normal");
+  }
+ 
+  Serial.println("================================");
+  delay(2000);  // Har 2 second mein read karo
+}</pre>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;">
+      <button onclick="copyCode()">📋 Code Copy Karo</button>
+      <span id="copy-msg" style="color:#00ff99;font-size:14px;display:none;">✓ Copied!</span>
+    </div>
+    <div style="margin-top:16px;">
+      <p style="color:#80deea;font-size:14px;margin-bottom:10px;">⚡ Alert temperature limit badlo:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="changeLimit(25)" style="padding:8px 16px;font-size:14px;">25°C (Cool)</button>
+        <button onclick="changeLimit(35)" style="padding:8px 16px;font-size:14px;">35°C (Normal)</button>
+        <button onclick="changeLimit(40)" style="padding:8px 16px;font-size:14px;">40°C (Hot)</button>
+        <button onclick="changeLimit(50)" style="padding:8px 16px;font-size:14px;">50°C (Max)</button>
+      </div>
+      <p id="speed-note" style="color:#00ff99;font-size:13px;margin-top:8px;font-family:monospace;"></p>
+    </div>
+  </div>
+ 
+  <!-- LIVE DEMO -->
+  <div class="card">
+    <h2>🎮 Live Temperature Demo (Simulator)</h2>
+    <div class="demo-wrap">
+      <div class="demo-label">SIMULATED TEMPERATURE</div>
+ 
+      <!-- Mini thermometer SVG -->
+      <svg width="60" height="160" viewBox="0 0 60 160" class="thermo-demo">
+        <rect x="22" y="10" width="16" height="100" rx="8" fill="#0d1a2e" stroke="#ff6b6b" stroke-width="1.5"/>
+        <rect id="demo-mercury" x="26" y="80" width="8" height="30" rx="4" fill="#ff1744"/>
+        <circle cx="30" cy="130" r="18" fill="#ff1744" stroke="#ff6b6b" stroke-width="1.5" opacity="0.9"/>
+        <line x1="38" y1="20" x2="44" y2="20" stroke="#ff9800" stroke-width="1"/>
+        <line x1="38" y1="44" x2="44" y2="44" stroke="#ff9800" stroke-width="1"/>
+        <line x1="38" y1="68" x2="44" y2="68" stroke="#ff9800" stroke-width="1"/>
+        <line x1="38" y1="92" x2="44" y2="92" stroke="#ff9800" stroke-width="1"/>
+        <text x="46" y="23"  font-family="monospace" font-size="8" fill="#ff9800">50°</text>
+        <text x="46" y="47"  font-family="monospace" font-size="8" fill="#ff9800">38°</text>
+        <text x="46" y="71"  font-family="monospace" font-size="8" fill="#ff9800">25°</text>
+        <text x="46" y="95"  font-family="monospace" font-size="8" fill="#ff9800">12°</text>
+      </svg>
+ 
+      <div class="temp-val" id="temp-val">28</div>
+      <div class="temp-unit">°C</div>
+      <div class="temp-f" id="temp-f">82.4 °F</div>
+      <div style="margin-top:6px;font-family:monospace;font-size:13px;color:#42a5f5;">
+        💧 Humidity: <span id="hum-val">55</span>%
+      </div>
+      <div id="status-tag" class="status-tag"
+           style="background:rgba(0,255,100,0.15);color:#00ff99;border:1px solid #00ff6455;margin-top:8px;">
+        ✅ Temperature Normal
+      </div>
+    </div>
+    <div class="demo-btns">
+      <button onclick="setTemp(5)"  style="margin-top:0;padding:8px 14px;font-size:12px;">5°C ❄️ Cold</button>
+      <button onclick="setTemp(15)" style="margin-top:0;padding:8px 14px;font-size:12px;">15°C 😊 Cool</button>
+      <button onclick="setTemp(28)" style="margin-top:0;padding:8px 14px;font-size:12px;">28°C 🌤️ Normal</button>
+      <button onclick="setTemp(38)" style="margin-top:0;padding:8px 14px;font-size:12px;">38°C 🥵 Hot</button>
+      <button onclick="setTemp(50)" style="margin-top:0;padding:8px 14px;font-size:12px;">50°C 🔥 MAX!</button>
+    </div>
+    <p id="temp-note" style="color:#00ff99;font-size:13px;margin-top:12px;font-family:monospace;text-align:center;"></p>
+  </div>
+ 
+  <!-- 5. UPLOAD -->
+  <div class="card">
+    <h2>5. ⬆️ Code Upload Kaise Karo</h2>
+    <ul class="steps-list">
+      <li><div class="step-num">1</div><span>Arduino IDE open karo</span></li>
+      <li><div class="step-num">2</div><span><strong>Tools → Manage Libraries → "DHT sensor library"</strong> by Adafruit install karo</span></li>
+      <li><div class="step-num">3</div><span><strong>Tools → Board → Arduino Uno</strong> select karo</span></li>
+      <li><div class="step-num">4</div><span><strong>Tools → Port</strong> mein sahi COM port select karo</span></li>
+      <li><div class="step-num">5</div><span>Upar diya code paste karo</span></li>
+      <li><div class="step-num">6</div><span><strong>→ Upload</strong> button dabao (ya Ctrl+U)</span></li>
+      <li><div class="step-num">7</div><span><strong>Tools → Serial Monitor</strong> kholo (9600 baud) — temperature dekhega</span></li>
+    </ul>
+  </div>
+ 
+  <!-- 6. TESTING -->
+  <div class="card">
+    <h2>6. ✅ Testing</h2>
+    <p>Serial Monitor mein temperature °C, °F aur humidity % print hogi. Sensor ko haath se pakdo — temperature badh jaani chahiye.</p>
+    <div class="success-box">
+      🎉 <strong>Success:</strong> Temperature change ho raha hai? Congratulations — project complete!
+    </div>
+    <div class="tip-box" style="margin-top:12px;">
+      🧪 <strong>Test karo:</strong> Sensor ke paas hot cup rakho ya haath se pakdo — reading 2-3°C badh jaani chahiye.
+    </div>
+  </div>
+ 
+  <!-- 7. ERROR FIXING -->
+  <div class="card">
+    <h2>7. 🛠️ Common Errors &amp; Fix</h2>
+    <ul>
+      <li><strong>"Sensor Error" aa raha?</strong> → DATA pin aur wiring check karo, 10kΩ pull-up resistor lagao</li>
+      <li><strong>NaN values?</strong> → DHT library sahi install hai? Adafruit DHT library use karo</li>
+      <li><strong>Galat temperature?</strong> → DHT11 ko 2 second startup time do — pehli reading skip karo</li>
+      <li><strong>LED nahi jali?</strong> → Pin 8 check karo + 220Ω resistor lagao</li>
+      <li><strong>Compile error?</strong> → #include &lt;DHT.h&gt; check karo — library installed honi chahiye</li>
+    </ul>
+    <div class="tip-box">
+      💡 <strong>Upgrade:</strong> DHT11 ki jagah <strong>DHT22</strong> use karo —
+      zyada accurate (±0.5°C), wide range (-40°C to 80°C), aur code same rahega!
+      Sirf <code style="background:#000;padding:2px 6px;border-radius:4px;color:#00ff99;">#define DHTTYPE DHT22</code> change karo.
+    </div>
+  </div>
+ 
+  <!-- 8. FINAL -->
+  <div class="card">
+    <h2>8. 🎉 Final Project Ready</h2>
+    <p>Project complete ho gaya! Aap chahein toh:</p>
+    <ul style="margin-top:10px;">
+      <li>LCD Display add karo — temperature screen pe dikhao</li>
+      <li>Fan/Relay add karo — temperature zyada ho toh fan automatically ON ho</li>
+      <li>Multiple sensors add karo — different rooms monitor karo</li>
+      <li>IoT add karo — ThingSpeak par data upload karo online monitor ke liye</li>
+    </ul>
+    <div class="success-box" style="margin-top:14px;">
+      ✅ Aapne Arduino Temperature Sensor project successfully complete kar liya!
+    </div>
+  </div>
+ 
+  <!-- 9. DOCUMENTATION -->
+  <div class="card">
+    <h2>9. 📝 Project Documentation</h2>
+    <ul>
+      <li><strong>Project Name:</strong> Temperature &amp; Humidity Monitor</li>
+      <li><strong>Difficulty:</strong> Beginner</li>
+      <li><strong>Sensor:</strong> DHT11 (Temperature + Humidity)</li>
+      <li><strong>Pins Used:</strong> DATA → Pin 2, LED Alert → Pin 8, VCC → 5V, GND → GND</li>
+      <li><strong>Library:</strong> DHT sensor library by Adafruit</li>
+      <li><strong>Range:</strong> 0°C – 50°C | Humidity: 20% – 80% | Accuracy: ±2°C</li>
+      <li><strong>Alert Limit:</strong> 35°C (adjustable via TEMP_LIMIT)</li>
+      <li><strong>Read Interval:</strong> 2000ms (2 seconds)</li>
+      <li><strong>Baud Rate:</strong> 9600 (Serial Monitor)</li>
+    </ul>
+  </div>
+ 
+  <button class="download-btn" onclick="downloadPage()">⬇️ Page Download Karo (HTML)</button>
+ 
+</div><!-- /container -->
+ 
+<script>
+// LOADER
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const l = document.getElementById('loader');
+    l.style.opacity = '0';
+    setTimeout(() => l.style.display = 'none', 800);
+  }, 1200);
+});
+ 
+// PARTICLES
+(function(){
+  const c = document.getElementById('particles');
+  for(let i = 0; i < 20; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText =
+      'left:' + Math.random()*100 + '%;' +
+      'animation-delay:' + Math.random()*12 + 's;' +
+      'animation-duration:' + (10+Math.random()*8) + 's;' +
+      'width:' + (3+Math.random()*5) + 'px;' +
+      'height:' + (3+Math.random()*5) + 'px;' +
+      'opacity:' + (0.2+Math.random()*0.5) + ';';
+    c.appendChild(p);
+  }
+})();
+ 
+// COPY CODE
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('code').innerText).then(()=>{
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'inline';
+    setTimeout(()=> msg.style.display = 'none', 2000);
+  });
+}
+ 
+// CHANGE LIMIT
+function changeLimit(val){
+  document.getElementById('speed-note').textContent =
+    '→ TEMP_LIMIT = ' + val + '°C set hua — ' + val + '°C se zyada hone par LED alert on hogi';
+}
+ 
+// TEMP DEMO
+function setTemp(c){
+  const f = ((c * 9/5) + 32).toFixed(1);
+  const hum = Math.floor(40 + Math.random()*40);
+  document.getElementById('temp-val').textContent = c;
+  document.getElementById('temp-f').textContent = f + ' °F';
+  document.getElementById('hum-val').textContent = hum;
+ 
+  // Mercury bar height
+  const maxH = 70; // px in SVG
+  const pct  = Math.min(Math.max((c / 50), 0), 1);
+  const barH = Math.round(pct * maxH);
+  const barY = 10 + (maxH - barH);
+  const bar  = document.getElementById('demo-mercury');
+  bar.setAttribute('height', barH);
+  bar.setAttribute('y', barY);
+ 
+  const tag  = document.getElementById('status-tag');
+  const note = document.getElementById('temp-note');
+  const tv   = document.getElementById('temp-val');
+ 
+  if(c >= 40){
+    tag.style.cssText  = 'background:rgba(255,23,68,0.15);color:#ff5252;border:1px solid #ff174455;display:inline-block;padding:5px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;';
+    tag.textContent    = '🔥 DANGER! Extreme Heat — LED Alert ON!';
+    tv.style.color     = '#ff1744';
+    tv.style.textShadow= '0 0 20px rgba(255,23,68,0.7)';
+    note.style.color   = '#ff5252';
+    note.textContent   = '🔥 Temperature CRITICAL: ' + c + '°C / ' + f + '°F — LED alarm active!';
+    bar.setAttribute('fill','#ff1744');
+  } else if(c >= 35){
+    tag.style.cssText  = 'background:rgba(255,152,0,0.15);color:#ffb74d;border:1px solid #ff980055;display:inline-block;padding:5px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;';
+    tag.textContent    = '⚠️ Warning — High Temperature!';
+    tv.style.color     = '#ff9800';
+    tv.style.textShadow= '0 0 14px rgba(255,152,0,0.6)';
+    note.style.color   = '#ffb74d';
+    note.textContent   = '⚠️ Temperature HIGH: ' + c + '°C / ' + f + '°F — threshold reached!';
+    bar.setAttribute('fill','#ff9800');
+  } else if(c <= 10){
+    tag.style.cssText  = 'background:rgba(66,165,245,0.15);color:#42a5f5;border:1px solid #42a5f555;display:inline-block;padding:5px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;';
+    tag.textContent    = '❄️ Cold — Very Low Temperature';
+    tv.style.color     = '#42a5f5';
+    tv.style.textShadow= '0 0 14px rgba(66,165,245,0.6)';
+    note.style.color   = '#42a5f5';
+    note.textContent   = '❄️ Temperature COLD: ' + c + '°C / ' + f + '°F — sab theek hai';
+    bar.setAttribute('fill','#42a5f5');
+  } else {
+    tag.style.cssText  = 'background:rgba(0,255,100,0.15);color:#00ff99;border:1px solid #00ff6455;display:inline-block;padding:5px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-top:8px;';
+    tag.textContent    = '✅ Temperature Normal';
+    tv.style.color     = '#ff6b6b';
+    tv.style.textShadow= '0 0 14px rgba(255,107,107,0.5)';
+    note.style.color   = '#00ff99';
+    note.textContent   = '✅ Temperature normal: ' + c + '°C / ' + f + '°F | Humidity: ' + hum + '%';
+    bar.setAttribute('fill','#ff1744');
+  }
+}
+ 
+// DOWNLOAD
+function downloadPage(){
+  const a = document.createElement('a');
+  a.href = window.location.href;
+  a.download = 'temperature_sensor_project.html';
+  a.click();
+}
+</script>
+</body>
+</html>

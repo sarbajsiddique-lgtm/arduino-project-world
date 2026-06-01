@@ -1,0 +1,688 @@
+!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔥 Gas Detector Project - Arduino</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  width:100%;min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#020617,#000814,#1a0500);
+  background-attachment:fixed;
+  overflow-x:hidden;color:white;scroll-behavior:smooth;
+}
+body::before{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#ff6b0010;filter:blur(180px);top:-200px;left:-200px;z-index:-2;
+}
+body::after{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#ff980010;filter:blur(180px);bottom:-200px;right:-200px;z-index:-2;
+}
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:-1;}
+.particle{
+  position:absolute;border-radius:50%;
+  background:#ff6b0055;animation:floatParticle 12s linear infinite;
+}
+@keyframes floatParticle{
+  from{transform:translateY(100vh);opacity:0;}
+  to{transform:translateY(-100vh);opacity:1;}
+}
+#loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#020617;display:flex;justify-content:center;
+  align-items:center;z-index:99999;transition:opacity 0.8s;
+}
+#loader h1{
+  font-size:60px;font-weight:bold;color:#ff6b00;
+  text-shadow:0 0 10px rgba(255,107,0,0.5);
+  animation:pulse 1.5s infinite alternate;
+}
+@keyframes pulse{
+  from{opacity:0.6;transform:scale(1);}
+  to{opacity:1;transform:scale(1.04);}
+}
+.navbar{
+  padding:18px 30px;background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,107,0,0.1);
+  font-size:26px;font-weight:bold;position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+}
+.navbar span{color:#ff6b00;text-shadow:0 0 10px #ff6b0088;}
+h1{
+  text-align:center;font-size:55px;font-weight:700;
+  margin:40px 0 10px;color:#ff6b00;
+  text-shadow:0 0 10px rgba(255,107,0,0.5);
+}
+.subtitle{text-align:center;color:#cbd5e1;margin-bottom:40px;font-size:18px;}
+.badge{
+  display:inline-block;padding:8px 20px;border-radius:30px;
+  background:linear-gradient(45deg,#b71c1c,#ef5350);
+  color:white;font-weight:bold;margin-bottom:16px;
+  box-shadow:0 0 15px rgba(239,83,80,0.5);font-size:14px;
+}
+.container{max-width:1000px;margin:auto;padding:0 30px 60px;}
+.card{
+  background:rgba(20,8,0,0.85);border:2px solid #ff6b00;
+  border-radius:20px;padding:28px;margin-bottom:24px;
+  box-shadow:0 0 20px rgba(255,107,0,0.15);
+  backdrop-filter:blur(10px);transition:0.3s;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 0 35px rgba(255,107,0,0.3);}
+.card h2{color:#ff9800;margin-bottom:14px;font-size:22px;}
+.card p,.card li{font-size:16px;line-height:1.8;color:#ffe0b2;}
+ul{padding-left:22px;}
+ul li{margin-bottom:6px;}
+pre{
+  background:#000;color:#ff9800;padding:20px;
+  border-radius:12px;overflow:auto;margin-top:10px;
+  font-size:15px;line-height:1.7;
+  box-shadow:0 0 20px rgba(255,152,0,0.2);
+}
+button,.btn{
+  padding:12px 28px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#ff6b00,#ff9800);
+  color:white;font-size:16px;font-weight:bold;
+  cursor:pointer;margin-top:14px;transition:0.3s;
+}
+button:hover,.btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(255,107,0,0.4);}
+.download-btn{
+  padding:14px 30px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#b71c1c,#ef5350);
+  color:white;font-size:17px;font-weight:bold;
+  cursor:pointer;box-shadow:0 0 20px rgba(239,83,80,0.4);transition:0.3s;
+  display:block;margin:30px auto 0;
+}
+.download-btn:hover{transform:scale(1.06);box-shadow:0 0 35px rgba(239,83,80,0.6);}
+.success-box{
+  background:rgba(0,255,100,0.07);border:1px solid #00ff6455;
+  border-left:4px solid #00ff64;border-radius:10px;
+  padding:14px 18px;margin-top:12px;color:#a7f3d0;font-size:15px;line-height:1.7;
+}
+.tip-box{
+  background:rgba(255,152,0,0.07);border:1px solid #ff980044;
+  border-left:4px solid #ff9800;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#ffe0b2;font-size:15px;line-height:1.7;
+}
+.warn-box{
+  background:rgba(255,23,68,0.07);border:1px solid #ff174455;
+  border-left:4px solid #ff1744;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#ffcdd2;font-size:15px;line-height:1.7;
+}
+.steps-list{list-style:none;padding:0;}
+.steps-list li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.steps-list li:last-child{border-bottom:none;}
+.step-num{
+  min-width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(45deg,#b71c1c,#ef5350);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;color:white;
+}
+.circuit-note{font-size:12px;color:#546e7a;margin-top:6px;}
+
+/* GAS DEMO */
+.demo-wrap{
+  background:radial-gradient(ellipse at 50% 110%,#1a0500 0%,#000814 100%);
+  border-radius:16px;padding:28px 20px 20px;
+  margin-top:16px;text-align:center;
+  box-shadow:0 0 24px rgba(255,107,0,0.12);
+}
+.demo-label{color:#78909c;font-size:13px;letter-spacing:1px;margin-bottom:10px;}
+.gas-bar-bg{
+  width:280px;height:22px;border-radius:30px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  margin:0 auto 10px;overflow:hidden;
+}
+.gas-bar{
+  height:100%;border-radius:30px;transition:width 0.6s ease,background 0.4s;
+  background:linear-gradient(90deg,#00ff99,#00e5ff);width:20%;
+}
+.gas-val{
+  font-family:monospace;font-size:42px;font-weight:700;
+  color:#ff9800;text-shadow:0 0 14px rgba(255,152,0,0.6);transition:color 0.4s;
+}
+.gas-unit{font-size:13px;color:#546e7a;margin-bottom:10px;}
+.status-tag{
+  display:inline-block;padding:6px 22px;border-radius:20px;
+  font-size:14px;font-weight:700;margin-top:6px;transition:all 0.4s;
+}
+.demo-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+.demo-btns button{margin-top:0;padding:8px 14px;font-size:12px;}
+
+/* Gas cloud blink animation */
+@keyframes gasFloat{
+  0%,100%{opacity:0.3;transform:scale(1);}
+  50%{opacity:0.7;transform:scale(1.08);}
+}
+.gas-cloud ellipse{animation:gasFloat 2.5s ease-in-out infinite;}
+.gas-cloud ellipse:nth-child(2){animation-delay:0.5s;}
+.gas-cloud ellipse:nth-child(3){animation-delay:1s;}
+
+/* Alarm blink */
+@keyframes alarmBlink{
+  0%,100%{opacity:0.2;}
+  50%{opacity:1;}
+}
+.alarm-light{animation:alarmBlink 0.6s ease-in-out infinite;}
+
+@media(max-width:768px){
+  h1{font-size:34px;}
+  .container{padding:0 14px 40px;}
+  .card{padding:18px;}
+  .navbar{font-size:20px;}
+  pre{font-size:13px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader"><h1>🔥 Loading...</h1></div>
+<div id="particles"></div>
+
+<nav class="navbar">
+  <span>⚡</span> Arduino Gas Detector Project
+</nav>
+
+<div class="container">
+
+  <h1>💨 Gas Detector</h1>
+  <p class="subtitle">Arduino se gas leakage detect karo — MQ-2 sensor ke saath automatic alarm!</p>
+
+  <!-- 1. INTRO -->
+  <div class="card">
+    <span class="badge">PROJECT #05 · INTERMEDIATE</span>
+    <h2>1. 💨 Project Introduction</h2>
+    <p>
+      Gas Detector project mein Arduino Uno ek MQ-2 gas sensor se LPG, smoke, methane,
+      aur hydrogen detect karta hai. Jab gas level ek threshold cross kare toh
+      buzzer bajta hai aur LED jal jaati hai — bilkul ek real gas leak alarm ki tarah!
+      Sensor ka analog value 0–1023 range mein aata hai.
+    </p>
+    <div class="tip-box">
+      💡 <strong>Important:</strong> MQ-2 sensor ko use karne se pehle <strong>2–3 minute warm-up</strong>
+      dena zaroori hai — tabhi accurate readings milti hain. Cold start pe readings galat ho sakti hain!
+    </div>
+  </div>
+
+  <!-- 2. COMPONENTS -->
+  <div class="card">
+    <h2>2. 📋 Components Required</h2>
+    <ul>
+      <li>🟩 Arduino Uno × 1</li>
+      <li>💨 MQ-2 Gas Sensor Module × 1 (LPG/Smoke/Methane detect karta hai)</li>
+      <li>🔔 Buzzer × 1 (active buzzer — alarm ke liye)</li>
+      <li>💡 Red LED × 1 (gas alert indicator)</li>
+      <li>⚡ 220Ω Resistor × 1 (LED ke liye)</li>
+      <li>🔗 Jumper Wires × 6</li>
+      <li>🧱 Breadboard × 1</li>
+      <li>🔌 USB Cable × 1</li>
+    </ul>
+    <div class="tip-box">
+      ⚡ <strong>MQ-2 Sensor Pins:</strong><br>
+      <strong>VCC</strong> → 5V &nbsp;|&nbsp;
+      <strong>GND</strong> → GND &nbsp;|&nbsp;
+      <strong>AO</strong> → A0 (analog) &nbsp;|&nbsp;
+      <strong>DO</strong> → Pin 7 (digital threshold)<br><br>
+      🔔 <strong>Buzzer+</strong> → Pin 8 &nbsp;|&nbsp;
+      🔴 <strong>LED+</strong> → Pin 9 (via 220Ω)
+    </div>
+  </div>
+
+  <!-- 3. CIRCUIT DIAGRAM -->
+  <div class="card">
+    <h2>3. 🔌 Circuit Diagram</h2>
+    <div style="overflow-x:auto;margin-top:12px;">
+      <svg width="100%" viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg" role="img">
+        <title>Arduino Gas Detector Circuit</title>
+
+        <!-- Arduino board background -->
+        <rect x="20" y="50" width="190" height="270" rx="12"
+              fill="#1D9E75" opacity="0.06" stroke="#1D9E75" stroke-width="1.5"/>
+        <rect x="20" y="50" width="190" height="28" rx="12"
+              fill="#1D9E75" opacity="0.15"/>
+        <text x="115" y="69" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#1D9E75" letter-spacing="2">ARDUINO UNO</text>
+
+        <!-- Arduino Pins -->
+        <rect x="208" y="90"  width="12" height="10" rx="2" fill="#E24B4A"/>
+        <text x="202" y="99"  text-anchor="end" font-family="monospace" font-size="10" fill="#ffcc80">5V</text>
+
+        <rect x="208" y="110" width="12" height="10" rx="2" fill="#546e7a"/>
+        <text x="202" y="119" text-anchor="end" font-family="monospace" font-size="10" fill="#ffcc80">GND</text>
+
+        <rect x="208" y="130" width="12" height="10" rx="2" fill="#ff9800"/>
+        <text x="202" y="139" text-anchor="end" font-family="monospace" font-size="10" fill="#ffcc80">A0 (AO)</text>
+
+        <rect x="208" y="150" width="12" height="10" rx="2" fill="#ab47bc"/>
+        <text x="202" y="159" text-anchor="end" font-family="monospace" font-size="10" fill="#ffcc80">Pin 7 (DO)</text>
+
+        <rect x="208" y="170" width="12" height="10" rx="2" fill="#ef5350"/>
+        <text x="202" y="179" text-anchor="end" font-family="monospace" font-size="10" fill="#ffcc80">Pin 8 (Buzzer)</text>
+
+        <rect x="208" y="190" width="12" height="10" rx="2" fill="#42a5f5"/>
+        <text x="202" y="199" text-anchor="end" font-family="monospace" font-size="10" fill="#ffcc80">Pin 9 (LED)</text>
+
+        <!-- ===== MQ-2 SENSOR ===== -->
+        <rect x="320" y="55" width="120" height="115" rx="10"
+              fill="#1a1a2e" stroke="#ff6b00" stroke-width="1.5"/>
+        <rect x="320" y="55" width="120" height="22" rx="10"
+              fill="rgba(255,107,0,0.15)"/>
+        <text x="380" y="70" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#ff6b00" letter-spacing="1">MQ-2 SENSOR</text>
+
+        <!-- Sensor mesh dome -->
+        <circle cx="380" cy="116" r="26" fill="#0a0a0a" stroke="#ff6b00" stroke-width="1.5"/>
+        <circle cx="380" cy="116" r="18" fill="none" stroke="#ff9800" stroke-width="0.8" stroke-dasharray="3,2"/>
+        <circle cx="380" cy="116" r="10" fill="#1a0a00" stroke="#ff6b00" stroke-width="1"/>
+        <circle cx="380" cy="116" r="4"  fill="#ff6b00" opacity="0.8"/>
+
+        <!-- Gas cloud (animated) -->
+        <g class="gas-cloud">
+          <ellipse cx="448" cy="95"  rx="16" ry="9"  fill="rgba(255,200,0,0.12)" stroke="rgba(255,200,0,0.3)" stroke-width="1"/>
+          <ellipse cx="464" cy="84"  rx="11" ry="7"  fill="rgba(255,150,0,0.10)" stroke="rgba(255,150,0,0.25)" stroke-width="1"/>
+          <ellipse cx="453" cy="76"  rx="8"  ry="5"  fill="rgba(255,100,0,0.08)" stroke="rgba(255,100,0,0.2)"  stroke-width="1"/>
+        </g>
+        <text x="456" y="112" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff9800">GAS↑</text>
+
+        <!-- MQ-2 bottom pins -->
+        <rect x="333" y="168" width="10" height="15" rx="2" fill="#E24B4A"/>
+        <text x="338" y="194" text-anchor="middle" font-family="monospace" font-size="8" fill="#ff5252">VCC</text>
+        <rect x="351" y="168" width="10" height="15" rx="2" fill="#546e7a"/>
+        <text x="356" y="194" text-anchor="middle" font-family="monospace" font-size="8" fill="#69f0ae">GND</text>
+        <rect x="369" y="168" width="10" height="15" rx="2" fill="#ff9800"/>
+        <text x="374" y="194" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffcc80">AO</text>
+        <rect x="387" y="168" width="10" height="15" rx="2" fill="#ab47bc"/>
+        <text x="392" y="194" text-anchor="middle" font-family="monospace" font-size="8" fill="#ce93d8">DO</text>
+
+        <!-- ===== BUZZER ===== -->
+        <ellipse cx="560" cy="105" rx="26" ry="26" fill="#1a1a2e" stroke="#ef5350" stroke-width="1.5"/>
+        <ellipse cx="560" cy="105" rx="17" ry="17" fill="#0d0d1a" stroke="#ef5350" stroke-width="1"/>
+        <ellipse cx="560" cy="105" rx="8"  ry="8"  fill="#ef5350" opacity="0.6"/>
+        <text x="560" y="140" text-anchor="middle" font-family="monospace" font-size="9" fill="#ef5350">BUZZER</text>
+        <rect x="550" y="145" width="7"  height="14" rx="2" fill="#ef5350"/>
+        <rect x="563" y="145" width="7"  height="14" rx="2" fill="#546e7a"/>
+        <text x="553" y="168" text-anchor="middle" font-family="monospace" font-size="8" fill="#ef5350">+</text>
+        <text x="567" y="168" text-anchor="middle" font-family="monospace" font-size="8" fill="#80deea">−</text>
+
+        <!-- ===== LED ===== -->
+        <ellipse cx="655" cy="102" rx="11" ry="15" fill="#c62828" opacity="0.85" stroke="#b71c1c" stroke-width="1"/>
+        <circle  cx="655" cy="102" r="7"  fill="#ff5252" opacity="0.5"/>
+        <circle class="alarm-light" cx="655" cy="102" r="6" fill="#ff1744" opacity="0.9"/>
+        <text x="655" y="126" text-anchor="middle" font-family="monospace" font-size="9" fill="#ef9a9a">RED LED</text>
+        <line x1="650" y1="117" x2="650" y2="140" stroke="#78909c" stroke-width="1.5"/>
+        <line x1="660" y1="117" x2="660" y2="140" stroke="#78909c" stroke-width="1.5"/>
+
+        <!-- 220Ω resistor for LED -->
+        <rect x="636" y="140" width="40" height="13" rx="4" fill="#1a1f2e" stroke="#78909c" stroke-width="1"/>
+        <text x="656" y="150" text-anchor="middle" font-family="monospace" font-size="8" fill="#80deea">220Ω</text>
+
+        <!-- ===== WIRES ===== -->
+        <!-- VCC red -->
+        <polyline points="220,95 295,95 295,195 338,195 338,183"
+                  fill="none" stroke="#E24B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- GND teal -->
+        <polyline points="220,115 305,115 305,205 356,205 356,183"
+                  fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- AO orange -->
+        <polyline points="220,135 315,135 315,215 374,215 374,183"
+                  fill="none" stroke="#ff9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- DO purple -->
+        <polyline points="220,155 325,155 325,225 392,225 392,183"
+                  fill="none" stroke="#ab47bc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Buzzer+ red Pin8 -->
+        <polyline points="220,175 530,175 530,155 550,155"
+                  fill="none" stroke="#ef5350" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- LED Pin9 blue -->
+        <polyline points="220,195 618,195 618,155 650,155"
+                  fill="none" stroke="#42a5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Buzzer GND (dashed) -->
+        <polyline points="563,159 563,250 305,250 305,215"
+                  fill="none" stroke="#546e7a" stroke-width="1.5" stroke-dasharray="5,3" stroke-linecap="round"/>
+        <!-- LED resistor GND (dashed) -->
+        <polyline points="660,153 660,260 305,260"
+                  fill="none" stroke="#546e7a" stroke-width="1.5" stroke-dasharray="5,3" stroke-linecap="round"/>
+
+        <!-- GND common label -->
+        <text x="480" y="270" text-anchor="middle"
+              font-family="monospace" font-size="8" fill="#546e7a">Common GND</text>
+
+        <!-- USB port -->
+        <rect x="28" y="300" width="48" height="16" rx="4"
+              fill="none" stroke="#37474f" stroke-width="1"/>
+        <text x="52" y="312" text-anchor="middle"
+              font-family="monospace" font-size="9" fill="#37474f">USB</text>
+
+        <!-- Wire label annotations -->
+        <text x="258" y="87"  font-family="monospace" font-size="8" fill="#E24B4A">5V</text>
+        <text x="258" y="107" font-family="monospace" font-size="8" fill="#1D9E75">GND</text>
+        <text x="258" y="127" font-family="monospace" font-size="8" fill="#ff9800">A0</text>
+        <text x="258" y="147" font-family="monospace" font-size="8" fill="#ab47bc">DO</text>
+        <text x="258" y="167" font-family="monospace" font-size="8" fill="#ef5350">Buzzer+</text>
+        <text x="258" y="187" font-family="monospace" font-size="8" fill="#42a5f5">LED+</text>
+
+        <!-- Legend -->
+        <line x1="30"  y1="355" x2="55"  y2="355" stroke="#E24B4A" stroke-width="2"/>
+        <text x="60"   y="359" font-family="monospace" font-size="9" fill="#ffcc80">VCC 5V</text>
+        <line x1="115" y1="355" x2="140" y2="355" stroke="#1D9E75" stroke-width="2"/>
+        <text x="145"  y="359" font-family="monospace" font-size="9" fill="#ffcc80">GND</text>
+        <line x1="195" y1="355" x2="220" y2="355" stroke="#ff9800" stroke-width="2"/>
+        <text x="225"  y="359" font-family="monospace" font-size="9" fill="#ffcc80">AO Analog</text>
+        <line x1="305" y1="355" x2="330" y2="355" stroke="#ab47bc" stroke-width="2"/>
+        <text x="335"  y="359" font-family="monospace" font-size="9" fill="#ffcc80">DO Digital</text>
+        <line x1="405" y1="355" x2="430" y2="355" stroke="#ef5350" stroke-width="2"/>
+        <text x="435"  y="359" font-family="monospace" font-size="9" fill="#ffcc80">Buzzer</text>
+        <line x1="500" y1="355" x2="525" y2="355" stroke="#42a5f5" stroke-width="2"/>
+        <text x="530"  y="359" font-family="monospace" font-size="9" fill="#ffcc80">LED</text>
+        <line x1="580" y1="355" x2="605" y2="355" stroke="#546e7a" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="610"  y="359" font-family="monospace" font-size="9" fill="#ffcc80">GND (common)</text>
+      </svg>
+    </div>
+    <p style="margin-top:10px;color:#ffcc80;">
+      📌 Connection: <strong>MQ-2 VCC→5V | GND→GND | AO→A0 | DO→Pin7 | Buzzer→Pin8 | LED→Pin9</strong>
+    </p>
+    <p class="circuit-note">* LED blink aur gas cloud animation sirf visual preview hai</p>
+  </div>
+
+  <!-- 4. CODE -->
+  <div class="card">
+    <h2>4. 💻 Arduino Code</h2>
+    <div class="warn-box">
+      ⚠️ <strong>Library:</strong> Koi extra library nahi chahiye — standard analogRead() aur digitalRead() use hoga!
+    </div>
+    <pre id="code">// ============================================
+// Gas Detector Project - Arduino Uno
+// MQ-2 Sensor | Buzzer | LED Alert
+// AO → A0 | DO → Pin 7 | Buzzer → Pin 8 | LED → Pin 9
+// ============================================
+
+const int mq2Analog  = A0;  // MQ-2 Analog output
+const int mq2Digital = 7;   // MQ-2 Digital output
+const int buzzerPin  = 8;   // Buzzer pin
+const int ledPin     = 9;   // Alert LED pin
+
+int  gasLevel   = 0;        // Analog gas value (0-1023)
+int  threshold  = 400;      // Gas threshold — yahan se alarm bajega
+bool alarmOn    = false;
+
+// ============================================
+void setup() {
+  pinMode(mq2Digital, INPUT);
+  pinMode(buzzerPin,  OUTPUT);
+  pinMode(ledPin,     OUTPUT);
+  Serial.begin(9600);
+  Serial.println("=== Gas Detector Ready ===");
+  Serial.println("Sensor warm-up... (2 min wait karo)");
+  delay(2000);  // Sensor warm-up time
+  Serial.println("Monitoring started!");
+}
+
+// ============================================
+void loop() {
+  // Analog gas level padho (0 = clean air, 1023 = very high gas)
+  gasLevel = analogRead(mq2Analog);
+
+  // Digital threshold (MQ-2 ka onboard comparator)
+  int digitalVal = digitalRead(mq2Digital);
+
+  Serial.print("Gas Level: ");
+  Serial.print(gasLevel);
+  Serial.print(" / 1023  |  Status: ");
+
+  if (gasLevel > threshold || digitalVal == HIGH) {
+    // ---- GAS DETECTED — ALARM ON! ----
+    alarmOn = true;
+    Serial.println("🚨 GAS DETECTED! ALARM ON!");
+
+    digitalWrite(ledPin, HIGH);       // LED ON
+    digitalWrite(buzzerPin, HIGH);    // Buzzer ON
+    delay(500);
+    digitalWrite(buzzerPin, LOW);     // Buzzer beep pattern
+    delay(200);
+    digitalWrite(buzzerPin, HIGH);
+    delay(500);
+    digitalWrite(buzzerPin, LOW);
+
+  } else {
+    // ---- Safe — No Gas ----
+    alarmOn = false;
+    Serial.println("✅ Safe — No Gas");
+
+    digitalWrite(ledPin,    LOW);     // LED OFF
+    digitalWrite(buzzerPin, LOW);     // Buzzer OFF
+  }
+
+  // Gas level percentage print karo
+  int percent = map(gasLevel, 0, 1023, 0, 100);
+  Serial.print("Gas %: ");
+  Serial.print(percent);
+  Serial.println("%");
+  Serial.println("-------------------");
+
+  delay(1000);  // Har 1 second mein check karo
+}
+
+// ============================================
+// CALIBRATION TIPS:
+// 1. Sensor ko fresh open air mein rakho
+// 2. Serial Monitor mein baseline value note karo (~100-200)
+// 3. threshold = baseline + 150 set karo best accuracy ke liye
+// 4. LPG/Smoke test: lighter (bina flame) sensor ke paas lo</pre>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;">
+      <button onclick="copyCode()">📋 Code Copy Karo</button>
+      <span id="copy-msg" style="color:#00ff99;font-size:14px;display:none;">✓ Copied!</span>
+    </div>
+    <div style="margin-top:16px;">
+      <p style="color:#ffcc80;font-size:14px;margin-bottom:10px;">⚡ Threshold badlo:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="changeThreshold(200)" style="padding:8px 16px;font-size:13px;">Sensitive (200)</button>
+        <button onclick="changeThreshold(400)" style="padding:8px 16px;font-size:13px;">Normal (400)</button>
+        <button onclick="changeThreshold(600)" style="padding:8px 16px;font-size:13px;">High (600)</button>
+        <button onclick="changeThreshold(800)" style="padding:8px 16px;font-size:13px;">Very High (800)</button>
+      </div>
+      <p id="speed-note" style="color:#00ff99;font-size:13px;margin-top:8px;font-family:monospace;"></p>
+    </div>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div class="card">
+    <h2>🎮 Live Gas Level Demo (Simulator)</h2>
+    <div class="demo-wrap">
+      <div class="demo-label">SIMULATED GAS LEVEL (0 – 1023)</div>
+      <div class="gas-bar-bg">
+        <div class="gas-bar" id="gas-bar" style="width:20%"></div>
+      </div>
+      <div class="gas-val" id="gas-val">200</div>
+      <div class="gas-unit">/ 1023 analog value</div>
+      <div id="status-tag" class="status-tag"
+           style="background:rgba(0,255,100,0.15);color:#00ff99;border:1px solid #00ff6455;">
+        ✅ Safe — No Gas Detected
+      </div>
+    </div>
+    <div class="demo-btns">
+      <button onclick="setGas(50)"  style="margin-top:0;padding:8px 14px;font-size:12px;">50 — Clean Air</button>
+      <button onclick="setGas(200)" style="margin-top:0;padding:8px 14px;font-size:12px;">200 — Low</button>
+      <button onclick="setGas(400)" style="margin-top:0;padding:8px 14px;font-size:12px;">400 — Threshold</button>
+      <button onclick="setGas(600)" style="margin-top:0;padding:8px 14px;font-size:12px;">600 — Warning</button>
+      <button onclick="setGas(900)" style="margin-top:0;padding:8px 14px;font-size:12px;">900 — DANGER!</button>
+    </div>
+    <p id="gas-note" style="color:#00ff99;font-size:13px;margin-top:12px;font-family:monospace;text-align:center;min-height:20px;"></p>
+  </div>
+
+  <!-- 5. UPLOAD -->
+  <div class="card">
+    <h2>5. ⬆️ Code Upload Kaise Karo</h2>
+    <ul class="steps-list">
+      <li><div class="step-num">1</div><span>Arduino IDE open karo</span></li>
+      <li><div class="step-num">2</div><span><strong>Tools → Board → Arduino Uno</strong> select karo</span></li>
+      <li><div class="step-num">3</div><span><strong>Tools → Port</strong> mein sahi COM port select karo</span></li>
+      <li><div class="step-num">4</div><span>Upar diya code paste karo</span></li>
+      <li><div class="step-num">5</div><span><strong>→ Upload</strong> button dabao (ya Ctrl+U)</span></li>
+      <li><div class="step-num">6</div><span><strong>Tools → Serial Monitor</strong> kholo (9600 baud) — gas level dekhega</span></li>
+      <li><div class="step-num">7</div><span>MQ-2 sensor ko <strong>2 minute warm-up</strong> dena zaroori hai accurate reading ke liye</span></li>
+    </ul>
+  </div>
+
+  <!-- 6. TESTING -->
+  <div class="card">
+    <h2>6. ✅ Testing</h2>
+    <p>Serial Monitor mein gas level print hogi. Sensor ke paas lighter (bina flame) ya spirit hold karo — value badh jaayegi aur buzzer bajega.</p>
+    <div class="success-box">
+      🎉 <strong>Success:</strong> Buzzer baja aur LED jali? Congratulations — Gas Detector ready!
+    </div>
+    <div class="tip-box" style="margin-top:12px;">
+      🧪 <strong>Test karo:</strong> Sensor ke paas ek cotton ball with alcohol rakho — reading badh jaani chahiye.
+    </div>
+  </div>
+
+  <!-- 7. ERROR FIXING -->
+  <div class="card">
+    <h2>7. 🛠️ Common Errors &amp; Fix</h2>
+    <ul>
+      <li><strong>Value hamesha high?</strong> → Sensor warm-up nahi hua — 2-3 min wait karo open air mein</li>
+      <li><strong>Buzzer nahi baja?</strong> → Pin 8 check karo, <strong>active buzzer</strong> use karo (passive nahi)</li>
+      <li><strong>LED nahi jali?</strong> → LED polarity check karo (anode/cathode) + 220Ω resistor lagao</li>
+      <li><strong>Value 0 aa rahi?</strong> → A0 pin connection aur VCC/GND check karo</li>
+      <li><strong>False alarm baar baar?</strong> → threshold value badhaao code mein (400 → 500 ya 600)</li>
+      <li><strong>Reading fluctuate karti?</strong> → 3 readings average karo; capacitor 100nF A0 aur GND ke beech lagao</li>
+    </ul>
+    <div class="tip-box">
+      💡 <strong>Upgrade Ideas:</strong><br>
+      📺 <strong>16x2 LCD</strong> add karo — gas level screen pe dikhao<br>
+      📱 <strong>GSM Module</strong> add karo — gas leak par SMS alert bhejo<br>
+      🔌 <strong>Relay</strong> add karo — gas valve automatically band karo<br>
+      📊 <strong>Multiple MQ sensors</strong> — MQ-4 (methane), MQ-7 (CO), MQ-135 (air quality)
+    </div>
+  </div>
+
+  <!-- 8. FINAL -->
+  <div class="card">
+    <h2>8. 🎉 Final Project Ready</h2>
+    <p>Project complete ho gaya! Aap chahein toh:</p>
+    <ul style="margin-top:10px;">
+      <li>LCD Display add karo — gas level screen pe dikhao</li>
+      <li>GSM module add karo — gas leak par SMS alert bhejo</li>
+      <li>Relay add karo — gas valve automatically band karo</li>
+      <li>Multiple MQ sensors use karo — alag alag gases detect karo</li>
+    </ul>
+    <div class="success-box" style="margin-top:14px;">
+      ✅ Aapne Arduino Gas Detector project successfully complete kar liya!
+    </div>
+  </div>
+
+  <!-- 9. DOCUMENTATION -->
+  <div class="card">
+    <h2>9. 📝 Project Documentation</h2>
+    <ul>
+      <li><strong>Project Name:</strong> Gas Detector / Gas Leakage Alarm</li>
+      <li><strong>Difficulty:</strong> Intermediate</li>
+      <li><strong>Sensor:</strong> MQ-2 (LPG, Methane, Smoke, Hydrogen detect karta hai)</li>
+      <li><strong>Pins Used:</strong> A0 (Analog), Pin 7 (Digital), Pin 8 (Buzzer), Pin 9 (LED)</li>
+      <li><strong>Working:</strong> analogRead() se gas level 0-1023, threshold cross → alarm</li>
+      <li><strong>Threshold:</strong> 400 (adjustable as per environment)</li>
+      <li><strong>Warm-up Time:</strong> 2-3 minutes (MQ-2 heater)</li>
+      <li><strong>Baud Rate:</strong> 9600 (Serial Monitor)</li>
+    </ul>
+  </div>
+
+  <button class="download-btn" onclick="downloadPage()">⬇️ Page Download Karo (HTML)</button>
+
+</div><!-- /container -->
+
+<script>
+// LOADER
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const l = document.getElementById('loader');
+    l.style.opacity = '0';
+    setTimeout(() => l.style.display = 'none', 800);
+  }, 1200);
+});
+
+// PARTICLES
+(function(){
+  const c = document.getElementById('particles');
+  for(let i = 0; i < 20; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const warm = Math.random() > 0.5;
+    p.style.cssText =
+      'left:' + Math.random()*100 + '%;' +
+      'animation-delay:' + Math.random()*12 + 's;' +
+      'animation-duration:' + (10+Math.random()*8) + 's;' +
+      'width:' + (3+Math.random()*5) + 'px;' +
+      'height:' + (3+Math.random()*5) + 'px;' +
+      'opacity:' + (0.2+Math.random()*0.4) + ';' +
+      'background:' + (warm ? '#ff6b0055' : '#ff980055') + ';';
+    c.appendChild(p);
+  }
+})();
+
+// COPY CODE
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('code').innerText).then(()=>{
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'inline';
+    setTimeout(()=> msg.style.display = 'none', 2000);
+  });
+}
+
+// THRESHOLD NOTE
+function changeThreshold(val){
+  document.getElementById('speed-note').textContent =
+    '→ threshold = ' + val + ' — gas level ' + val + ' se zyada hone par alarm bajega';
+}
+
+// GAS DEMO
+function setGas(val){
+  document.getElementById('gas-val').textContent = val;
+  const pct = (val / 1023) * 100;
+  const bar  = document.getElementById('gas-bar');
+  const tag  = document.getElementById('status-tag');
+  const note = document.getElementById('gas-note');
+  bar.style.width = pct + '%';
+
+  if(val >= 700){
+    bar.style.background = 'linear-gradient(90deg,#ff1744,#ff5252)';
+    bar.style.boxShadow  = '0 0 14px rgba(255,23,68,0.6)';
+    tag.style.cssText = 'display:inline-block;padding:6px 22px;border-radius:20px;font-size:14px;font-weight:700;margin-top:6px;transition:all 0.4s;background:rgba(255,23,68,0.15);color:#ff5252;border:1px solid #ff174455;';
+    tag.textContent = '🚨 DANGER! GAS DETECTED — ALARM ON!';
+    note.style.color = '#ff5252';
+    note.textContent = '⚠️ Gas level CRITICAL: ' + val + ' / 1023 (' + Math.round(pct) + '%) — Buzzer + LED alarm active!';
+  } else if(val >= 400){
+    bar.style.background = 'linear-gradient(90deg,#ff9800,#ffcc02)';
+    bar.style.boxShadow  = '0 0 14px rgba(255,152,0,0.5)';
+    tag.style.cssText = 'display:inline-block;padding:6px 22px;border-radius:20px;font-size:14px;font-weight:700;margin-top:6px;transition:all 0.4s;background:rgba(255,152,0,0.12);color:#ffb74d;border:1px solid #ff980055;';
+    tag.textContent = '⚠️ Warning — Gas Level High';
+    note.style.color = '#ffb74d';
+    note.textContent = '⚠️ Gas level HIGH: ' + val + ' / 1023 (' + Math.round(pct) + '%) — threshold cross hua!';
+  } else {
+    bar.style.background = 'linear-gradient(90deg,#00ff99,#00e5ff)';
+    bar.style.boxShadow  = '0 0 10px rgba(0,255,153,0.4)';
+    tag.style.cssText = 'display:inline-block;padding:6px 22px;border-radius:20px;font-size:14px;font-weight:700;margin-top:6px;transition:all 0.4s;background:rgba(0,255,100,0.15);color:#00ff99;border:1px solid #00ff6455;';
+    tag.textContent = '✅ Safe — No Gas Detected';
+    note.style.color = '#00ff99';
+    note.textContent = '✅ Gas level safe: ' + val + ' / 1023 (' + Math.round(pct) + '%) — sab theek hai';
+  }
+}
+
+// DOWNLOAD
+function downloadPage(){
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'gas_detector_project.html';
+  a.click();
+}
+
+// Init demo
+setGas(200);
+</script>
+</body>
+</html>

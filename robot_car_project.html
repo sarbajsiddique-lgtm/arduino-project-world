@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤖 Robot Car Project - Arduino</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{
+  width:100%;min-height:100vh;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#020617,#000814,#001d3d);
+  background-attachment:fixed;
+  overflow-x:hidden;color:white;scroll-behavior:smooth;
+}
+body::before{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#00ffee10;filter:blur(180px);top:-200px;left:-200px;z-index:-2;
+}
+body::after{
+  content:"";position:fixed;width:500px;height:500px;
+  background:#b026ff10;filter:blur(180px);bottom:-200px;right:-200px;z-index:-2;
+}
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:-1;}
+.particle{
+  position:absolute;width:5px;height:5px;border-radius:50%;
+  background:#00ffee55;animation:floatParticle 12s linear infinite;
+}
+@keyframes floatParticle{
+  from{transform:translateY(100vh);opacity:0;}
+  to{transform:translateY(-100vh);opacity:1;}
+}
+#loader{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#020617;display:flex;justify-content:center;
+  align-items:center;z-index:99999;transition:opacity 0.8s;
+}
+#loader h1{
+  font-size:60px;font-weight:bold;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+  animation:pulse 1.5s infinite alternate;
+}
+@keyframes pulse{
+  from{opacity:0.6;transform:scale(1);}
+  to{opacity:1;transform:scale(1.04);}
+}
+.navbar{
+  padding:18px 30px;background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:26px;font-weight:bold;position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+}
+.navbar span{color:#00ffee;text-shadow:0 0 10px #00ffee88;}
+h1{
+  text-align:center;font-size:55px;font-weight:700;
+  margin:40px 0 10px;color:#00ffee;
+  text-shadow:0 0 10px rgba(0,255,255,0.35);
+}
+.subtitle{text-align:center;color:#cbd5e1;margin-bottom:40px;font-size:18px;}
+.badge{
+  display:inline-block;padding:8px 20px;border-radius:30px;
+  background:linear-gradient(45deg,#ff6b6b,#ffa500);
+  color:white;font-weight:bold;margin-bottom:16px;
+  box-shadow:0 0 15px rgba(255,107,107,0.5);font-size:14px;
+}
+.container{max-width:1000px;margin:auto;padding:0 30px 60px;}
+.card{
+  background:rgba(8,21,56,0.85);border:2px solid #00e5ff;
+  border-radius:20px;padding:28px;margin-bottom:24px;
+  box-shadow:0 0 20px rgba(0,255,255,0.15);
+  backdrop-filter:blur(10px);transition:0.3s;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 0 35px rgba(0,229,255,0.3);}
+.card h2{color:#00ffee;margin-bottom:14px;font-size:22px;}
+.card p,.card li{font-size:16px;line-height:1.8;color:#dbeafe;}
+ul{padding-left:22px;}
+ul li{margin-bottom:6px;}
+pre{
+  background:#000;color:#00ff99;padding:20px;
+  border-radius:12px;overflow:auto;margin-top:10px;
+  font-size:15px;line-height:1.7;
+  box-shadow:0 0 20px rgba(0,255,153,0.2);
+}
+button,.btn{
+  padding:12px 28px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#00e5ff,#7b61ff);
+  color:white;font-size:16px;font-weight:bold;
+  cursor:pointer;margin-top:14px;transition:0.3s;
+}
+button:hover,.btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,229,255,0.4);}
+.download-btn{
+  padding:14px 30px;border:none;border-radius:30px;
+  background:linear-gradient(45deg,#ff6b6b,#ffa500);
+  color:white;font-size:17px;font-weight:bold;
+  cursor:pointer;box-shadow:0 0 20px rgba(255,107,107,0.4);transition:0.3s;
+  display:block;margin:30px auto 0;
+}
+.download-btn:hover{transform:scale(1.06);box-shadow:0 0 35px rgba(255,107,107,0.6);}
+.success-box{
+  background:rgba(0,255,100,0.07);border:1px solid #00ff6455;
+  border-left:4px solid #00ff64;border-radius:10px;
+  padding:14px 18px;margin-top:12px;color:#a7f3d0;font-size:15px;line-height:1.7;
+}
+.tip-box{
+  background:rgba(0,200,255,0.07);border:1px solid #00e5ff44;
+  border-left:4px solid #00e5ff;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#bae6fd;font-size:15px;line-height:1.7;
+}
+.warn-box{
+  background:rgba(255,165,0,0.07);border:1px solid #ffa50044;
+  border-left:4px solid #ffa500;border-radius:10px;
+  padding:14px 18px;margin-top:14px;color:#fed7aa;font-size:15px;line-height:1.7;
+}
+.steps-list{list-style:none;padding:0;}
+.steps-list li{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.steps-list li:last-child{border-bottom:none;}
+.step-num{
+  min-width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(45deg,#ff6b6b,#ffa500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;color:white;
+}
+
+/* ====== ROBOT CAR DEMO ====== */
+.demo-wrap{
+  background:#000;border-radius:16px;padding:24px 20px;
+  margin-top:16px;text-align:center;
+  box-shadow:0 0 20px rgba(0,229,255,0.12);
+  position:relative;overflow:hidden;
+}
+.arena{
+  width:260px;height:200px;border:2px solid #00e5ff44;
+  border-radius:12px;margin:0 auto 16px;position:relative;
+  background:radial-gradient(ellipse at center,#0a1628 0%,#020617 100%);
+  overflow:hidden;
+}
+.arena-grid{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,0.04) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+
+/* Robot SVG car */
+#robot-car{
+  position:absolute;
+  transition:all 0.35s ease;
+  transform-origin:center center;
+}
+
+/* Wheels animation */
+@keyframes wheelSpin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+.wheel-spin{animation:wheelSpin 0.4s linear infinite;}
+
+/* Headlight glow */
+@keyframes headlightPulse{
+  0%,100%{opacity:0.5;}
+  50%{opacity:1;}
+}
+.headlight{animation:headlightPulse 1.2s ease-in-out infinite;}
+
+.status-label{
+  font-family:monospace;font-size:13px;color:#546e7a;margin-bottom:8px;
+}
+.direction-display{
+  font-family:monospace;font-size:20px;font-weight:700;color:#00ffee;
+  text-shadow:0 0 10px #00ffee88;margin-bottom:4px;
+  min-height:28px;
+}
+.speed-display{
+  font-family:monospace;font-size:13px;color:#ffa500;margin-bottom:10px;
+}
+
+/* Control pad */
+.ctrl-pad{
+  display:grid;
+  grid-template-columns:repeat(3,56px);
+  grid-template-rows:repeat(3,56px);
+  gap:6px;justify-content:center;margin:14px auto 0;
+}
+.ctrl-btn{
+  width:56px;height:56px;border:none;border-radius:12px;
+  background:rgba(0,229,255,0.1);border:1px solid #00e5ff44;
+  color:#00ffee;font-size:22px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:0.15s;margin-top:0;padding:0;
+  font-weight:bold;
+}
+.ctrl-btn:hover,.ctrl-btn:active{
+  background:rgba(0,229,255,0.25);
+  box-shadow:0 0 16px rgba(0,229,255,0.4);
+  transform:scale(1.08);
+}
+.ctrl-btn.empty{background:transparent;border-color:transparent;cursor:default;pointer-events:none;}
+.ctrl-btn.stop-btn{
+  background:rgba(255,23,68,0.12);border-color:#ff174455;color:#ff5252;
+}
+.ctrl-btn.stop-btn:hover{background:rgba(255,23,68,0.28);box-shadow:0 0 16px rgba(255,23,68,0.4);}
+
+.mode-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+.mode-btns button{padding:8px 16px;font-size:13px;margin-top:0;}
+#status-note{
+  font-family:monospace;font-size:13px;margin-top:10px;
+  color:#00ff99;min-height:20px;
+}
+
+/* Circuit */
+.circuit-wrap{overflow-x:auto;margin-top:12px;}
+.circuit-note{font-size:12px;color:#546e7a;margin-top:8px;}
+
+@media(max-width:768px){
+  h1{font-size:34px;}
+  .container{padding:0 14px 40px;}
+  .card{padding:18px;}
+  .navbar{font-size:20px;}
+  pre{font-size:13px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader"><h1>🤖 Loading...</h1></div>
+<div id="particles"></div>
+
+<nav class="navbar">
+  <span>⚡</span> Arduino Robot Car Project
+</nav>
+
+<div class="container">
+
+  <h1>🤖 Robot Car</h1>
+  <p class="subtitle">Arduino se 4-wheel robot car banao — L298N motor driver ke saath</p>
+
+  <!-- 1. INTRODUCTION -->
+  <div class="card">
+    <span class="badge">PROJECT #05 · INTERMEDIATE</span>
+    <h2>1. 🤖 Project Introduction</h2>
+    <p>
+      Robot Car project mein Arduino Uno ek L298N motor driver ke zariye 2 DC motors ko control karta hai —
+      jisse car aage, peeche, left aur right move karti hai. Ek ultrasonic sensor (HC-SR04) obstacle
+      detect karta hai — agar koi object saamne aaye toh car automatically ruk jaati hai ya
+      direction change kar leti hai. Remote control ke liye Bluetooth (HC-05) bhi add kar sakte ho!
+    </p>
+    <div class="tip-box">
+      💡 <strong>Fun Fact:</strong> L298N ek H-Bridge circuit hai jo motor ko dono directions mein
+      chalata hai — aur PWM se speed bhi control hoti hai (0–255 range)!
+    </div>
+  </div>
+
+  <!-- 2. COMPONENTS -->
+  <div class="card">
+    <h2>2. 📋 Components Required</h2>
+    <ul>
+      <li>🟩 Arduino Uno × 1</li>
+      <li>⚙️ L298N Dual Motor Driver Module × 1</li>
+      <li>🔵 DC Motors (with wheels) × 2 (ya 4 motor chassis kit)</li>
+      <li>📡 HC-SR04 Ultrasonic Sensor × 1 (obstacle detection)</li>
+      <li>🔋 Li-ion / 9V Battery Pack × 1</li>
+      <li>🔗 Jumper Wires × 10+</li>
+      <li>🧱 Robot Car Chassis Kit × 1</li>
+      <li>🔌 USB Cable × 1</li>
+    </ul>
+    <div class="tip-box">
+      ⚡ <strong>L298N Pins:</strong><br>
+      <strong>ENA</strong> → PWM Pin 5 &nbsp;|&nbsp;
+      <strong>IN1</strong> → Pin 6 &nbsp;|&nbsp;
+      <strong>IN2</strong> → Pin 7 <br>
+      <strong>ENB</strong> → PWM Pin 10 &nbsp;|&nbsp;
+      <strong>IN3</strong> → Pin 8 &nbsp;|&nbsp;
+      <strong>IN4</strong> → Pin 9 <br><br>
+      📡 <strong>HC-SR04:</strong> VCC → 5V | GND → GND | TRIG → Pin 2 | ECHO → Pin 3
+    </div>
+  </div>
+
+  <!-- 3. CIRCUIT DIAGRAM -->
+  <div class="card">
+    <h2>3. 🔌 Circuit Diagram</h2>
+    <div class="circuit-wrap">
+      <svg width="100%" viewBox="0 0 760 380" role="img">
+        <title>Arduino Robot Car Circuit</title>
+
+        <!-- Arduino board -->
+        <rect x="20" y="50" width="185" height="280" rx="12"
+              fill="#1D9E75" opacity="0.08" stroke="#1D9E75" stroke-width="1.5"/>
+        <rect x="20" y="50" width="185" height="30" rx="12"
+              fill="#1D9E75" opacity="0.18"/>
+        <text x="112" y="71" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#1D9E75" letter-spacing="2">ARDUINO UNO</text>
+
+        <!-- Arduino Pins -->
+        <rect x="203" y="90"  width="12" height="10" rx="2" fill="#E24B4A" stroke="#78909c" stroke-width="0.5"/>
+        <text x="197" y="99"  text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">5V</text>
+
+        <rect x="203" y="108" width="12" height="10" rx="2" fill="#546e7a" stroke="#37474f" stroke-width="0.5"/>
+        <text x="197" y="117" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">GND</text>
+
+        <rect x="203" y="126" width="12" height="10" rx="2" fill="#42a5f5" stroke="#0d47a1" stroke-width="0.5"/>
+        <text x="197" y="135" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 2 (TRIG)</text>
+
+        <rect x="203" y="144" width="12" height="10" rx="2" fill="#ab47bc" stroke="#6a1b9a" stroke-width="0.5"/>
+        <text x="197" y="153" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 3 (ECHO)</text>
+
+        <rect x="203" y="162" width="12" height="10" rx="2" fill="#66bb6a" stroke="#1b5e20" stroke-width="0.5"/>
+        <text x="197" y="171" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 5 (ENA~)</text>
+
+        <rect x="203" y="180" width="12" height="10" rx="2" fill="#ffa726" stroke="#e65100" stroke-width="0.5"/>
+        <text x="197" y="189" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 6 (IN1)</text>
+
+        <rect x="203" y="198" width="12" height="10" rx="2" fill="#ef5350" stroke="#b71c1c" stroke-width="0.5"/>
+        <text x="197" y="207" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 7 (IN2)</text>
+
+        <rect x="203" y="216" width="12" height="10" rx="2" fill="#26c6da" stroke="#006064" stroke-width="0.5"/>
+        <text x="197" y="225" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 8 (IN3)</text>
+
+        <rect x="203" y="234" width="12" height="10" rx="2" fill="#ec407a" stroke="#880e4f" stroke-width="0.5"/>
+        <text x="197" y="243" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 9 (IN4)</text>
+
+        <rect x="203" y="252" width="12" height="10" rx="2" fill="#8d6e63" stroke="#3e2723" stroke-width="0.5"/>
+        <text x="197" y="261" text-anchor="end" font-family="monospace" font-size="10" fill="#80deea">Pin 10 (ENB~)</text>
+
+        <!-- L298N Motor Driver -->
+        <rect x="330" y="130" width="130" height="160" rx="10"
+              fill="#1a2233" stroke="#ffa726" stroke-width="1.5"/>
+        <rect x="330" y="130" width="130" height="24" rx="10"
+              fill="rgba(255,167,38,0.15)"/>
+        <text x="395" y="147" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#ffa726" letter-spacing="1">L298N</text>
+        <text x="395" y="163" text-anchor="middle"
+              font-family="monospace" font-size="9" fill="#80deea">Motor Driver</text>
+
+        <!-- L298N pin labels -->
+        <text x="340" y="182" font-family="monospace" font-size="8" fill="#66bb6a">ENA</text>
+        <text x="340" y="196" font-family="monospace" font-size="8" fill="#ffa726">IN1</text>
+        <text x="340" y="210" font-family="monospace" font-size="8" fill="#ef5350">IN2</text>
+        <text x="340" y="224" font-family="monospace" font-size="8" fill="#26c6da">IN3</text>
+        <text x="340" y="238" font-family="monospace" font-size="8" fill="#ec407a">IN4</text>
+        <text x="340" y="252" font-family="monospace" font-size="8" fill="#8d6e63">ENB</text>
+        <text x="340" y="278" font-family="monospace" font-size="8" fill="#E24B4A">VCC/GND</text>
+
+        <!-- Motors (right side of L298N) -->
+        <rect x="510" y="145" width="70" height="40" rx="8"
+              fill="#1a2233" stroke="#42a5f5" stroke-width="1.5"/>
+        <text x="545" y="169" text-anchor="middle" font-family="monospace" font-size="9" fill="#42a5f5">Motor A (L)</text>
+
+        <rect x="510" y="215" width="70" height="40" rx="8"
+              fill="#1a2233" stroke="#42a5f5" stroke-width="1.5"/>
+        <text x="545" y="239" text-anchor="middle" font-family="monospace" font-size="9" fill="#42a5f5">Motor B (R)</text>
+
+        <!-- HC-SR04 Ultrasonic -->
+        <rect x="330" y="50" width="130" height="60" rx="10"
+              fill="#1a2233" stroke="#ab47bc" stroke-width="1.5"/>
+        <rect x="330" y="50" width="130" height="20" rx="10"
+              fill="rgba(171,71,188,0.15)"/>
+        <text x="395" y="65" text-anchor="middle"
+              font-family="monospace" font-size="11" fill="#ab47bc">HC-SR04</text>
+        <text x="395" y="78" text-anchor="middle"
+              font-family="monospace" font-size="9" fill="#80deea">Ultrasonic</text>
+        <!-- sensor eyes -->
+        <circle cx="362" cy="92" r="9" fill="#0d1a2e" stroke="#ab47bc" stroke-width="1"/>
+        <circle cx="362" cy="92" r="5" fill="#ab47bc" opacity="0.5"/>
+        <circle cx="428" cy="92" r="9" fill="#0d1a2e" stroke="#ab47bc" stroke-width="1"/>
+        <circle cx="428" cy="92" r="5" fill="#ab47bc" opacity="0.5"/>
+
+        <!-- Wires: Arduino → HC-SR04 -->
+        <polyline points="215,95 318,95 318,75 330,75"
+                  fill="none" stroke="#E24B4A" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="215,113 308,113 308,107 330,107"
+                  fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="215,131 302,131 302,85 330,85"
+                  fill="none" stroke="#42a5f5" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="215,149 296,149 296,98 330,98"
+                  fill="none" stroke="#ab47bc" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- Wires: Arduino → L298N -->
+        <line x1="215" y1="167" x2="330" y2="177" stroke="#66bb6a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="215" y1="185" x2="330" y2="191" stroke="#ffa726" stroke-width="2" stroke-linecap="round"/>
+        <line x1="215" y1="203" x2="330" y2="205" stroke="#ef5350" stroke-width="2" stroke-linecap="round"/>
+        <line x1="215" y1="221" x2="330" y2="219" stroke="#26c6da" stroke-width="2" stroke-linecap="round"/>
+        <line x1="215" y1="239" x2="330" y2="233" stroke="#ec407a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="215" y1="257" x2="330" y2="247" stroke="#8d6e63" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- L298N → Motors -->
+        <line x1="460" y1="175" x2="510" y2="165" stroke="#42a5f5" stroke-width="2" stroke-linecap="round"/>
+        <line x1="460" y1="235" x2="510" y2="235" stroke="#42a5f5" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- Battery -->
+        <rect x="620" y="220" width="80" height="50" rx="8"
+              fill="#1a2233" stroke="#ffee58" stroke-width="1.5"/>
+        <text x="660" y="248" text-anchor="middle" font-family="monospace" font-size="10" fill="#ffee58">🔋 Battery</text>
+        <text x="660" y="262" text-anchor="middle" font-family="monospace" font-size="9" fill="#80deea">7-12V</text>
+        <line x1="620" y1="240" x2="600" y2="240" stroke="#ffee58" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <line x1="600" y1="240" x2="600" y2="275" stroke="#ffee58" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <line x1="600" y1="275" x2="460" y2="275" stroke="#ffee58" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <line x1="460" y1="275" x2="460" y2="270" stroke="#ffee58" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="550" y="292" text-anchor="middle" font-family="monospace" font-size="8" fill="#ffee58">VCC → L298N</text>
+
+        <!-- USB -->
+        <rect x="28" y="308" width="48" height="18" rx="4" fill="none" stroke="#37474f" stroke-width="1"/>
+        <text x="52" y="321" text-anchor="middle" font-family="monospace" font-size="10" fill="#37474f">USB</text>
+
+        <!-- Legend -->
+        <line x1="30"  y1="360" x2="55"  y2="360" stroke="#E24B4A" stroke-width="2"/>
+        <text x="60"   y="364" font-family="monospace" font-size="9" fill="#80deea">5V</text>
+        <line x1="90"  y1="360" x2="115" y2="360" stroke="#1D9E75" stroke-width="2"/>
+        <text x="120"  y="364" font-family="monospace" font-size="9" fill="#80deea">GND</text>
+        <line x1="165" y1="360" x2="190" y2="360" stroke="#ffa726" stroke-width="2"/>
+        <text x="195"  y="364" font-family="monospace" font-size="9" fill="#80deea">Motor Ctrl</text>
+        <line x1="270" y1="360" x2="295" y2="360" stroke="#ab47bc" stroke-width="2"/>
+        <text x="300"  y="364" font-family="monospace" font-size="9" fill="#80deea">Ultrasonic</text>
+        <line x1="385" y1="360" x2="410" y2="360" stroke="#ffee58" stroke-width="2" stroke-dasharray="4,2"/>
+        <text x="415"  y="364" font-family="monospace" font-size="9" fill="#80deea">Battery</text>
+      </svg>
+    </div>
+    <p style="margin-top:10px;color:#80deea;">
+      📌 <strong>ENA/ENB</strong> → PWM pins (speed) &nbsp;|&nbsp;
+      <strong>IN1–IN4</strong> → direction &nbsp;|&nbsp;
+      <strong>HC-SR04</strong> → Pin 2 (TRIG), Pin 3 (ECHO)
+    </p>
+    <p class="circuit-note">* Battery 7–12V use karo L298N ke VCC mein; Arduino ko USB ya L298N ke 5V output se power do</p>
+  </div>
+
+  <!-- 4. CODE -->
+  <div class="card">
+    <h2>4. 💻 Arduino Code</h2>
+    <div class="warn-box">
+      📦 <strong>Library:</strong> Koi extra library zarurat nahi — sirf standard Arduino functions use honge!
+    </div>
+    <pre id="code">// ============================================
+// Robot Car - Arduino Uno
+// L298N Motor Driver + HC-SR04 Obstacle Avoid
+// By: Arduino Projects
+// ============================================
+
+// ---- Motor A (Left) ----
+#define ENA   5   // PWM speed control
+#define IN1   6   // Direction 1
+#define IN2   7   // Direction 2
+
+// ---- Motor B (Right) ----
+#define ENB   10  // PWM speed control
+#define IN3   8   // Direction 1
+#define IN4   9   // Direction 2
+
+// ---- Ultrasonic Sensor ----
+#define TRIG_PIN  2
+#define ECHO_PIN  3
+
+// ---- Settings ----
+#define SPEED         180   // 0–255 (speed)
+#define TURN_SPEED    150   // Turning speed
+#define OBSTACLE_DIST 20    // 20 cm se kam = ruko!
+
+long duration;
+int  distance;
+
+// ============================================
+void setup() {
+  // Motor pins output
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT); pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT);
+
+  // Ultrasonic pins
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+  Serial.begin(9600);
+  Serial.println("=== Robot Car Ready! ===");
+  delay(1000);
+}
+
+// ============================================
+void loop() {
+  distance = getDistance();
+
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  if (distance > 0 && distance <= OBSTACLE_DIST) {
+    // Obstacle detected!
+    stopCar();
+    Serial.println("⚠️ Obstacle! Stopping...");
+    delay(500);
+
+    // Peeche jao thoda
+    moveBackward();
+    delay(400);
+    stopCar();
+    delay(200);
+
+    // Right turn karo
+    turnRight();
+    delay(500);
+    stopCar();
+    delay(200);
+
+  } else {
+    // Raasta clear — aage jao
+    moveForward();
+    Serial.println("✅ Moving Forward");
+  }
+
+  delay(100);
+}
+
+// ============================================
+// MOVEMENT FUNCTIONS
+// ============================================
+
+void moveForward() {
+  analogWrite(ENA, SPEED);
+  analogWrite(ENB, SPEED);
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);   // Motor A forward
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);   // Motor B forward
+}
+
+void moveBackward() {
+  analogWrite(ENA, SPEED);
+  analogWrite(ENB, SPEED);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);  // Motor A backward
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);  // Motor B backward
+}
+
+void turnLeft() {
+  analogWrite(ENA, TURN_SPEED);
+  analogWrite(ENB, TURN_SPEED);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);  // Motor A backward
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);   // Motor B forward
+}
+
+void turnRight() {
+  analogWrite(ENA, TURN_SPEED);
+  analogWrite(ENB, TURN_SPEED);
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);   // Motor A forward
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);  // Motor B backward
+}
+
+void stopCar() {
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+  digitalWrite(IN1, LOW); digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW); digitalWrite(IN4, LOW);
+}
+
+// ============================================
+// ULTRASONIC DISTANCE
+// ============================================
+
+int getDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  duration = pulseIn(ECHO_PIN, HIGH, 30000); // 30ms timeout
+  if (duration == 0) return 999; // No echo = clear
+  return duration * 0.034 / 2;  // cm mein convert
+}</pre>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;">
+      <button onclick="copyCode()">📋 Code Copy Karo</button>
+      <span id="copy-msg" style="color:#00ff99;font-size:14px;display:none;">✓ Copied!</span>
+    </div>
+    <div style="margin-top:16px;">
+      <p style="color:#80deea;font-size:14px;margin-bottom:10px;">⚡ Speed adjust karo:</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="changeSpeed(100)" style="padding:8px 16px;font-size:14px;">100 (Slow)</button>
+        <button onclick="changeSpeed(180)" style="padding:8px 16px;font-size:14px;">180 (Normal)</button>
+        <button onclick="changeSpeed(220)" style="padding:8px 16px;font-size:14px;">220 (Fast)</button>
+        <button onclick="changeSpeed(255)" style="padding:8px 16px;font-size:14px;">255 (MAX)</button>
+      </div>
+      <p id="speed-note" style="color:#00ff99;font-size:13px;margin-top:8px;font-family:monospace;"></p>
+    </div>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div class="card">
+    <h2>🎮 Live Robot Demo (Simulator)</h2>
+    <div class="demo-wrap">
+      <div class="status-label">ROBOT ARENA — CONTROL PAD</div>
+      <div class="arena">
+        <div class="arena-grid"></div>
+        <!-- Robot Car SVG -->
+        <svg id="robot-car" width="52" height="44"
+             style="left:104px;top:78px;position:absolute;">
+          <!-- Car body -->
+          <rect x="4"  y="8"  width="44" height="28" rx="6" fill="#1a3a5c" stroke="#00e5ff" stroke-width="1.5"/>
+          <!-- Headlights -->
+          <ellipse class="headlight" cx="46" cy="15" rx="4" ry="3" fill="#ffee58" opacity="0.85"/>
+          <ellipse class="headlight" cx="46" cy="29" rx="4" ry="3" fill="#ffee58" opacity="0.85"/>
+          <!-- Tail lights -->
+          <ellipse cx="6" cy="15" rx="3" ry="2.5" fill="#ff1744" opacity="0.7"/>
+          <ellipse cx="6" cy="29" rx="3" ry="2.5" fill="#ff1744" opacity="0.7"/>
+          <!-- Wheels -->
+          <rect id="wFL" x="5"  y="3"  width="14" height="8" rx="4" fill="#37474f" stroke="#546e7a" stroke-width="1"/>
+          <rect id="wFR" x="33" y="3"  width="14" height="8" rx="4" fill="#37474f" stroke="#546e7a" stroke-width="1"/>
+          <rect id="wBL" x="5"  y="33" width="14" height="8" rx="4" fill="#37474f" stroke="#546e7a" stroke-width="1"/>
+          <rect id="wBR" x="33" y="33" width="14" height="8" rx="4" fill="#37474f" stroke="#546e7a" stroke-width="1"/>
+          <!-- Robot face -->
+          <circle cx="26" cy="22" r="7" fill="#0d1a2e" stroke="#00e5ff" stroke-width="1"/>
+          <circle cx="23" cy="20" r="2" fill="#00e5ff" opacity="0.8"/>
+          <circle cx="29" cy="20" r="2" fill="#00e5ff" opacity="0.8"/>
+          <path d="M22 25 Q26 28 30 25" stroke="#00ff99" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="direction-display" id="dir-display">⏸ Stopped</div>
+      <div class="speed-display" id="speed-disp">Speed: 0 | Distance: — cm</div>
+
+      <!-- Control Pad -->
+      <div class="ctrl-pad">
+        <div class="ctrl-btn empty"></div>
+        <button class="ctrl-btn" id="btn-fwd"   onmousedown="startMove('forward')"  onmouseup="stopMove()" ontouchstart="startMove('forward')"  ontouchend="stopMove()" title="Forward">▲</button>
+        <div class="ctrl-btn empty"></div>
+        <button class="ctrl-btn" id="btn-left"  onmousedown="startMove('left')"     onmouseup="stopMove()" ontouchstart="startMove('left')"     ontouchend="stopMove()" title="Left">◄</button>
+        <button class="ctrl-btn stop-btn"        onclick="stopMove()" title="Stop">■</button>
+        <button class="ctrl-btn" id="btn-right" onmousedown="startMove('right')"    onmouseup="stopMove()" ontouchstart="startMove('right')"    ontouchend="stopMove()" title="Right">►</button>
+        <div class="ctrl-btn empty"></div>
+        <button class="ctrl-btn" id="btn-bwd"   onmousedown="startMove('backward')" onmouseup="stopMove()" ontouchstart="startMove('backward')" ontouchend="stopMove()" title="Backward">▼</button>
+        <div class="ctrl-btn empty"></div>
+      </div>
+
+      <div class="mode-btns">
+        <button onclick="setMode('manual')"    style="padding:8px 14px;font-size:12px;">🕹️ Manual</button>
+        <button onclick="setMode('obstacle')"  style="padding:8px 14px;font-size:12px;">🤖 Auto Avoid</button>
+        <button onclick="setMode('line')"      style="padding:8px 14px;font-size:12px;">➡️ Line Follow</button>
+      </div>
+      <div id="status-note">🕹️ Manual mode — arrow keys ya buttons se control karo</div>
+    </div>
+  </div>
+
+  <!-- 5. UPLOAD -->
+  <div class="card">
+    <h2>5. ⬆️ Code Upload Kaise Karo</h2>
+    <ul class="steps-list">
+      <li><div class="step-num">1</div><span>Arduino IDE open karo</span></li>
+      <li><div class="step-num">2</div><span>Circuit connections dobara check karo — motor polarity bhi</span></li>
+      <li><div class="step-num">3</div><span><strong>Tools → Board → Arduino Uno</strong> select karo</span></li>
+      <li><div class="step-num">4</div><span><strong>Tools → Port</strong> mein sahi COM port select karo</span></li>
+      <li><div class="step-num">5</div><span>Upar diya code paste karo</span></li>
+      <li><div class="step-num">6</div><span><strong>→ Upload</strong> button dabao (Ctrl+U) — battery connect karo baad mein</span></li>
+      <li><div class="step-num">7</div><span><strong>Serial Monitor (9600)</strong> mein distance readings dekho</span></li>
+    </ul>
+    <div class="tip-box">
+      🔋 <strong>Important:</strong> Upload ke time Arduino ko USB se power do — battery baad mein lagao.
+      Motors bahut current khaate hain — directly Arduino se mat chalao, hamesha L298N use karo!
+    </div>
+  </div>
+
+  <!-- 6. TESTING -->
+  <div class="card">
+    <h2>6. ✅ Testing</h2>
+    <p>Car ko kisi flat surface pe rakho. Power on karo — car aage chalani chahiye. Saamne haath rakho — 20cm ke andar aao toh car ruk jaani chahiye.</p>
+    <div class="success-box">
+      🎉 <strong>Success:</strong> Car move ho rahi hai aur obstacles se bach rahi hai? Congratulations — project complete!
+    </div>
+    <div class="tip-box" style="margin-top:12px;">
+      🔧 <strong>Motor ulti chal rahi hai?</strong> IN1/IN2 ya motor ke wires swap karo.
+      <br>⚡ <strong>Slow hai?</strong> SPEED value badha do (max 255).
+    </div>
+  </div>
+
+  <!-- 7. ERROR FIXING -->
+  <div class="card">
+    <h2>7. 🛠️ Common Errors &amp; Fix</h2>
+    <ul>
+      <li><strong>Car nahi chal rahi?</strong> → ENA/ENB jumper hata do — ya PWM se HIGH karo</li>
+      <li><strong>Ek motor nahi chal rahi?</strong> → L298N ke IN1/IN2 ya IN3/IN4 check karo</li>
+      <li><strong>Ultrasonic kaam nahi kar raha?</strong> → TRIG/ECHO wires swap karke dekho</li>
+      <li><strong>Car circle mein ghoom rahi?</strong> → Dono motors ki speed match karo (ENA/ENB PWM value)</li>
+      <li><strong>Car bahut slow hai?</strong> → Battery fully charged hai? SPEED value 180+ rakho</li>
+      <li><strong>Arduino reset hota hai?</strong> → Motors ke liye alag power supply use karo</li>
+    </ul>
+    <div class="tip-box">
+      💡 <strong>Upgrade Ideas:</strong>
+      <br>🔵 <strong>Bluetooth (HC-05)</strong> add karo — phone se control karo
+      <br>📡 <strong>IR Remote</strong> add karo — remote car bana lo
+      <br>🗺️ <strong>Line Follower</strong> — IR sensors se line follow karao
+      <br>🤖 <strong>Servo + Ultrasonic</strong> — sensor ko rotate karao, better navigation!
+    </div>
+  </div>
+
+  <!-- 8. FINAL -->
+  <div class="card">
+    <h2>8. 🎉 Final Project Ready</h2>
+    <p>Robot Car project complete ho gaya! Aap chahein toh:</p>
+    <ul style="margin-top:10px;">
+      <li>Bluetooth HC-05 add karo — Android app se control karo</li>
+      <li>Servo motor add karo — ultrasonic sensor ko scan karne do</li>
+      <li>Camera add karo — FPV robot banao</li>
+      <li>ESP8266 add karo — WiFi se control karo</li>
+    </ul>
+    <div class="success-box" style="margin-top:14px;">
+      ✅ Aapne Arduino Robot Car project successfully complete kar liya!
+    </div>
+  </div>
+
+  <!-- 9. DOCUMENTATION -->
+  <div class="card">
+    <h2>9. 📝 Project Documentation</h2>
+    <ul>
+      <li><strong>Project Name:</strong> Obstacle Avoiding Robot Car</li>
+      <li><strong>Difficulty:</strong> Intermediate</li>
+      <li><strong>Motor Driver:</strong> L298N Dual H-Bridge</li>
+      <li><strong>Sensor:</strong> HC-SR04 Ultrasonic (obstacle detect)</li>
+      <li><strong>Pins Used:</strong> ENA→5, IN1→6, IN2→7, ENB→10, IN3→8, IN4→9, TRIG→2, ECHO→3</li>
+      <li><strong>Default Speed:</strong> 180/255 (adjustable)</li>
+      <li><strong>Obstacle Threshold:</strong> 20 cm</li>
+      <li><strong>Power:</strong> 7–12V battery for motors | 5V USB for Arduino</li>
+      <li><strong>Baud Rate:</strong> 9600 (Serial Monitor)</li>
+    </ul>
+  </div>
+
+  <button class="download-btn" onclick="downloadPage()">⬇️ Page Download Karo (HTML)</button>
+
+</div><!-- /container -->
+
+<script>
+// LOADER
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const l = document.getElementById('loader');
+    l.style.opacity = '0';
+    setTimeout(() => l.style.display = 'none', 800);
+  }, 1200);
+});
+
+// PARTICLES
+(function(){
+  const c = document.getElementById('particles');
+  for(let i = 0; i < 20; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText =
+      'left:' + Math.random()*100 + '%;' +
+      'animation-delay:' + Math.random()*12 + 's;' +
+      'animation-duration:' + (10+Math.random()*8) + 's;' +
+      'width:' + (3+Math.random()*5) + 'px;' +
+      'height:' + (3+Math.random()*5) + 'px;' +
+      'opacity:' + (0.2+Math.random()*0.5) + ';';
+    c.appendChild(p);
+  }
+})();
+
+// COPY CODE
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('code').innerText).then(()=>{
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'inline';
+    setTimeout(()=> msg.style.display = 'none', 2000);
+  });
+}
+
+// SPEED NOTE
+function changeSpeed(val){
+  document.getElementById('speed-note').textContent =
+    '→ SPEED = ' + val + ' set hua — PWM value ' + val + '/255 (analogWrite)';
+}
+
+// ====== ROBOT DEMO ======
+let carX = 104, carY = 78, carAngle = 90; // angle in degrees
+let moveInterval = null;
+let currentDir = '';
+let currentMode = 'manual';
+let autoInterval = null;
+let simDist = 999;
+
+const ARENA_W = 260 - 52, ARENA_H = 200 - 44; // max x, y
+
+function getCarEl(){ return document.getElementById('robot-car'); }
+
+function updateCarPos(){
+  const car = getCarEl();
+  car.style.left = carX + 'px';
+  car.style.top  = carY  + 'px';
+  car.style.transform = 'rotate(' + (carAngle - 90) + 'deg)';
+}
+
+function startMove(dir){
+  if(currentMode !== 'manual') return;
+  currentDir = dir;
+  clearInterval(moveInterval);
+  moveInterval = setInterval(()=> moveStep(dir), 50);
+  updateStatus(dir);
+}
+
+function stopMove(){
+  currentDir = '';
+  clearInterval(moveInterval);
+  document.getElementById('dir-display').textContent = '⏸ Stopped';
+  document.getElementById('speed-disp').textContent = 'Speed: 0 | Distance: ' + (simDist < 900 ? simDist + ' cm' : '— cm');
+}
+
+function moveStep(dir){
+  const step = 5;
+  if(dir === 'forward'){
+    const rad = (carAngle - 90) * Math.PI / 180;
+    carX = Math.max(0, Math.min(ARENA_W, carX + Math.cos(rad) * step));
+    carY = Math.max(0, Math.min(ARENA_H, carY + Math.sin(rad) * step));
+  } else if(dir === 'backward'){
+    const rad = (carAngle - 90) * Math.PI / 180;
+    carX = Math.max(0, Math.min(ARENA_W, carX - Math.cos(rad) * step));
+    carY = Math.max(0, Math.min(ARENA_H, carY - Math.sin(rad) * step));
+  } else if(dir === 'left'){
+    carAngle -= 6;
+  } else if(dir === 'right'){
+    carAngle += 6;
+  }
+  simDist = Math.round(Math.sqrt(Math.pow(ARENA_W/2 - carX, 2) + Math.pow(ARENA_H/2 - carY, 2)) / 4 + 5);
+  updateCarPos();
+}
+
+function updateStatus(dir){
+  const labels = {
+    forward:  '⬆️ Moving Forward',
+    backward: '⬇️ Moving Backward',
+    left:     '⬅️ Turning Left',
+    right:    '➡️ Turning Right'
+  };
+  document.getElementById('dir-display').textContent = labels[dir] || '⏸ Stopped';
+  document.getElementById('speed-disp').textContent = 'Speed: 180 | Distance: ' + (simDist < 900 ? simDist + ' cm' : '— cm');
+}
+
+function setMode(mode){
+  currentMode = mode;
+  clearInterval(autoInterval);
+  stopMove();
+  const note = document.getElementById('status-note');
+  if(mode === 'manual'){
+    note.style.color = '#00ff99';
+    note.textContent = '🕹️ Manual mode — arrow keys ya buttons se control karo';
+  } else if(mode === 'obstacle'){
+    note.style.color = '#ffa726';
+    note.textContent = '🤖 Auto Obstacle Avoid mode — car apne aap chal rahi hai!';
+    runAutoMode();
+  } else if(mode === 'line'){
+    note.style.color = '#42a5f5';
+    note.textContent = '➡️ Line Follow mode — car ek line pe chalti hai (simulated)';
+    runLineMode();
+  }
+}
+
+function runAutoMode(){
+  let step = 0;
+  const sequence = ['forward','forward','forward','forward','left','left','forward','forward','right','right'];
+  autoInterval = setInterval(()=>{
+    const dir = sequence[step % sequence.length];
+    moveStep(dir);
+    updateStatus(dir);
+    step++;
+    // simulate obstacle
+    if(step % 17 === 0){
+      document.getElementById('dir-display').textContent = '⚠️ Obstacle! Turning...';
+      document.getElementById('speed-disp').textContent = 'Speed: 0 | Distance: 12 cm ⚠️';
+    }
+  }, 80);
+}
+
+function runLineMode(){
+  let t = 0;
+  autoInterval = setInterval(()=>{
+    // Gentle sine wave path
+    carAngle = 90 + Math.sin(t * 0.05) * 15;
+    moveStep('forward');
+    document.getElementById('dir-display').textContent = '➡️ Following Line';
+    document.getElementById('speed-disp').textContent = 'Speed: 160 | Sensor: ON LINE';
+    t++;
+  }, 60);
+}
+
+// Keyboard controls
+document.addEventListener('keydown', e => {
+  if(currentMode !== 'manual') return;
+  const map = { ArrowUp:'forward', ArrowDown:'backward', ArrowLeft:'left', ArrowRight:'right' };
+  if(map[e.key] && !moveInterval){
+    startMove(map[e.key]);
+    e.preventDefault();
+  }
+});
+document.addEventListener('keyup', e => {
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) stopMove();
+});
+
+// DOWNLOAD
+function downloadPage(){
+  const a = document.createElement('a');
+  a.href = window.location.href;
+  a.download = 'robot_car_project.html';
+  a.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Arduino Basics</title>
+
+<style>
+
+/* ===== RESET ===== */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+/* ===== BODY ===== */
+
+body{
+font-family:'Segoe UI',sans-serif;
+background:#050816;
+overflow-x:hidden;
+color:white;
+position:relative;
+}
+
+/* ===== ANIMATED BACKGROUND ===== */
+
+body::before{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:
+radial-gradient(circle at top left,#00e5ff22,transparent 30%),
+radial-gradient(circle at bottom right,#a855f722,transparent 30%),
+linear-gradient(to bottom,#050816,#02030d);
+z-index:-3;
+}
+
+/* ===== PARTICLE EFFECT ===== */
+
+body::after{
+content:"";
+position:fixed;
+width:100%;
+height:100%;
+top:0;
+left:0;
+background:url("https://www.transparenttextures.com/patterns/stardust.png");
+opacity:0.08;
+z-index:-2;
+animation:bgmove 30s linear infinite;
+}
+
+/* ===== FLOATING LIGHTS ===== */
+
+.bg-animation{
+position:fixed;
+width:100%;
+height:100%;
+top:0;
+left:0;
+z-index:-1;
+overflow:hidden;
+pointer-events:none;
+}
+
+.bg-animation span{
+position:absolute;
+display:block;
+border-radius:50%;
+background:linear-gradient(45deg,#00e5ff,#a855f7);
+opacity:0.15;
+filter:blur(80px);
+animation:float 12s infinite alternate;
+}
+
+.bg-animation span:nth-child(1){
+width:250px;
+height:250px;
+top:10%;
+left:5%;
+}
+
+.bg-animation span:nth-child(2){
+width:300px;
+height:300px;
+top:60%;
+left:70%;
+}
+
+.bg-animation span:nth-child(3){
+width:200px;
+height:200px;
+top:30%;
+left:40%;
+}
+
+.bg-animation span:nth-child(4){
+width:280px;
+height:280px;
+top:75%;
+left:20%;
+}
+
+.bg-animation span:nth-child(5){
+width:220px;
+height:220px;
+top:5%;
+left:80%;
+}
+
+/* ===== NAVBAR ===== */
+
+.navbar{
+padding:18px 30px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(12px);
+font-size:32px;
+font-weight:bold;
+border-bottom:1px solid rgba(255,255,255,0.08);
+position:sticky;
+top:0;
+z-index:100;
+box-shadow:0 0 20px rgba(0,255,225,0.1);
+}
+
+/* ===== TITLE ===== */
+
+.title{
+text-align:center;
+color:#00ffe1;
+margin-top:60px;
+font-size:70px;
+font-weight:bold;
+text-shadow:
+0 0 10px #00ffe1,
+0 0 20px #00ffe1,
+0 0 40px #00ffe1;
+animation:glow 2s infinite alternate;
+}
+
+/* ===== GRID ===== */
+
+.menu-grid,
+.item-grid,
+.components-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:30px;
+padding:50px;
+}
+
+/* ===== CARDS ===== */
+
+.menu-card,
+.item,
+.component-card{
+
+background:rgba(255,255,255,0.04);
+
+border:1px solid rgba(0,255,225,0.15);
+
+border-radius:28px;
+
+padding:35px 25px;
+
+text-align:center;
+
+cursor:pointer;
+
+transition:0.4s;
+
+box-shadow:
+0 0 10px rgba(0,255,225,0.08),
+inset 0 0 15px rgba(255,255,255,0.02);
+
+position:relative;
+
+overflow:hidden;
+
+font-size:24px;
+
+font-weight:600;
+
+color:white;
+
+text-decoration:none;
+
+min-height:120px;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+flex-direction:column;
+}
+
+/* ===== HOVER ===== */
+
+.menu-card:hover,
+.item:hover,
+.component-card:hover{
+
+transform:translateY(-10px) scale(1.03);
+
+border:1px solid #00ffe1;
+
+box-shadow:
+0 0 20px rgba(0,255,225,0.4),
+0 0 40px rgba(168,85,247,0.3);
+
+color:#00ffe1;
+
+}
+
+/* ===== CARD LIGHT ===== */
+
+.menu-card::before,
+.item::before,
+.component-card::before{
+
+content:"";
+
+position:absolute;
+
+width:150%;
+
+height:150%;
+
+background:
+linear-gradient(
+45deg,
+transparent,
+rgba(255,255,255,0.12),
+transparent
+);
+
+top:-40%;
+left:-120%;
+
+transform:rotate(25deg);
+
+transition:0.8s;
+}
+
+.menu-card:hover::before,
+.item:hover::before,
+.component-card:hover::before{
+
+left:120%;
+}
+
+/* ===== ICON ===== */
+
+.icon{
+font-size:75px;
+margin-bottom:20px;
+filter:drop-shadow(0 0 10px cyan);
+}
+
+/* ===== TITLE ===== */
+
+.menu-card h2{
+font-size:34px;
+}
+
+/* ===== DETAIL SECTION ===== */
+
+.detail-section{
+display:none;
+padding:20px 40px 60px;
+}
+
+/* ===== DETAIL TITLE ===== */
+
+.detail-title{
+text-align:center;
+color:#00ffe1;
+font-size:60px;
+margin-top:40px;
+margin-bottom:50px;
+text-shadow:
+0 0 10px #00ffe1,
+0 0 30px #00ffe1;
+}
+
+/* ===== BUTTON ===== */
+
+.btn{
+
+display:block;
+
+margin:50px auto;
+
+padding:18px 50px;
+
+border:none;
+
+border-radius:40px;
+
+background:
+linear-gradient(45deg,#00d9ff,#8f44ff);
+
+color:white;
+
+font-size:22px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition:0.4s;
+
+box-shadow:
+0 0 20px rgba(0,217,255,0.3);
+
+}
+
+.btn:hover{
+
+transform:scale(1.08);
+
+box-shadow:
+0 0 25px rgba(0,217,255,0.5);
+
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes float{
+
+from{
+transform:
+translateY(0px)
+translateX(0px)
+scale(1);
+}
+
+to{
+transform:
+translateY(-50px)
+translateX(30px)
+scale(1.2);
+}
+
+}
+
+@keyframes glow{
+
+from{
+text-shadow:
+0 0 10px #00ffe1,
+0 0 20px #00ffe1;
+}
+
+to{
+text-shadow:
+0 0 20px #00ffe1,
+0 0 40px #00ffe1,
+0 0 60px #00ffe1;
+}
+
+}
+
+@keyframes bgmove{
+
+from{
+background-position:0 0;
+}
+
+to{
+background-position:1000px 1000px;
+}
+
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:768px){
+
+.title{
+font-size:42px;
+}
+
+.detail-title{
+font-size:36px;
+}
+
+.menu-grid,
+.item-grid,
+.components-grid{
+grid-template-columns:1fr;
+padding:20px;
+}
+
+.menu-card h2{
+font-size:24px;
+}
+
+.icon{
+font-size:60px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ===== BACKGROUND ===== -->
+
+<div class="bg-animation">
+
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+
+</div>
+
+<!-- ===== NAVBAR ===== -->
+
+<div class="navbar">
+Arduino AI 🤖
+</div>
+
+<!-- ===== TITLE ===== -->
+
+<h1 class="title">Arduino Basics 🚀</h1>
+
+<!-- ===== TOP MENU ===== -->
+
+<div class="menu-grid">
+
+<div class="menu-card" onclick="showBox('basic')">
+<div class="icon">🔌</div>
+<h2>Basic Components</h2>
+</div>
+
+<div class="menu-card" onclick="showBox('sensor')">
+<div class="icon">📡</div>
+<h2>Sensors</h2>
+</div>
+
+<div class="menu-card" onclick="showBox('output')">
+<div class="icon">💡</div>
+<h2>Output Devices</h2>
+</div>
+
+<div class="menu-card" onclick="showBox('communication')">
+<div class="icon">📶</div>
+<h2>Communication Components</h2>
+</div>
+
+</div>
+
+<!-- ===== BASIC COMPONENTS ===== -->
+
+<div class="detail-section" id="basic">
+
+<h1 class="detail-title">Basic Components 🔌</h1>
+
+<div class="components-grid">
+
+<div class="component-card" onclick="window.location.href='arduino-uno.html'">🔵 Arduino Uno</div>
+
+<div class="component-card" onclick="window.location.href='breadboard.html'">📟 Breadboard</div>
+
+<div class="component-card" onclick="window.location.href='led.html'">💡 LED</div>
+
+<div class="component-card" onclick="window.location.href='resistor.html'">🎚️ Resistor</div>
+
+<div class="component-card" onclick="window.location.href='capacitor.html'">⚡ Capacitor</div>
+
+<div class="component-card" onclick="window.location.href='push-button.html'">🔘 Push Button</div>
+
+<div class="component-card" onclick="window.location.href='potentiometer.html'">🎛️ Potentiometer</div>
+
+<div class="component-card" onclick="window.location.href='diode.html'">➡️ Diode</div>
+
+<div class="component-card" onclick="window.location.href='transistor.html'">🔋 Transistor</div>
+
+<div class="component-card" onclick="window.location.href='jumper-wires.html'">🧵 Jumper Wires</div>
+
+<div class="component-card" onclick="window.location.href='battery.html'">🔋 Battery</div>
+
+<div class="component-card" onclick="window.location.href='buzzer.html'">🔊 Buzzer</div>
+
+</div>
+
+</div>
+
+<!-- ===== SENSORS ===== -->
+
+<div class="detail-section" id="sensor">
+
+<h1 class="detail-title">Sensors 📡</h1>
+
+<div class="item-grid">
+
+<div class="item" onclick="window.location.href='ultrasonic-sensor.html'">📏 Ultrasonic Sensor</div>
+
+<div class="item" onclick="window.location.href='ir-sensor.html'">🔴 IR Sensor</div>
+
+<div class="item" onclick="window.location.href='temperature-sensor.html'">🌡️ Temperature Sensor</div>
+
+<div class="item" onclick="window.location.href='ldr-sensor.html'">💡 LDR Sensor</div>
+
+<div class="item" onclick="window.location.href='gas-sensor.html'">🔥 Gas Sensor</div>
+
+<div class="item" onclick="window.location.href='motion-sensor.html'">🏃 Motion Sensor</div>
+
+<div class="item" onclick="window.location.href='sound-sensor.html'">🎤 Sound Sensor</div>
+
+<div class="item" onclick="window.location.href='flame-sensor.html'">🔥 Flame Sensor</div>
+
+<div class="item" onclick="window.location.href='rain-sensor.html'">🌧️ Rain Sensor</div>
+
+<div class="item" onclick="window.location.href='touch-sensor.html'">✋ Touch Sensor</div>
+
+<div class="item" onclick="window.location.href='humidity-sensor.html'">💧 Humidity Sensor</div>
+
+<div class="item" onclick="window.location.href='pir-sensor.html'">🚶 PIR Sensor</div>
+
+</div>
+
+</div>
+
+<!-- ===== OUTPUT DEVICES ===== -->
+
+<div class="detail-section" id="output">
+
+<h1 class="detail-title">Output Devices 💡</h1>
+
+<div class="item-grid">
+
+<div class="item" onclick="window.location.href='servo-motor.html'">⚙️ Servo Motor</div>
+
+<div class="item" onclick="window.location.href='dc-motor.html'">🔄 DC Motor</div>
+
+<div class="item" onclick="window.location.href='relay.html'">⚡ Relay</div>
+
+<div class="item" onclick="window.location.href='lcd-display.html'">🖥️ LCD Display</div>
+
+<div class="item" onclick="window.location.href='oled-display.html'">📱 OLED Display</div>
+
+<div class="item" onclick="window.location.href='rgb-led.html'">🌈 RGB LED</div>
+
+<div class="item" onclick="window.location.href='speaker.html'">🔊 Speaker</div>
+
+<div class="item" onclick="window.location.href='buzzer.html'">📢 Buzzer</div>
+
+<div class="item" onclick="window.location.href='stepper-motor.html'">🌀 Stepper Motor</div>
+
+<div class="item" onclick="window.location.href='solenoid-lock.html'">🔐 Solenoid Lock</div>
+
+<div class="item" onclick="window.location.href='water-pump.html'">🚰 Water Pump</div>
+
+<div class="item" onclick="window.location.href='fan-module.html'">🌀 Fan Module</div>
+
+</div>
+
+</div>
+
+<!-- ===== COMMUNICATION ===== -->
+
+<div class="detail-section" id="communication">
+
+<h1 class="detail-title">Communication Components 📶</h1>
+
+<div class="item-grid">
+
+<div class="item" onclick="window.location.href='bluetooth-hc05.html'">📲 Bluetooth HC-05</div>
+
+<div class="item" onclick="window.location.href='esp8266-wifi.html'">📡 ESP8266 WiFi</div>
+
+<div class="item" onclick="window.location.href='gsm-module.html'">📞 GSM Module</div>
+
+<div class="item" onclick="window.location.href='rfid-module.html'">🪪 RFID Module</div>
+
+<div class="item" onclick="window.location.href='lora-module.html'">🛰️ LoRa Module</div>
+
+<div class="item" onclick="window.location.href='zigbee-module.html'">📶 ZigBee Module</div>
+
+<div class="item" onclick="window.location.href='ethernet-module.html'">🌐 Ethernet Module</div>
+
+<div class="item" onclick="window.location.href='nrf24l01.html'">📱 NRF24L01</div>
+
+</div>
+
+</div>
+
+<!-- ===== BACK BUTTON ===== -->
+
+<button class="btn" onclick="window.location.href='home.html'">
+⬅ Back
+</button>
+
+<!-- ===== JAVASCRIPT ===== -->
+
+<script>
+
+function hideAll(){
+
+let all =
+document.querySelectorAll(".detail-section");
+
+all.forEach(section=>{
+section.style.display = "none";
+});
+
+}
+
+function showBox(id){
+
+hideAll();
+
+document.getElementById(id).style.display =
+"block";
+
+document.getElementById(id).scrollIntoView({
+behavior:"smooth"
+});
+
+}
+
+</script>
+
+</body>
+</html>

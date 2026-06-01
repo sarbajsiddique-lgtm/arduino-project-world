@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>LED Blink Project</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#08142c);
+color:white;
+padding:30px;
+overflow-x:hidden;
+}
+
+/* TITLE */
+
+.title{
+text-align:center;
+font-size:55px;
+color:#00ffe1;
+margin-bottom:40px;
+text-shadow:0 0 15px rgba(0,255,225,0.4);
+}
+
+/* TABS */
+
+.tabs{
+display:flex;
+justify-content:center;
+gap:15px;
+flex-wrap:wrap;
+margin-bottom:30px;
+}
+
+.tab-btn{
+padding:12px 25px;
+border:none;
+border-radius:30px;
+background:#0f172a;
+color:white;
+font-size:16px;
+cursor:pointer;
+transition:0.3s;
+box-shadow:0 0 10px rgba(0,255,255,0.2);
+}
+
+.tab-btn.active,
+.tab-btn:hover{
+background:#00ffe1;
+color:black;
+font-weight:bold;
+}
+
+/* CONTENT */
+
+.tab-content{
+display:none;
+background:rgba(255,255,255,0.03);
+padding:30px;
+border-radius:25px;
+border:1px solid rgba(0,255,225,0.15);
+box-shadow:0 0 15px rgba(0,255,225,0.08);
+}
+
+.tab-content.active{
+display:block;
+}
+
+/* IMAGE */
+
+.project-image{
+width:100%;
+max-width:700px;
+display:block;
+margin:auto;
+border-radius:20px;
+margin-bottom:25px;
+box-shadow:0 0 20px rgba(0,255,255,0.2);
+}
+
+/* SVG */
+
+svg{
+width:100%;
+max-width:750px;
+display:block;
+margin:auto;
+}
+
+/* CODE */
+
+pre{
+background:black;
+padding:20px;
+border-radius:15px;
+overflow:auto;
+color:#00ffcc;
+font-size:15px;
+line-height:1.8;
+}
+
+/* PARTS */
+
+.parts{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+}
+
+.part{
+background:#0f172a;
+padding:18px;
+border-radius:18px;
+text-align:center;
+font-size:18px;
+}
+
+/* STEPS */
+
+.step{
+background:#0f172a;
+padding:18px;
+border-radius:18px;
+margin:12px 0;
+font-size:18px;
+}
+
+/* BACK */
+
+.back-btn{
+display:block;
+width:240px;
+margin:50px auto 0;
+padding:15px;
+text-align:center;
+border-radius:40px;
+background:linear-gradient(45deg,#00d9ff,#8f44ff);
+color:white;
+font-size:20px;
+text-decoration:none;
+transition:0.3s;
+}
+
+.back-btn:hover{
+transform:scale(1.05);
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+.title{
+font-size:38px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1 class="title">
+LED Blink Project 💡
+</h1>
+
+<!-- TABS -->
+
+<div class="tabs">
+
+<button class="tab-btn active"
+onclick="showTab('intro',this)">
+Introduction
+</button>
+
+<button class="tab-btn"
+onclick="showTab('diagram',this)">
+Circuit Diagram
+</button>
+
+<button class="tab-btn"
+onclick="showTab('code',this)">
+Arduino Code
+</button>
+
+<button class="tab-btn"
+onclick="showTab('parts',this)">
+Parts
+</button>
+
+<button class="tab-btn"
+onclick="showTab('steps',this)">
+Steps
+</button>
+
+</div>
+
+<!-- INTRO -->
+
+<div id="intro"
+class="tab-content active">
+
+<img
+class="project-image"
+src="https://images.unsplash.com/photo-1518770660439-4636190af475">
+
+<h2>📘 Introduction</h2>
+
+<p>
+LED Blink Arduino ka beginner project hai.
+Is project me LED ON aur OFF hoti hai.
+Ye project Arduino coding aur electronics seekhne ke liye best hai.
+</p>
+
+</div>
+
+<!-- DIAGRAM -->
+
+<div id="diagram"
+class="tab-content">
+
+<h2>🔌 Circuit Diagram</h2>
+
+<svg viewBox="0 0 700 300">
+
+<rect x="40"
+y="70"
+width="200"
+height="150"
+rx="15"
+fill="#0f172a"
+stroke="#00ffcc"
+stroke-width="3"/>
+
+<text x="85"
+y="150"
+fill="#00ffcc"
+font-size="28">
+
+Arduino UNO
+
+</text>
+
+<circle cx="240"
+cy="110"
+r="8"
+fill="red"/>
+
+<text x="250"
+y="115"
+fill="white">
+
+Pin 13
+
+</text>
+
+<circle cx="240"
+cy="170"
+r="8"
+fill="green"/>
+
+<text x="250"
+y="175"
+fill="white">
+
+GND
+
+</text>
+
+<line x1="240"
+y1="110"
+x2="380"
+y2="110"
+stroke="red"
+stroke-width="3"/>
+
+<rect x="380"
+y="95"
+width="70"
+height="30"
+fill="#d97706"/>
+
+<text x="392"
+y="115"
+fill="black">
+
+220Ω
+
+</text>
+
+<line x1="450"
+y1="110"
+x2="530"
+y2="110"
+stroke="red"
+stroke-width="3"/>
+
+<circle cx="560"
+cy="110"
+r="20"
+fill="orange">
+
+<animate
+attributeName="opacity"
+values="1;0.2;1"
+dur="1s"
+repeatCount="indefinite"/>
+
+</circle>
+
+<text x="548"
+y="150"
+fill="white">
+
+LED
+
+</text>
+
+<line x1="560"
+y1="130"
+x2="560"
+y2="200"
+stroke="green"
+stroke-width="3"/>
+
+<line x1="560"
+y1="200"
+x2="240"
+y2="170"
+stroke="green"
+stroke-width="3"/>
+
+</svg>
+
+</div>
+
+<!-- CODE -->
+
+<div id="code"
+class="tab-content">
+
+<h2>💻 Arduino Code</h2>
+
+<pre>
+
+int led = 13;
+
+void setup(){
+
+ pinMode(led, OUTPUT);
+
+}
+
+void loop(){
+
+ digitalWrite(led, HIGH);
+
+ delay(1000);
+
+ digitalWrite(led, LOW);
+
+ delay(1000);
+
+}
+
+</pre>
+
+</div>
+
+<!-- PARTS -->
+
+<div id="parts"
+class="tab-content">
+
+<h2>🧰 Parts List</h2>
+
+<div class="parts">
+
+<div class="part">
+🟩 Arduino UNO
+</div>
+
+<div class="part">
+💡 LED
+</div>
+
+<div class="part">
+⚡ 220Ω Resistor
+</div>
+
+<div class="part">
+🔗 Jumper Wires
+</div>
+
+<div class="part">
+🧱 Breadboard
+</div>
+
+<div class="part">
+🔌 USB Cable
+</div>
+
+</div>
+
+</div>
+
+<!-- STEPS -->
+
+<div id="steps"
+class="tab-content">
+
+<h2>⚙️ Wiring Steps</h2>
+
+<div class="step">
+1️⃣ LED ko breadboard me lagao.
+</div>
+
+<div class="step">
+2️⃣ LED anode ko resistor se connect karo.
+</div>
+
+<div class="step">
+3️⃣ Resistor ko Arduino Pin 13 se connect karo.
+</div>
+
+<div class="step">
+4️⃣ LED cathode ko GND se connect karo.
+</div>
+
+<div class="step">
+5️⃣ Arduino ko USB cable se connect karo.
+</div>
+
+<div class="step">
+6️⃣ Code upload karo aur LED blink dekho.
+</div>
+
+</div>
+
+<!-- BACK -->
+
+<a href="projects.html"
+class="back-btn">
+
+⬅ Back To Projects
+
+</a>
+
+<!-- JS -->
+
+<script>
+
+function showTab(tabId,btn){
+
+let tabs =
+document.querySelectorAll('.tab-content');
+
+tabs.forEach(tab=>{
+tab.classList.remove('active');
+});
+
+document
+.getElementById(tabId)
+.classList.add('active');
+
+let buttons =
+document.querySelectorAll('.tab-btn');
+
+buttons.forEach(button=>{
+button.classList.remove('active');
+});
+
+btn.classList.add('active');
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GSM Module</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#08142c);
+color:white;
+padding:40px;
+}
+
+.title{
+text-align:center;
+font-size:60px;
+color:#00ffe1;
+margin-bottom:50px;
+text-shadow:0 0 20px cyan;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:30px;
+}
+
+.card{
+background:rgba(255,255,255,0.03);
+padding:35px;
+border-radius:25px;
+border:1px solid rgba(0,255,225,0.2);
+box-shadow:0 0 18px rgba(0,255,225,0.12);
+}
+
+.card h2{
+color:#00ffe1;
+font-size:35px;
+margin-bottom:20px;
+}
+
+.card p{
+font-size:22px;
+line-height:1.8;
+}
+
+.btn{
+display:block;
+width:220px;
+margin:50px auto;
+padding:16px;
+border:none;
+border-radius:40px;
+background:linear-gradient(45deg,#00d9ff,#8f44ff);
+color:white;
+font-size:22px;
+font-weight:bold;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1 class="title">GSM Module 📞</h1>
+
+<div class="grid">
+
+<div class="card">
+<h2>📘 Introduction</h2>
+<p>
+GSM Module mobile network communication ke liye use hota hai.
+</p>
+</div>
+
+<div class="card">
+<h2>📌 Pins</h2>
+<p>
+VCC, GND, TX aur RX pins use hote hain.
+</p>
+</div>
+
+<div class="card">
+<h2>⚡ Voltage</h2>
+<p>
+Operating Voltage = 5V
+</p>
+</div>
+
+<div class="card">
+<h2>🌍 Applications</h2>
+<p>
+SMS sending, calling aur IoT alert systems me use hota hai.
+</p>
+</div>
+
+</div>
+
+<button class="btn"
+onclick="window.location.href='arduino.html'">
+⬅ Back
+</button>
+
+</body>
+</html>

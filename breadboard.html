@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Breadboard</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#08142c);
+color:white;
+padding:30px;
+overflow-x:hidden;
+}
+
+/* TITLE */
+
+.title{
+text-align:center;
+font-size:55px;
+color:#00ffe1;
+margin-bottom:40px;
+text-shadow:0 0 15px rgba(0,255,225,0.4);
+}
+
+/* GRID */
+
+.chapter-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:25px;
+}
+
+/* CARD */
+
+.chapter{
+background:rgba(255,255,255,0.03);
+padding:25px;
+border-radius:22px;
+border:1px solid rgba(0,255,225,0.15);
+transition:0.4s;
+box-shadow:0 0 12px rgba(0,255,225,0.05);
+}
+
+.chapter:hover{
+transform:translateY(-8px);
+box-shadow:0 0 25px rgba(0,255,225,0.2);
+}
+
+/* HEADING */
+
+.chapter h2{
+color:#00ffe1;
+margin-bottom:15px;
+font-size:30px;
+}
+
+/* TEXT */
+
+.chapter p{
+font-size:18px;
+line-height:1.7;
+color:#d7d7d7;
+}
+
+/* BUTTON */
+
+.back-btn{
+display:block;
+width:220px;
+margin:50px auto 0;
+padding:15px;
+text-align:center;
+border-radius:40px;
+background:linear-gradient(45deg,#00d9ff,#8f44ff);
+color:white;
+font-size:20px;
+text-decoration:none;
+transition:0.3s;
+}
+
+.back-btn:hover{
+transform:scale(1.05);
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+.title{
+font-size:38px;
+}
+
+.chapter-grid{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<h1 class="title">Breadboard 🚀</h1>
+
+<div class="chapter-grid">
+
+<div class="chapter">
+<h2>📘 Introduction</h2>
+<p>
+Breadboard ek electronic board hai jisme soldering ke bina circuit banaya jata hai.
+</p>
+</div>
+
+<div class="chapter">
+<h2>📍 Pins Information</h2>
+<p>
+Breadboard me rows aur columns connected hote hain for easy wiring.
+</p>
+</div>
+
+<div class="chapter">
+<h2>⚡ Voltage & Current</h2>
+<p>
+Normally 3.3V aur 5V circuits ke liye use hota hai.
+</p>
+</div>
+
+<div class="chapter">
+<h2>🖼️ Component Diagram</h2>
+<p>
+Breadboard wiring aur connection diagram yahan show hoga.
+</p>
+</div>
+
+<div class="chapter">
+<h2>🌍 Applications</h2>
+<p>
+Arduino projects, testing circuits aur prototyping me use hota hai.
+</p>
+</div>
+
+<div class="chapter">
+<h2>🚀 Advantages</h2>
+<p>
+Easy wiring, reusable aur beginner friendly.
+</p>
+</div>
+
+</div>
+
+<a href="arduino.html" class="back-btn">
+⬅ Back
+</a>
+
+</body>
+</html>

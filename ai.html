@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Arduino AI Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;--bg2:#13132b;--bg3:#1a1a35;
+  --cyan:#00e5ff;--pink:#ff2d78;--purple:#7c3aed;
+  --green:#00ff9d;--orange:#ff6b00;--yellow:#ffd600;
+  --text:#e0e0ff;--muted:#7070a0;--border:#2a2a50;
+}
+body{background:#080814;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;font-family:'Rajdhani',sans-serif}
+#app{background:var(--bg);color:var(--text);width:100%;max-width:820px;min-height:92vh;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:0 0 60px rgba(0,229,255,.07)}
+.header{background:linear-gradient(135deg,#1a0533,#0d1a2e);padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border)}
+.header-icon{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.header-info{flex:1}
+.header-title{font-size:19px;font-weight:700;color:var(--cyan);letter-spacing:1.5px}
+.header-sub{font-size:12px;color:var(--muted);letter-spacing:.5px;margin-top:2px}
+.status-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:11px 15px;font-size:12px;font-weight:700;letter-spacing:.6px;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab:hover:not(.active){color:var(--text)}
+.tab i{font-size:14px}
+.panel{display:none;flex-direction:column;flex:1}
+.panel.active{display:flex}
+
+/* CHAT */
+.quick-btns{padding:8px 14px;display:flex;gap:6px;flex-wrap:wrap;background:var(--bg);border-bottom:1px solid var(--border)}
+.qbtn{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid;transition:.15s;font-family:'Rajdhani',sans-serif;letter-spacing:.3px}
+.qbtn:hover{transform:translateY(-1px)}
+.qbtn.c{border-color:var(--cyan);color:var(--cyan);background:#001a20}
+.qbtn.p{border-color:var(--pink);color:var(--pink);background:#1a0010}
+.qbtn.g{border-color:var(--green);color:var(--green);background:#001a0d}
+.qbtn.o{border-color:var(--orange);color:var(--orange);background:#1a0800}
+.qbtn.y{border-color:var(--yellow);color:var(--yellow);background:#1a1400}
+.chat-messages{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;min-height:0}
+.msg{display:flex;gap:10px;align-items:flex-start;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.msg.bot .msg-avatar{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000}
+.msg.user .msg-avatar{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff}
+.msg-bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.55}
+.msg.bot .msg-bubble{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-top-left-radius:4px}
+.msg.user .msg-bubble{background:linear-gradient(135deg,#2d1060,#1a0533);border:1px solid #4a1a8a;color:var(--text);border-top-right-radius:4px}
+.msg-bubble pre{background:#050510;border:1px solid var(--border);border-radius:7px;padding:10px;margin:8px 0;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green);white-space:pre-wrap}
+.msg-bubble code{background:#0a0a1a;padding:1px 6px;border-radius:4px;font-family:'Share Tech Mono',monospace;color:var(--green);font-size:12px}
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.4px;margin:2px 2px 2px 0}
+.tag.component{background:#0a2a1a;color:var(--green);border:1px solid #0f4a2a}
+.chat-input{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--bg2);flex-shrink:0}
+#chatInput{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;transition:.2s}
+#chatInput:focus{border-color:var(--cyan)}
+#sendBtn{padding:9px 20px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;border:none;border-radius:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;transition:.15s;white-space:nowrap}
+#sendBtn:hover{transform:scale(1.04)}
+#sendBtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.typing-dots{display:flex;gap:5px;align-items:center;padding:4px 2px}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:dot 1.2s infinite;display:block}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* CODE GEN */
+.code-toolbar{display:flex;gap:8px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap;flex-shrink:0}
+.code-toolbar select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:13px;outline:none;cursor:pointer;min-width:160px}
+.gen-btn{padding:7px 16px;background:linear-gradient(135deg,var(--green),#00a060);color:#000;border:none;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;transition:.15s;white-space:nowrap}
+.gen-btn:hover{transform:scale(1.04)}
+.copy-btn{padding:7px 14px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;transition:.15s;white-space:nowrap}
+.copy-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.code-output{flex:1;margin:14px 16px;background:#050510;border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'Share Tech Mono',monospace;font-size:12.5px;color:var(--green);overflow:auto;white-space:pre;line-height:1.65;min-height:300px}
+
+/* SECTIONS */
+.section-panel{flex:1;padding:16px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.section-title{font-size:14px;font-weight:700;color:var(--cyan);letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;margin-bottom:16px}
+.proj-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.proj-card:hover{border-color:var(--cyan);transform:translateY(-2px)}
+.proj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.proj-card.beginner::before{background:var(--green)}
+.proj-card.intermediate::before{background:var(--yellow)}
+.proj-card.advanced::before{background:var(--pink)}
+.proj-icon{font-size:24px;margin-bottom:8px}
+.proj-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.proj-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.proj-badge{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.proj-badge.beginner{background:#001a0d;color:var(--green);border:1px solid #004a20}
+.proj-badge.intermediate{background:#1a1400;color:var(--yellow);border:1px solid #4a3a00}
+.proj-badge.advanced{background:#1a0010;color:var(--pink);border:1px solid #4a0020}
+
+/* BOM */
+.bom-table{width:100%;border-collapse:collapse;font-size:13px}
+.bom-table th{text-align:left;padding:8px 10px;color:var(--cyan);font-weight:700;font-size:11px;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.bom-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+.bom-table tr:hover td{background:var(--bg3)}
+
+/* CIRCUIT */
+.comp-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:13px;outline:none;cursor:pointer}
+.qty-input{width:58px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 8px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:13px;text-align:center;outline:none}
+.add-comp-btn{padding:7px 14px;background:var(--bg3);border:1px solid var(--green);color:var(--green);border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;transition:.15s}
+.add-comp-btn:hover{background:#001a0d}
+.comp-item{display:flex;justify-content:space-between;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:13px;margin-bottom:5px}
+.comp-remove{color:var(--pink);cursor:pointer;font-size:18px;line-height:1;font-weight:700}
+.design-output{background:#050510;border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green);white-space:pre-wrap;margin-top:10px;min-height:120px;line-height:1.6}
+
+/* ERRORS */
+.error-box{background:#1a0005;border:1px solid #4a0015;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.error-title{color:var(--pink);font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.solution-step{display:flex;gap:8px;align-items:flex-start;margin-top:6px;font-size:13px;color:var(--muted)}
+.step-num{color:var(--cyan);font-weight:700;min-width:18px;flex-shrink:0}
+
+/* HELP */
+.help-topic{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:11px 16px;margin-bottom:8px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:space-between}
+.help-topic:hover{border-color:var(--cyan)}
+.help-topic-title{font-size:14px;font-weight:700;color:var(--text)}
+.help-topic-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.help-content{display:none;padding:12px 16px;background:#0a0a1a;border-radius:0 0 9px 9px;border:1px solid var(--border);border-top:none;font-size:13px;line-height:1.7;color:var(--text);margin-top:-8px;margin-bottom:8px}
+.help-content.open{display:block}
+
+/* VOICE */
+.voice-area{display:flex;flex-direction:column;align-items:center;gap:18px;padding:36px 20px}
+.mic-btn{width:88px;height:88px;border-radius:50%;border:3px solid var(--cyan);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:36px;transition:.2s}
+.mic-btn:hover{border-color:var(--purple)}
+.mic-btn.listening{border-color:var(--pink);animation:micPulse 1s infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,45,120,.4)}50%{box-shadow:0 0 0 18px rgba(255,45,120,0)}}
+.mic-label{font-size:14px;color:var(--muted);text-align:center}
+.transcript-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;width:100%;min-height:70px;font-size:14px;color:var(--text);max-width:500px}
+
+/* IMAGE UPLOAD */
+.img-upload-area{border:2px dashed var(--border);border-radius:12px;padding:36px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:14px}
+.img-upload-area:hover{border-color:var(--cyan)}
+.img-upload-area i{font-size:36px;color:var(--cyan);display:block;margin-bottom:10px}
+.img-upload-area p{color:var(--muted);font-size:13px}
+#uploadedImg{width:100%;border-radius:10px;margin-top:12px;border:1px solid var(--border);display:none}
+.analyze-result{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.65;color:var(--text);margin-top:12px}
+
+/* Input file hidden */
+#fileInput{display:none}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <div class="header-icon">🤖</div>
+    <div class="header-info">
+      <div class="header-title">ARDUINO AI ASSISTANT</div>
+      <div class="header-sub">Circuit Designer • Code Generator • Project Guru • IoT Helper</div>
+    </div>
+    <div class="status-dot"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('chat')" id="tab-chat"><i class="ti ti-message-circle"></i> AI CHAT</div>
+    <div class="tab" onclick="switchTab('code')" id="tab-code"><i class="ti ti-code"></i> CODE GEN</div>
+    <div class="tab" onclick="switchTab('circuit')" id="tab-circuit"><i class="ti ti-circuit-board"></i> CIRCUIT</div>
+    <div class="tab" onclick="switchTab('projects')" id="tab-projects"><i class="ti ti-bulb"></i> PROJECTS</div>
+    <div class="tab" onclick="switchTab('bom')" id="tab-bom"><i class="ti ti-clipboard-list"></i> BOM</div>
+    <div class="tab" onclick="switchTab('errors')" id="tab-errors"><i class="ti ti-bug"></i> ERRORS</div>
+    <div class="tab" onclick="switchTab('help')" id="tab-help"><i class="ti ti-book"></i> HELP</div>
+    <div class="tab" onclick="switchTab('voice')" id="tab-voice"><i class="ti ti-microphone"></i> VOICE</div>
+    <div class="tab" onclick="switchTab('image')" id="tab-image"><i class="ti ti-photo-up"></i> IMAGE</div>
+  </div>
+
+  <!-- ===== CHAT PANEL ===== -->
+  <div class="panel active" id="panel-chat" style="height:calc(100vh - 200px)">
+    <div class="quick-btns">
+      <button class="qbtn c" onclick="sendQuick('LED blink karne ka code do with explanation')">💡 LED Blink</button>
+      <button class="qbtn p" onclick="sendQuick('DHT11 sensor ka Arduino code do with wiring')">🌡️ DHT11</button>
+      <button class="qbtn g" onclick="sendQuick('Servo motor control kaise kare? Code aur circuit batao')">⚙️ Servo</button>
+      <button class="qbtn o" onclick="sendQuick('Ultrasonic sensor se distance measure karne ka code do')">📡 Ultrasonic</button>
+      <button class="qbtn y" onclick="sendQuick('OLED display par text dikhane ka code do')">📟 OLED</button>
+      <button class="qbtn c" onclick="sendQuick('Beginner ke liye best Arduino projects kaunse hain?')">🚀 Projects</button>
+    </div>
+    <div class="chat-messages" id="chatMsgs">
+      <div class="msg bot">
+        <div class="msg-avatar">🤖</div>
+        <div class="msg-bubble">
+          <strong style="color:var(--cyan)">Namaste! Main Arduino AI Assistant hoon! 🎉</strong><br><br>
+          Main aapki help kar sakta hoon:<br>
+          <span class="tag component">Circuit Design</span>
+          <span class="tag component">Arduino Code</span>
+          <span class="tag component">Sensor Help</span>
+          <span class="tag component">Error Fix</span>
+          <span class="tag component">Project Ideas</span>
+          <span class="tag component">Wiring Guide</span><br><br>
+          ऊपर दिए quick buttons use karo ya kuch bhi type karo! 😊
+        </div>
+      </div>
+    </div>
+    <div class="chat-input">
+      <input id="chatInput" type="text" placeholder="Apna Arduino sawaal yahaan type karo... (Hindi/English dono chalega)" onkeypress="if(event.key==='Enter')sendChat()"/>
+      <button id="sendBtn" onclick="sendChat()">SEND ➤</button>
+    </div>
+  </div>
+
+  <!-- ===== CODE GEN PANEL ===== -->
+  <div class="panel" id="panel-code" style="display:none;flex-direction:column">
+    <div class="code-toolbar">
+      <select id="codeType">
+        <option>LED Blink</option>
+        <option>Button Press</option>
+        <option>DHT11 Temperature</option>
+        <option>Ultrasonic Distance</option>
+        <option>Servo Motor</option>
+        <option>LCD Display</option>
+        <option>OLED Display</option>
+        <option>IR Remote</option>
+        <option>Bluetooth HC-05</option>
+        <option>WiFi ESP8266</option>
+        <option>Soil Moisture</option>
+        <option>Motor Driver L298N</option>
+        <option>Stepper Motor</option>
+        <option>NeoPixel LED Strip</option>
+      </select>
+      <button class="gen-btn" onclick="generateCode()">⚡ GENERATE CODE</button>
+      <button class="copy-btn" onclick="copyCode()"><i class="ti ti-copy"></i> COPY</button>
+    </div>
+    <div class="code-output" id="codeOutput">// Upar se project select karo aur GENERATE CODE dabao!
+// Pura ready-made Arduino code mil jayega.</div>
+  </div>
+
+  <!-- ===== CIRCUIT PANEL ===== -->
+  <div class="panel" id="panel-circuit" style="display:none">
+    <div class="section-panel">
+      <div class="section-title"><i class="ti ti-circuit-board"></i> CIRCUIT DESIGNER</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <select class="comp-select" id="compSelect" style="flex:1;min-width:160px">
+          <option value="">Component chunno...</option>
+          <option value="LED">LED (5mm)</option>
+          <option value="DHT11">DHT11 Sensor</option>
+          <option value="Ultrasonic HC-SR04">Ultrasonic HC-SR04</option>
+          <option value="Servo Motor SG90">Servo Motor SG90</option>
+          <option value="LCD 16x2">LCD 16x2</option>
+          <option value="OLED 0.96">OLED 0.96"</option>
+          <option value="Relay Module">Relay Module</option>
+          <option value="Buzzer">Buzzer</option>
+          <option value="LDR Sensor">LDR Sensor</option>
+          <option value="Soil Moisture">Soil Moisture Sensor</option>
+          <option value="PIR Sensor">PIR Motion Sensor</option>
+          <option value="IR Sensor">IR Sensor</option>
+        </select>
+        <input class="qty-input" type="number" id="compQty" value="1" min="1" max="10"/>
+        <button class="add-comp-btn" onclick="addComponent()"><i class="ti ti-plus"></i> ADD</button>
+      </div>
+      <div id="compList" style="margin-bottom:10px"></div>
+      <button class="gen-btn" onclick="designCircuit()">🔌 WIRING DIAGRAM GENERATE KARO</button>
+      <div class="design-output" id="circuitOutput">// Components add karo aur button dabao...</div>
+    </div>
+  </div>
+
+  <!-- ===== PROJECTS PANEL ===== -->
+  <div class="panel" id="panel-projects" style="display:none">
+    <div class="section-panel">
+      <div class="section-title"><i class="ti ti-bulb"></i> PROJECT IDEAS</div>
+      <div id="projectsContainer"></div>
+    </div>
+  </div>
+
+  <!-- ===== BOM PANEL ===== -->
+  <div class="panel" id="panel-bom" style="display:none">
+    <div class="section-panel">
+      <div class="section-title"><i class="ti ti-clipboard-list"></i> BILL OF MATERIALS</div>
+      <select class="comp-select" id="bomProject" style="width:100%;margin-bottom:14px" onchange="generateBOM()">
+        <option value="">Project chunno...</option>
+        <option value="led">LED Blink Project</option>
+        <option value="dht11">Temperature Monitor</option>
+        <option value="ultrasonic">Distance Sensor Car</option>
+        <option value="servo">Servo Robot Arm</option>
+        <option value="smartHome">Smart Home System</option>
+        <option value="lineFollower">Line Follower Robot</option>
+      </select>
+      <div id="bomOutput"></div>
+    </div>
+  </div>
+
+  <!-- ===== ERRORS PANEL ===== -->
+  <div class="panel" id="panel-errors" style="display:none">
+    <div class="section-panel">
+      <div class="section-title"><i class="ti ti-bug"></i> ERROR SOLVER</div>
+      <textarea id="errorInput" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:13px;outline:none;margin-bottom:10px;resize:vertical;min-height:80px" placeholder="Arduino error yahaan paste karo...&#10;Example: 'LED was not declared in this scope'&#10;Ya poora error message copy karke paste karo"></textarea>
+      <button class="gen-btn" onclick="solveError()" style="margin-bottom:14px">🔍 SOLUTION DHUNDO</button>
+      <div id="errorOutput"></div>
+    </div>
+  </div>
+
+  <!-- ===== HELP PANEL ===== -->
+  <div class="panel" id="panel-help" style="display:none">
+    <div class="section-panel">
+      <div class="section-title"><i class="ti ti-book"></i> ARDUINO HELP</div>
+      <div id="helpTopics"></div>
+    </div>
+  </div>
+
+  <!-- ===== VOICE PANEL ===== -->
+  <div class="panel" id="panel-voice" style="display:none">
+    <div class="section-panel">
+      <div class="section-title"><i class="ti ti-microphone"></i> VOICE CHAT</div>
+      <div class="voice-area">
+        <div id="micBtn" class="mic-btn" onclick="toggleVoice()">🎤</div>
+        <p class="mic-label" id="micLabel">Mic button dabao aur bolna shuru karo<br><small style="color:var(--border)">(Chrome browser mein best kaam karta hai)</small></p>
+        <div class="transcript-box" id="transcriptBox">Aapka transcript yahaan dikhega...</div>
+        <button class="gen-btn" onclick="sendVoiceQuery()" id="voiceSendBtn" style="display:none">💬 AI KO BHEJO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== IMAGE PANEL ===== -->
+  <div class="panel" id="panel-image" style="display:none">
+    <div class="section-panel">
+      <div class="section-title"><i class="ti ti-photo-up"></i> CIRCUIT IMAGE ANALYZER</div>
+      <div class="img-upload-area" onclick="document.getElementById('fileInput').click()">
+        <i class="ti ti-cloud-upload"></i>
+        <p><strong style="color:var(--text)">Circuit image upload karo</strong></p>
+        <p>Click karo ya drag & drop karo</p>
+        <p style="font-size:11px;margin-top:6px">JPG, PNG, GIF supported</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event)"/>
+      <img id="uploadedImg" alt="Uploaded circuit"/>
+      <div id="imageAnalysisResult"></div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<script>
+// ============================
+// ARDUINO CODES DATABASE
+// ============================
+const CODES = {
+"LED Blink": `// ===================================
+// LED BLINK - Arduino Starter Project
+// ===================================
+// Connection:
+// LED (+) anode --> 220Ω resistor --> Pin 13
+// LED (-) cathode --> GND
+
+const int LED_PIN = 13;
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("LED Blink Started!");
+}
+
+void loop() {
+  digitalWrite(LED_PIN, HIGH);   // LED ON
+  Serial.println("LED: ON");
+  delay(1000);                    // 1 second
+
+  digitalWrite(LED_PIN, LOW);    // LED OFF
+  Serial.println("LED: OFF");
+  delay(1000);                    // 1 second
+}`,
+
+"Button Press": `// ===================================
+// BUTTON PRESS DETECTION
+// ===================================
+// Button: Pin 2 (with INPUT_PULLUP)
+// LED: Pin 13
+
+const int BTN_PIN = 2;
+const int LED_PIN = 13;
+
+void setup() {
+  pinMode(BTN_PIN, INPUT_PULLUP); // Internal pull-up resistor
+  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Button Ready!");
+}
+
+void loop() {
+  int btnState = digitalRead(BTN_PIN);
+
+  if (btnState == LOW) {          // Button press hone par LOW
+    digitalWrite(LED_PIN, HIGH);
+    Serial.println("Button PRESSED - LED ON");
+  } else {
+    digitalWrite(LED_PIN, LOW);
+  }
+  delay(50);
+}`,
+
+"DHT11 Temperature": `// ===================================
+// DHT11 TEMPERATURE & HUMIDITY
+// ===================================
+// Library Install: Sketch > Include Library
+//   > Manage Libraries > "DHT sensor library"
+//
+// Wiring:
+// DHT11 VCC --> 5V
+// DHT11 GND --> GND
+// DHT11 DATA --> Pin 2 (+ 10k resistor to VCC)
+
+#include <DHT.h>
+
+#define DHT_PIN  2
+#define DHT_TYPE DHT11
+
+DHT dht(DHT_PIN, DHT_TYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  Serial.println("DHT11 Sensor Ready!");
+}
+
+void loop() {
+  delay(2000); // DHT11 ko time do
+
+  float humidity    = dht.readHumidity();
+  float temperature = dht.readTemperature(); // Celsius
+  float tempF       = dht.readTemperature(true); // Fahrenheit
+
+  if (isnan(humidity) || isnan(temperature)) {
+    Serial.println("ERROR: DHT11 read fail! Wiring check karo.");
+    return;
+  }
+
+  Serial.print("Temp: ");
+  Serial.print(temperature);
+  Serial.print(" C  |  Humidity: ");
+  Serial.print(humidity);
+  Serial.println(" %");
+}`,
+
+"Ultrasonic Distance": `// ===================================
+// ULTRASONIC HC-SR04 DISTANCE SENSOR
+// ===================================
+// Wiring:
+// HC-SR04 VCC  --> 5V
+// HC-SR04 GND  --> GND
+// HC-SR04 TRIG --> Pin 9
+// HC-SR04 ECHO --> Pin 10
+
+const int TRIG_PIN = 9;
+const int ECHO_PIN = 10;
+
+void setup() {
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  Serial.begin(9600);
+  Serial.println("Ultrasonic Sensor Ready!");
+}
+
+float getDistance() {
+  // Trigger pulse bhejo
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  // Echo time measure karo
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+
+  // Distance = (time * speed of sound) / 2
+  // Speed of sound = 343 m/s = 0.0343 cm/us
+  float distance = (duration * 0.0343) / 2.0;
+  return distance;
+}
+
+void loop() {
+  float dist = getDistance();
+
+  if (dist == 0) {
+    Serial.println("No object detected (>4m)");
+  } else {
+    Serial.print("Distance: ");
+    Serial.print(dist, 1);
+    Serial.println(" cm");
+  }
+  delay(500);
+}`,
+
+"Servo Motor": `// ===================================
+// SERVO MOTOR CONTROL
+// ===================================
+// Library: Servo (Arduino built-in hai)
+//
+// Wiring:
+// Servo Red   --> 5V
+// Servo Brown --> GND
+// Servo Orange/Yellow --> Pin 9
+
+#include <Servo.h>
+
+Servo myServo;
+const int SERVO_PIN = 9;
+int angle = 0;
+int direction = 1;
+
+void setup() {
+  myServo.attach(SERVO_PIN);
+  Serial.begin(9600);
+  Serial.println("Servo Motor Ready!");
+  myServo.write(90); // Center position
+  delay(500);
+}
+
+void loop() {
+  // Smooth 0 to 180 sweep
+  for (int pos = 0; pos <= 180; pos += 2) {
+    myServo.write(pos);
+    Serial.print("Angle: ");
+    Serial.println(pos);
+    delay(20);
+  }
+  delay(500);
+
+  // Smooth 180 to 0 sweep back
+  for (int pos = 180; pos >= 0; pos -= 2) {
+    myServo.write(pos);
+    delay(20);
+  }
+  delay(500);
+}`,
+
+"LCD Display": `// ===================================
+// LCD 16x2 DISPLAY
+// ===================================
+// Library: LiquidCrystal (built-in)
+//
+// Wiring:
+// LCD VSS (1) --> GND
+// LCD VCC (2) --> 5V
+// LCD Vo  (3) --> Potentiometer middle
+// LCD RS  (4) --> Pin 12
+// LCD RW  (5) --> GND
+// LCD EN  (6) --> Pin 11
+// LCD D4  (11) --> Pin 5
+// LCD D5  (12) --> Pin 4
+// LCD D6  (13) --> Pin 3
+// LCD D7  (14) --> Pin 2
+// LCD A   (15) --> 5V (via 220Ω)
+// LCD K   (16) --> GND
+
+#include <LiquidCrystal.h>
+
+// RS, EN, D4, D5, D6, D7
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+void setup() {
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("  Arduino AI  ");
+  lcd.setCursor(0, 1);
+  lcd.print("  Hello World!  ");
+  delay(2000);
+}
+
+void loop() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Uptime: ");
+  lcd.print(millis() / 1000);
+  lcd.print("s");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Status: Active");
+  delay(1000);
+}`,
+
+"OLED Display": `// ===================================
+// OLED 0.96" I2C DISPLAY
+// ===================================
+// Libraries Install:
+//   1. Adafruit SSD1306
+//   2. Adafruit GFX Library
+//
+// Wiring (I2C):
+// OLED VCC --> 3.3V (ya 5V - check your module)
+// OLED GND --> GND
+// OLED SDA --> A4 (Arduino Uno)
+// OLED SCL --> A5 (Arduino Uno)
+
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH  128
+#define SCREEN_HEIGHT  64
+#define OLED_RESET     -1
+#define SCREEN_ADDRESS 0x3C
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+void setup() {
+  Serial.begin(9600);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println("OLED not found! Address check karo.");
+    while (true);
+  }
+
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10, 5);
+  display.println("ARDUINO");
+  display.setTextSize(1);
+  display.setCursor(10, 35);
+  display.println("AI Assistant v1.0");
+  display.setCursor(10, 50);
+  display.println("Made with Love <3");
+  display.display();
+  delay(3000);
+}
+
+void loop() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.print("Time: ");
+  display.print(millis() / 1000);
+  display.println(" sec");
+  display.display();
+  delay(500);
+}`,
+
+"IR Remote": `// ===================================
+// IR REMOTE CONTROL
+// ===================================
+// Library: IRremote by shirriff/z3t0
+//
+// Wiring:
+// IR Receiver VCC --> 5V
+// IR Receiver GND --> GND
+// IR Receiver OUT --> Pin 11
+
+#include <IRremote.h>
+
+const int IR_PIN = 11;
+const int LED_PIN = 13;
+
+IRrecv irReceiver(IR_PIN);
+decode_results results;
+
+void setup() {
+  Serial.begin(9600);
+  irReceiver.enableIRIn();
+  pinMode(LED_PIN, OUTPUT);
+  Serial.println("IR Remote Ready! Koi bhi button dabao...");
+}
+
+void loop() {
+  if (irReceiver.decode(&results)) {
+    unsigned long code = results.value;
+    Serial.print("IR Code: 0x");
+    Serial.println(code, HEX);
+
+    // Common remote ke buttons (aapke remote ke codes alag ho sakte hain)
+    switch (code) {
+      case 0xFF6897: Serial.println("Button: 0"); break;
+      case 0xFF30CF: Serial.println("Button: 1"); digitalWrite(LED_PIN, HIGH); break;
+      case 0xFF18E7: Serial.println("Button: 2"); break;
+      case 0xFF7A85: Serial.println("Button: 3"); break;
+      case 0xFF10EF: Serial.println("Button: 4"); break;
+      case 0xFF38C7: Serial.println("Button: 5"); break;
+      case 0xFF5AA5: Serial.println("Button: Vol+"); break;
+      case 0xFF42BD: Serial.println("Button: Vol-"); break;
+      case 0xFFA25D: Serial.println("Button: Power"); digitalWrite(LED_PIN, LOW); break;
+      default: Serial.println("Unknown button");
+    }
+
+    irReceiver.resume();
+  }
+}`,
+
+"Bluetooth HC-05": `// ===================================
+// HC-05 BLUETOOTH MODULE
+// ===================================
+// TX pin --> Pin 10 (Arduino RX) via voltage divider!
+// RX pin --> Pin 11 (Arduino TX)
+// VCC --> 5V, GND --> GND
+//
+// Phone par: Bluetooth settings > HC-05 > Pair
+// Default PIN: 1234 ya 0000
+// App: "Serial Bluetooth Terminal" use karo
+// Commands: '1' = LED ON, '0' = LED OFF
+
+#include <SoftwareSerial.h>
+
+SoftwareSerial bluetooth(10, 11); // RX, TX
+const int LED_PIN = 13;
+
+void setup() {
+  Serial.begin(9600);    // PC Serial Monitor
+  bluetooth.begin(9600); // HC-05 baud rate
+  pinMode(LED_PIN, OUTPUT);
+
+  Serial.println("HC-05 Bluetooth Ready!");
+  bluetooth.println("Arduino Connected! Send 1 or 0");
+}
+
+void loop() {
+  // Bluetooth se data aaya?
+  if (bluetooth.available()) {
+    char cmd = bluetooth.read();
+    Serial.print("Bluetooth received: ");
+    Serial.println(cmd);
+
+    if (cmd == '1') {
+      digitalWrite(LED_PIN, HIGH);
+      bluetooth.println("LED ON! Roshan ho gaya!");
+    }
+    else if (cmd == '0') {
+      digitalWrite(LED_PIN, LOW);
+      bluetooth.println("LED OFF! Andhere mein!");
+    }
+    else {
+      bluetooth.println("Unknown command. Send 1 or 0");
+    }
+  }
+
+  // Serial Monitor se data bhejo Bluetooth par
+  if (Serial.available()) {
+    bluetooth.write(Serial.read());
+  }
+}`,
+
+"WiFi ESP8266": `// ===================================
+// ESP8266 NODEMCU - WiFi + Web Server
+// ===================================
+// Board: NodeMCU 1.0 (ESP-12E Module)
+// Install: File > Preferences > Board Manager URLs:
+// http://arduino.esp8266.com/stable/package_esp8266com_index.json
+//
+// Tools > Board > ESP8266 Boards > NodeMCU 1.0
+
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+
+const char* WIFI_SSID     = "Your_WiFi_Name";     // Apna WiFi naam
+const char* WIFI_PASSWORD = "Your_Password";        // Apna WiFi password
+
+ESP8266WebServer server(80);
+const int LED_PIN = 2; // NodeMCU built-in LED (active LOW)
+bool ledState = false;
+
+void handleRoot() {
+  String html = "<html><head><meta charset='UTF-8'>";
+  html += "<title>Arduino Web Control</title></head><body>";
+  html += "<h1>Arduino WiFi Control</h1>";
+  html += "<p>LED Status: <b>" + String(ledState ? "ON" : "OFF") + "</b></p>";
+  html += "<a href='/on'><button>LED ON</button></a> ";
+  html += "<a href='/off'><button>LED OFF</button></a>";
+  html += "</body></html>";
+  server.send(200, "text/html", html);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH); // OFF (active LOW)
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("WiFi connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\\nConnected! IP: " + WiFi.localIP().toString());
+
+  server.on("/", handleRoot);
+  server.on("/on",  []() { ledState = true;  digitalWrite(LED_PIN, LOW);  server.sendHeader("Location", "/"); server.send(303); });
+  server.on("/off", []() { ledState = false; digitalWrite(LED_PIN, HIGH); server.sendHeader("Location", "/"); server.send(303); });
+  server.begin();
+  Serial.println("Web server started!");
+}
+
+void loop() {
+  server.handleClient();
+}`,
+
+"Soil Moisture": `// ===================================
+// SMART PLANT WATERING SYSTEM
+// ===================================
+// Soil Moisture Sensor: A0
+// Water Pump Relay: Pin 7
+// LED Indicator: Pin 13
+
+const int SENSOR_PIN   = A0;
+const int RELAY_PIN    = 7;
+const int LED_PIN      = 13;
+
+// Sensor values (0-1023)
+// Dry mitti = ~700-900, Wet mitti = ~200-400
+// Apne sensor ko calibrate karo!
+const int DRY_THRESHOLD = 600;
+
+void setup() {
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, HIGH); // Relay off (active LOW relay)
+  Serial.begin(9600);
+  Serial.println("Smart Plant Watering System Ready!");
+  Serial.println("=================================");
+}
+
+void loop() {
+  int sensorValue = analogRead(SENSOR_PIN);
+  // Percentage calculate karo (approx)
+  int moisturePercent = map(sensorValue, 1023, 0, 0, 100);
+
+  Serial.print("Sensor Value: ");
+  Serial.print(sensorValue);
+  Serial.print("  |  Moisture: ");
+  Serial.print(moisturePercent);
+  Serial.println("%");
+
+  if (sensorValue > DRY_THRESHOLD) {
+    // Mitti sukhi hai - pump chalao
+    Serial.println(">> ALERT: Mitti sukhi hai! Pump ON...");
+    digitalWrite(RELAY_PIN, LOW);  // Pump ON
+    digitalWrite(LED_PIN, HIGH);
+    delay(3000);                    // 3 second pump chalao
+    digitalWrite(RELAY_PIN, HIGH); // Pump OFF
+    digitalWrite(LED_PIN, LOW);
+    Serial.println(">> Pump band hua.");
+    delay(10000); // 10 second wait
+  } else {
+    Serial.println(">> Mitti theek hai.");
+    delay(5000);
+  }
+}`,
+
+"Motor Driver L298N": `// ===================================
+// L298N MOTOR DRIVER - ROBOT CAR
+// ===================================
+// Motor A: ENA=9, IN1=4, IN2=5
+// Motor B: ENB=10, IN3=6, IN4=7
+//
+// Power: L298N 12V terminal --> 12V battery
+//        L298N 5V output --> Arduino 5V (optional)
+//        L298N GND --> Arduino GND
+
+// Motor A (Right)
+const int ENA = 9;
+const int IN1 = 4;
+const int IN2 = 5;
+
+// Motor B (Left)
+const int ENB = 10;
+const int IN3 = 6;
+const int IN4 = 7;
+
+int SPEED = 200; // 0-255
+
+void setup() {
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT); pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT);
+  Serial.begin(9600);
+  Serial.println("Robot Car Ready!");
+}
+
+void forward() {
+  analogWrite(ENA, SPEED); analogWrite(ENB, SPEED);
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);   // Motor A forward
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);   // Motor B forward
+  Serial.println("Moving FORWARD");
+}
+
+void backward() {
+  analogWrite(ENA, SPEED); analogWrite(ENB, SPEED);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);  // Motor A backward
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);  // Motor B backward
+  Serial.println("Moving BACKWARD");
+}
+
+void turnLeft() {
+  analogWrite(ENA, SPEED); analogWrite(ENB, SPEED);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);  // Right motor backward
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);   // Left motor forward
+  Serial.println("Turning LEFT");
+}
+
+void turnRight() {
+  analogWrite(ENA, SPEED); analogWrite(ENB, SPEED);
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);   // Right motor forward
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);  // Left motor backward
+  Serial.println("Turning RIGHT");
+}
+
+void stopCar() {
+  digitalWrite(IN1, LOW); digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW); digitalWrite(IN4, LOW);
+  Serial.println("STOPPED");
+}
+
+void loop() {
+  forward();  delay(2000);
+  stopCar();  delay(500);
+  turnLeft(); delay(800);
+  stopCar();  delay(500);
+  forward();  delay(2000);
+  stopCar();  delay(500);
+  backward(); delay(1000);
+  stopCar();  delay(1000);
+}`,
+
+"Stepper Motor": `// ===================================
+// STEPPER MOTOR - 28BYJ-48 + ULN2003
+// ===================================
+// Library: Stepper (Arduino built-in)
+//
+// ULN2003 IN1 --> Pin 8
+// ULN2003 IN2 --> Pin 9
+// ULN2003 IN3 --> Pin 10
+// ULN2003 IN4 --> Pin 11
+// Power: 5V external adapter recommended!
+
+#include <Stepper.h>
+
+const int STEPS_PER_REV = 2048; // 28BYJ-48 ke liye
+// Pin order: IN1, IN3, IN2, IN4 (important!)
+Stepper stepper(STEPS_PER_REV, 8, 10, 9, 11);
+
+void setup() {
+  stepper.setSpeed(10); // RPM (10-15 RPM max for 28BYJ-48)
+  Serial.begin(9600);
+  Serial.println("Stepper Motor Ready!");
+}
+
+void loop() {
+  // Clockwise 1 full rotation
+  Serial.println("Clockwise 1 revolution...");
+  stepper.step(STEPS_PER_REV);
+  delay(1000);
+
+  // Counter-clockwise 1 full rotation
+  Serial.println("Counter-clockwise 1 revolution...");
+  stepper.step(-STEPS_PER_REV);
+  delay(1000);
+}`,
+
+"NeoPixel LED Strip": `// ===================================
+// NEOPIXEL WS2812B LED STRIP
+// ===================================
+// Library: Adafruit NeoPixel
+//
+// Wiring:
+// LED Strip DIN --> Pin 6 (via 470Ω resistor)
+// LED Strip VCC --> 5V (external power for many LEDs!)
+// LED Strip GND --> GND (aur Arduino GND bhi)
+
+#include <Adafruit_NeoPixel.h>
+
+#define LED_PIN    6
+#define NUM_LEDS   12  // Apne LEDs ki sankhya likho
+#define BRIGHTNESS 50  // 0-255
+
+Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  strip.begin();
+  strip.setBrightness(BRIGHTNESS);
+  strip.show(); // Sab off
+  Serial.begin(9600);
+  Serial.println("NeoPixel Ready!");
+}
+
+// Rainbow animation
+void rainbow(int wait) {
+  for (long hue = 0; hue < 5 * 65536; hue += 256) {
+    strip.rainbow(hue);
+    strip.show();
+    delay(wait);
+  }
+}
+
+// Ek rang se fill karo
+void colorWipe(uint32_t color, int wait) {
+  for (int i = 0; i < strip.numPixels(); i++) {
+    strip.setPixelColor(i, color);
+    strip.show();
+    delay(wait);
+  }
+}
+
+void loop() {
+  // Red sweep
+  colorWipe(strip.Color(255, 0, 0), 50);
+  delay(500);
+  // Green sweep
+  colorWipe(strip.Color(0, 255, 0), 50);
+  delay(500);
+  // Blue sweep
+  colorWipe(strip.Color(0, 0, 255), 50);
+  delay(500);
+  // Rainbow!
+  rainbow(5);
+}`
+};
+
+// ============================
+// PROJECTS DATA
+// ============================
+const PROJECTS = [
+  {name:"LED Traffic Light",icon:"🚦",desc:"Red/Yellow/Green LEDs se traffic signal banao",level:"beginner"},
+  {name:"Digital Thermometer",icon:"🌡️",desc:"DHT11 + LCD se temperature monitor karo",level:"beginner"},
+  {name:"Smart Plant Pot",icon:"🌱",desc:"Soil moisture sensor + auto watering pump",level:"beginner"},
+  {name:"Automatic Night Lamp",icon:"🌙",desc:"LDR sensor se automatic light on/off",level:"beginner"},
+  {name:"Digital Dice",icon:"🎲",desc:"Button se 1-6 random number LED display",level:"beginner"},
+  {name:"Security Alarm",icon:"🔔",desc:"PIR sensor + buzzer + LED alarm system",level:"intermediate"},
+  {name:"Bluetooth Robot Car",icon:"🚗",desc:"HC-05 se mobile se control karo robot",level:"intermediate"},
+  {name:"Weather Station",icon:"⛅",desc:"Temperature, humidity, pressure OLED par",level:"intermediate"},
+  {name:"Digital Safe Locker",icon:"🔐",desc:"Keypad + servo se combination lock",level:"intermediate"},
+  {name:"Smart Parking",icon:"🅿️",desc:"Ultrasonic se available parking detect karo",level:"intermediate"},
+  {name:"Voice Controlled LED",icon:"🎤",desc:"Phone voice se Bluetooth LED control",level:"advanced"},
+  {name:"IoT Home Automation",icon:"🏠",desc:"WiFi ESP8266 se lights aur fan web se control",level:"advanced"},
+  {name:"Line Follower Robot",icon:"🤖",desc:"IR sensors se line follow karne wala robot",level:"advanced"},
+  {name:"AI Face Detection",icon:"👁️",desc:"OpenCV + Arduino se face detect servo rotate",level:"advanced"},
+];
+
+// ============================
+// BOM DATABASE
+// ============================
+const BOM_DATA = {
+  led:{title:"LED Blink Project",items:[
+    {name:"Arduino Uno R3",qty:1,price:450,where:"Amazon/Robu"},
+    {name:"LED 5mm Red",qty:5,price:5,where:"Local market"},
+    {name:"220Ω Resistor",qty:5,price:2,where:"Local market"},
+    {name:"Breadboard 830pt",qty:1,price:60,where:"Amazon/Robu"},
+    {name:"Jumper Wires (M-M)",qty:20,price:50,where:"Amazon"},
+    {name:"USB Type-B Cable",qty:1,price:80,where:"Any shop"},
+  ]},
+  dht11:{title:"Temperature Monitor",items:[
+    {name:"Arduino Uno R3",qty:1,price:450,where:"Amazon/Robu"},
+    {name:"DHT11 Sensor Module",qty:1,price:65,where:"Robu/Quarktronics"},
+    {name:"LCD 16x2 Blue",qty:1,price:120,where:"Robu/Amazon"},
+    {name:"10kΩ Potentiometer",qty:1,price:15,where:"Local market"},
+    {name:"10kΩ Resistor",qty:1,price:2,where:"Local market"},
+    {name:"Breadboard",qty:1,price:60,where:"Amazon"},
+    {name:"Jumper Wires",qty:20,price:50,where:"Amazon"},
+  ]},
+  ultrasonic:{title:"Distance Sensor Car",items:[
+    {name:"Arduino Uno R3",qty:1,price:450,where:"Amazon"},
+    {name:"HC-SR04 Ultrasonic",qty:1,price:75,where:"Robu/Amazon"},
+    {name:"L298N Motor Driver",qty:1,price:125,where:"Robu/Amazon"},
+    {name:"TT DC Motors",qty:4,price:45,where:"Robu"},
+    {name:"2WD Robot Chassis",qty:1,price:280,where:"Amazon/Robu"},
+    {name:"18650 Battery (3.7V)",qty:2,price:160,where:"Amazon"},
+    {name:"18650 Holder (2x)",qty:1,price:35,where:"Amazon"},
+    {name:"Jumper Wires",qty:25,price:50,where:"Amazon"},
+    {name:"ON/OFF Switch",qty:1,price:10,where:"Local market"},
+  ]},
+  servo:{title:"Servo Robot Arm",items:[
+    {name:"Arduino Uno R3",qty:1,price:450,where:"Amazon"},
+    {name:"SG90 Servo Motor",qty:4,price:95,where:"Robu/Amazon"},
+    {name:"10kΩ Potentiometer",qty:4,price:15,where:"Local market"},
+    {name:"9V Battery",qty:1,price:45,where:"Any shop"},
+    {name:"9V Battery Snap",qty:1,price:10,where:"Local market"},
+    {name:"Breadboard",qty:1,price:60,where:"Amazon"},
+    {name:"Jumper Wires",qty:20,price:50,where:"Amazon"},
+    {name:"Robot Arm Kit (3D)",qty:1,price:350,where:"Amazon"},
+  ]},
+  smartHome:{title:"Smart Home System",items:[
+    {name:"NodeMCU ESP8266",qty:1,price:360,where:"Robu/Amazon"},
+    {name:"4-Channel Relay",qty:1,price:185,where:"Amazon/Robu"},
+    {name:"DHT11 Sensor",qty:1,price:65,where:"Robu"},
+    {name:"PIR Motion Sensor",qty:1,price:85,where:"Robu/Amazon"},
+    {name:"OLED 0.96\" I2C",qty:1,price:160,where:"Amazon"},
+    {name:"5V 2A Adapter",qty:1,price:130,where:"Amazon"},
+    {name:"2-core Wire (5m)",qty:1,price:30,where:"Hardware shop"},
+    {name:"Junction Box",qty:1,price:40,where:"Hardware shop"},
+  ]},
+  lineFollower:{title:"Line Follower Robot",items:[
+    {name:"Arduino Uno R3",qty:1,price:450,where:"Amazon"},
+    {name:"IR Sensor Module",qty:2,price:45,where:"Robu"},
+    {name:"L298N Motor Driver",qty:1,price:125,where:"Robu"},
+    {name:"TT DC Motors",qty:4,price:45,where:"Robu"},
+    {name:"2WD Robot Chassis",qty:1,price:280,where:"Amazon/Robu"},
+    {name:"9V Battery",qty:1,price:45,where:"Any shop"},
+    {name:"Battery Snap",qty:1,price:10,where:"Local"},
+    {name:"Jumper Wires",qty:20,price:50,where:"Amazon"},
+    {name:"Electrical Tape (Black)",qty:1,price:20,where:"Hardware shop"},
+  ]}
+};
+
+// ============================
+// WIRING DATA
+// ============================
+const WIRING = {
+  "LED":[
+    {from:"Pin 13",to:"LED (+) anode",note:"220Ω resistor beech mein lagao"},
+    {from:"GND",to:"LED (-) cathode",note:""}
+  ],
+  "DHT11":[
+    {from:"5V",to:"DHT11 VCC",note:""},
+    {from:"GND",to:"DHT11 GND",note:""},
+    {from:"Pin 2",to:"DHT11 DATA",note:"10kΩ pull-up resistor to 5V lagao"}
+  ],
+  "Ultrasonic HC-SR04":[
+    {from:"5V",to:"VCC",note:""},
+    {from:"GND",to:"GND",note:""},
+    {from:"Pin 9",to:"TRIG",note:""},
+    {from:"Pin 10",to:"ECHO",note:"3.3V boards ke liye voltage divider use karo"}
+  ],
+  "Servo Motor SG90":[
+    {from:"5V (external preferred)",to:"Red wire (VCC)",note:"High current - external 5V better"},
+    {from:"GND",to:"Brown/Black wire",note:""},
+    {from:"Pin 9",to:"Orange/Yellow (Signal)",note:""}
+  ],
+  "LCD 16x2":[
+    {from:"5V",to:"VCC (pin 2)",note:""},
+    {from:"GND",to:"GND (pin 1)",note:""},
+    {from:"Potentiometer",to:"Vo (pin 3)",note:"Contrast ke liye 0-5V"},
+    {from:"Pin 12",to:"RS (pin 4)",note:""},
+    {from:"GND",to:"R/W (pin 5)",note:"Always GND (write mode)"},
+    {from:"Pin 11",to:"EN (pin 6)",note:""},
+    {from:"Pin 5,4,3,2",to:"D4,D5,D6,D7 (pin 11-14)",note:"4-bit mode"},
+    {from:"5V via 220Ω",to:"Backlight A (pin 15)",note:""},
+    {from:"GND",to:"Backlight K (pin 16)",note:""}
+  ],
+  "OLED 0.96":[
+    {from:"3.3V",to:"VCC",note:"Check your module - some need 5V"},
+    {from:"GND",to:"GND",note:""},
+    {from:"A4 (SDA)",to:"SDA",note:"I2C Data"},
+    {from:"A5 (SCL)",to:"SCL",note:"I2C Clock"}
+  ],
+  "Relay Module":[
+    {from:"5V",to:"VCC",note:""},
+    {from:"GND",to:"GND",note:""},
+    {from:"Pin 7",to:"IN",note:"Active LOW - LOW = relay ON"},
+    {from:"Load +",to:"COM",note:"Common terminal"},
+    {from:"Load output",to:"NO",note:"Normally Open - circuit close hota hai"}
+  ],
+  "Buzzer":[
+    {from:"Pin 8",to:"Buzzer + (longer leg)",note:""},
+    {from:"GND",to:"Buzzer - (shorter leg)",note:""}
+  ],
+  "LDR Sensor":[
+    {from:"5V",to:"LDR ek end",note:""},
+    {from:"A0 + 10kΩ to GND",to:"LDR doosra end",note:"Voltage divider circuit"},
+    {from:"GND",to:"10kΩ doosra end",note:""}
+  ],
+  "Soil Moisture":[
+    {from:"5V",to:"VCC",note:""},
+    {from:"GND",to:"GND",note:""},
+    {from:"A0",to:"AO (analog output)",note:"Moisture value 0-1023"},
+    {from:"Pin 3 (optional)",to:"DO (digital output)",note:"Threshold-based output"}
+  ],
+  "PIR Sensor":[
+    {from:"5V",to:"VCC",note:""},
+    {from:"GND",to:"GND",note:""},
+    {from:"Pin 2",to:"OUT",note:"HIGH jab motion detect ho"}
+  ],
+  "IR Sensor":[
+    {from:"5V",to:"VCC",note:""},
+    {from:"GND",to:"GND",note:""},
+    {from:"Pin 11",to:"OUT",note:"IR signal receive"}
+  ]
+};
+
+// ============================
+// HELP TOPICS
+// ============================
+const HELP_TOPICS = [
+  {title:"Arduino Kya Hai? (Basics)",sub:"Introduction aur popular boards",
+    content:`Arduino ek open-source microcontroller platform hai. Isme small computer (chip) hoti hai jo aap program karte ho.
+
+📋 POPULAR BOARDS:
+• Arduino Uno  — sabse popular, beginner ke liye best (₹450)
+• Arduino Nano — chhota size, breadboard friendly (₹250)
+• Arduino Mega — zyada pins chahiye to (₹700)
+• NodeMCU ESP8266 — built-in WiFi (₹350)
+• ESP32 — WiFi + Bluetooth built-in (₹450)
+
+⚡ UNO SPECIFICATIONS:
+• Chip: ATmega328P
+• Clock: 16 MHz
+• Digital Pins: 14 (6 PWM)
+• Analog Pins: 6
+• Flash: 32KB, SRAM: 2KB
+• Operating Voltage: 5V
+
+🛠️ SETUP:
+1. arduino.cc se Arduino IDE download karo
+2. USB se connect karo
+3. Tools > Board > Arduino Uno select karo
+4. Tools > Port > COM port select karo
+5. Code likhो aur Upload dabao!`
+  },
+  {title:"Sensors Guide",sub:"Digital, Analog, I2C, SPI sensors",
+    content:`🔢 DIGITAL SENSORS (0 ya 1):
+• Button/Switch — pressed/not pressed
+• PIR Motion Sensor — motion detected/not
+• IR Obstacle Sensor — object hai/nahi
+• Reed Switch — magnet pass hai/nahi
+
+📈 ANALOG SENSORS (0-1023):
+• LDR (Light) — light intensity measure
+• Potentiometer — position 0-100%
+• Soil Moisture — mitti ki nami
+• NTC Thermistor — temperature
+• Flex Sensor — bend amount
+
+🔗 I2C SENSORS (SDA + SCL):
+• DHT11/22 — temperature & humidity
+• OLED Display — screen
+• BME280 — pressure + temp + humidity
+• MPU6050 — accelerometer + gyroscope
+• DS3231 RTC — real time clock
+Address: 0x3C, 0x68 etc.
+
+⚡ SPI SENSORS (MOSI, MISO, SCK, CS):
+• SD Card Module — file storage
+• RFID RC522 — card reader
+• MAX7219 — LED matrix
+Faster than I2C!`
+  },
+  {title:"Common Arduino Errors",sub:"Compile aur upload problems ka solution",
+    content:`❌ 'was not declared in this scope'
+→ Variable ya function ka naam galat hai
+→ Spelling check karo
+→ Variable scope ke andar use karo
+→ Library include karna bhool gaye
+
+❌ 'expected ';' before ...'
+→ Kisi line ke end mein semicolon missing
+→ Previous lines carefully check karo
+
+❌ avrdude: stk500 programmer not responding
+→ Wrong COM port selected hai
+→ USB cable check karo (data cable use karo)
+→ Board reset button dabao phir upload karo
+→ Doosra USB port try karo
+
+❌ 'no matching function'
+→ Wrong number of arguments diye
+→ Wrong data type diya
+→ Library version mismatch
+
+❌ 'port not open'
+→ Tools > Port mein port select nahi hai
+→ Serial Monitor khula hua hai - band karo
+→ Arduino unplug - reconnect karo
+
+💡 PRO TIP: Error message ko copy karke
+Google par search karo ya AI Chat mein paste karo!`
+  },
+  {title:"Arduino aur AI Combine Karna",sub:"Machine Learning on microcontrollers",
+    content:`🤖 TENSORFLOW LITE FOR MICROCONTROLLERS:
+• Arduino Nano 33 BLE Sense par run hota hai
+• Gesture, voice, person detection possible
+• Edge ML - cloud ki zaroorat nahi
+
+📊 EDGE IMPULSE:
+• Free online tool — edgeimpulse.com
+• Sensor data se ML model banao
+• Automatically Arduino code generate karta hai
+• No ML expertise needed!
+
+🐍 PYTHON + ARDUINO:
+• PC par OpenCV/TensorFlow chalao
+• Serial port se Arduino ko results bhejo
+• pyserial library use karo
+• Face detection, object detection possible
+
+🎤 VOICE RECOGNITION:
+• Google Speech API (Python) + Arduino serial
+• Picovoice — offline voice commands
+• Arduino ko voice se control karo
+
+📷 IMAGE PROCESSING:
+• Raspberry Pi se image processing karo
+• Results Arduino ko I2C ya serial se bhejo
+• Servo motors, LEDs control karo results se`
+  },
+  {title:"IoT Project Kaise Banayein",sub:"ESP8266, MQTT, Cloud platforms",
+    content:`🌐 HARDWARE OPTIONS:
+• NodeMCU ESP8266 — sasta WiFi (₹350)
+• ESP32 — WiFi + BT dual core (₹450)
+• Arduino + WiFi Shield — expensive option
+
+📡 COMMUNICATION PROTOCOLS:
+• HTTP GET/POST — web APIs se data
+• MQTT — lightweight pub/sub messaging
+• WebSocket — real-time bidirectional
+• Blynk — ready-made IoT platform
+
+☁️ CLOUD PLATFORMS (FREE):
+• ThingSpeak — sensor data graphs
+• Blynk — mobile app control
+• Adafruit IO — dashboard + alerts
+• Firebase — real-time database
+• IFTTT — automation triggers
+
+🔧 MQTT SETUP:
+1. Mosquitto broker install karo (PC ya cloud)
+2. PubSubClient library Arduino mein add karo
+3. ESP8266 ko WiFi aur broker se connect karo
+4. Topics par publish/subscribe karo
+
+💡 STARTER PROJECT:
+NodeMCU + DHT11 → ThingSpeak → Mobile Graph
+Sab free mein! Tutorial: randomnerdtutorials.com`
+  },
+  {title:"Libraries Kaise Install Karein",sub:"Arduino IDE library manager guide",
+    content:`📚 METHOD 1 - LIBRARY MANAGER (Easiest):
+1. Arduino IDE kholo
+2. Sketch menu > Include Library > Manage Libraries
+3. Search box mein library naam type karo
+4. Install button dabao
+5. Done! Ab #include use kar sakte ho
+
+📦 METHOD 2 - ZIP FILE:
+1. GitHub se .zip download karo
+2. Sketch > Include Library > Add .ZIP Library
+3. Downloaded .zip select karo
+4. Automatically install ho jayega
+
+📁 METHOD 3 - MANUAL:
+1. Documents > Arduino > libraries folder kolo
+2. Library folder wahan copy karo
+3. Arduino IDE restart karo
+
+🔥 POPULAR LIBRARIES:
+• DHT sensor library (by Adafruit)
+• Adafruit SSD1306 (OLED)
+• Adafruit GFX Library (graphics)
+• IRremote (IR receiver)
+• Servo (built-in)
+• LiquidCrystal (built-in)
+• SoftwareSerial (built-in)
+• ESP8266WiFi (ESP8266 board install karne par)
+• PubSubClient (MQTT)`
+  },
+];
+
+// ============================
+// STATE
+// ============================
+const addedComponents = [];
+let recognition = null;
+let isListening = false;
+
+// ============================
+// TAB SWITCHING
+// ============================
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => {
+    p.style.display = 'none';
+    p.classList.remove('active');
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  const panel = document.getElementById('panel-' + name);
+  panel.style.display = 'flex';
+  panel.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ============================
+// CHAT FUNCTIONS
+// ============================
+function addMsg(role, html) {
+  const msgs = document.getElementById('chatMsgs');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="msg-avatar">${role==='bot'?'🤖':'👤'}</div><div class="msg-bubble">${html}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chatMsgs');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typingIndicator';
+  div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatBotMsg(text) {
+  return text
+    .replace(/```arduino([\s\S]*?)```/g,'<pre>$1</pre>')
+    .replace(/```cpp([\s\S]*?)```/g,'<pre>$1</pre>')
+    .replace(/```([\s\S]*?)```/g,'<pre>$1</pre>')
+    .replace(/`([^`\n]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:var(--cyan)">$1</strong>')
+    .replace(/\n/g,'<br>');
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const btn   = document.getElementById('sendBtn');
+  const msg   = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  addMsg('user', escHtml(msg));
+  btn.disabled = true;
+  showTyping();
+  switchTab('chat');
+
+  try {
+    const res = await fetch('http://localhost:3000/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Tu ek expert Arduino aur Electronics AI assistant hai jo Hinglish (Hindi+English mix) mein baat karta hai.
+
+Tu help karta hai:
+- Arduino programming (C++, code examples with comments)
+- Circuit design aur wiring connections
+- Sensor integration (DHT11, Ultrasonic, Servo, LCD, OLED, Bluetooth, WiFi, etc.)
+- IoT project development
+- Error debugging aur troubleshooting
+- Component selection aur recommendations
+- Beginner se Advanced project ideas
+- Bill of Materials (BOM) with prices in INR
+
+RESPONSE STYLE:
+- Hinglish mein baat karo (Hindi + English natural mix)
+- Arduino code ko always \`\`\`arduino ... \`\`\` block mein likho
+- Step-by-step guide do complex topics ke liye
+- Component prices approximate INR mein do
+- Robu.in, Amazon India se kharidne ka suggestion do
+- Short aur helpful answers do
+- Encouraging tone rakho`,
+        messages: [{role:'user', content: msg}]
+      })
+    });
+    const data = await res.json();
+    removeTyping();
+    if (data.content && data.content[0]) {
+      addMsg('bot', formatBotMsg(data.content[0].text));
+    } else if (data.error) {
+      addMsg('bot', '⚠️ API Error: ' + escHtml(data.error.message || 'Unknown error'));
+    } else {
+      addMsg('bot', '⚠️ Response nahi aaya. Dobara try karo!');
+    }
+  } catch(e) {
+    removeTyping();
+    addMsg('bot', '⚠️ Connection error! Internet check karo.<br><small style="color:var(--muted)">' + e.message + '</small>');
+  }
+  btn.disabled = false;
+  document.getElementById('chatInput').focus();
+}
+
+function sendQuick(q) {
+  document.getElementById('chatInput').value = q;
+  switchTab('chat');
+  sendChat();
+}
+
+// ============================
+// CODE GENERATOR
+// ============================
+function generateCode() {
+  const type = document.getElementById('codeType').value;
+  const code  = CODES[type] || '// Code not available for this selection.';
+  document.getElementById('codeOutput').textContent = code;
+}
+
+function copyCode() {
+  const code = document.getElementById('codeOutput').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check"></i> COPIED!';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  }).catch(() => {
+    alert('Copy failed. Please manually select and copy the code.');
+  });
+}
+
+// ============================
+// CIRCUIT DESIGNER
+// ============================
+function addComponent() {
+  const sel  = document.getElementById('compSelect');
+  const qty  = parseInt(document.getElementById('compQty').value) || 1;
+  const name = sel.value;
+  if (!name) { alert('Pehle component select karo!'); return; }
+  addedComponents.push({name, qty});
+  renderCompList();
+  sel.value = '';
+}
+
+function removeComp(i) {
+  addedComponents.splice(i, 1);
+  renderCompList();
+}
+
+function renderCompList() {
+  const el = document.getElementById('compList');
+  if (!addedComponents.length) { el.innerHTML = ''; return; }
+  el.innerHTML = addedComponents.map((c,i) => `
+    <div class="comp-item">
+      <span><span class="tag component">${c.name}</span> &times; ${c.qty}</span>
+      <span class="comp-remove" onclick="removeComp(${i})" title="Hatao">&times;</span>
+    </div>`).join('');
+}
+
+function designCircuit() {
+  if (!addedComponents.length) {
+    document.getElementById('circuitOutput').textContent = '⚠️ Pehle components add karo!';
+    return;
+  }
+  let output = '╔══════════════════════════════════╗\n';
+  output    += '║      ARDUINO WIRING DIAGRAM      ║\n';
+  output    += '╚══════════════════════════════════╝\n\n';
+
+  addedComponents.forEach(c => {
+    const wires = WIRING[c.name];
+    output += `▶ ${c.name.toUpperCase()} (×${c.qty})\n`;
+    output += '─'.repeat(38) + '\n';
+    if (wires) {
+      wires.forEach(w => {
+        const from = w.from.padEnd(20);
+        output += `  ${from} → ${w.to}`;
+        if (w.note) output += `\n  ${' '.repeat(20)}   [💡 ${w.note}]`;
+        output += '\n';
+      });
+    } else {
+      output += '  ⚠️  Refer to component datasheet for pinout\n';
+    }
+    output += '\n';
+  });
+
+  output += '═'.repeat(38) + '\n';
+  output += '  POWER RAIL CONNECTIONS:\n';
+  output += '  Arduino 5V  → Breadboard (+) rail\n';
+  output += '  Arduino GND → Breadboard (-) rail\n';
+  output += '═'.repeat(38) + '\n';
+  output += '\n  ⚠️ Double check connections before power on!\n';
+  output += '  ⚠️ Reverse polarity se component kharab ho sakta hai.\n';
+
+  document.getElementById('circuitOutput').textContent = output;
+}
+
+// ============================
+// PROJECTS
+// ============================
+function renderProjects() {
+  const levels = ['beginner','intermediate','advanced'];
+  const labels = {beginner:'🟢 BEGINNER', intermediate:'🟡 INTERMEDIATE', advanced:'🔴 ADVANCED'};
+  let html = '';
+  levels.forEach(level => {
+    const ps = PROJECTS.filter(p => p.level === level);
+    html += `<div class="section-title" style="margin-top:${level!=='beginner'?'16px':'0'};color:${level==='beginner'?'var(--green)':level==='intermediate'?'var(--yellow)':'var(--pink)'}">${labels[level]}</div>`;
+    html += '<div class="project-grid">';
+    ps.forEach(p => {
+      const q = `${p.name} project ki complete guide do: components list, circuit diagram, Arduino code, aur step by step instructions chahiye`;
+      html += `
+        <div class="proj-card ${level}" onclick="sendQuick('${q}')" title="AI se complete guide lo">
+          <div class="proj-icon">${p.icon}</div>
+          <div class="proj-name">${p.name}</div>
+          <div class="proj-desc">${p.desc}</div>
+          <span class="proj-badge ${level}">${level}</span>
+        </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('projectsContainer').innerHTML = html;
+}
+
+// ============================
+// BOM GENERATOR
+// ============================
+function generateBOM() {
+  const key = document.getElementById('bomProject').value;
+  const out  = document.getElementById('bomOutput');
+  if (!key) { out.innerHTML = ''; return; }
+  const bom = BOM_DATA[key];
+  if (!bom) return;
+
+  let total = 0;
+  let rows  = bom.items.map(item => {
+    const sub = item.qty * item.price;
+    total += sub;
+    return `<tr>
+      <td>${item.name}</td>
+      <td style="text-align:center;color:var(--cyan)">${item.qty}</td>
+      <td style="text-align:right">₹${item.price}</td>
+      <td style="text-align:right;color:var(--green);font-weight:700">₹${sub}</td>
+      <td style="color:var(--muted);font-size:11px">${item.where}</td>
+    </tr>`;
+  }).join('');
+
+  out.innerHTML = `
+    <div style="font-size:16px;font-weight:700;color:var(--cyan);margin-bottom:10px">📋 ${bom.title}</div>
+    <div style="overflow-x:auto">
+    <table class="bom-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th style="text-align:center">Qty</th>
+          <th style="text-align:right">Unit Price</th>
+          <th style="text-align:right">Total</th>
+          <th>Kahan Se Kharidon</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    </div>
+    <div style="margin-top:12px;text-align:right;font-size:16px;color:var(--green);font-weight:700">
+      💰 TOTAL BUDGET: ₹${total.toLocaleString()}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">
+      * Prices approximate hain. Amazon.in, Robu.in, Quarktronics.com se kharidne par check karo.<br>
+      * Arduino Uno genuine Robu.in se lo — duplicate se bachao!
+    </div>
+    <button class="gen-btn" onclick="sendQuick('${bom.title} ke liye step by step guide do')" style="margin-top:12px">🤖 AI SE COMPLETE GUIDE LO</button>`;
+}
+
+// ============================
+// ERROR SOLVER
+// ============================
+const ERROR_DB = [
+  {pattern:/was not declared/i, title:"'was not declared in this scope'",
+    solutions:["Variable ya function ka naam galat hai — spelling carefully check karo","Variable aur function scope se bahar use ho raha hai — sahi jagah declare karo","Library include nahi ki — #include <LibraryName.h> add karo file ke top par"]},
+  {pattern:/expected ';'|expected '}'|expected '\)'|expected '\('/i, title:"Syntax Error — Missing Punctuation",
+    solutions:["Previous line mein semicolon (;) missing hai","Curly brackets {} ya parentheses () properly open/close nahi hue","Har statement ke end mein semicolon lagao"]},
+  {pattern:/avrdude|stk500|programmer.*not.*respond|not in sync/i, title:"Upload Error — Programmer Not Responding",
+    solutions:["Tools > Port mein correct COM port select karo","Data capable USB cable use karo (charging-only cable kaam nahi karta)","Arduino reset button dabao, phir immediately Upload dabao","Doosra USB port try karo","Device Manager mein Arduino CH340/FTDI driver install hai ki nahi check karo"]},
+  {pattern:/port.*not open|could not open port|serial port/i, title:"Serial Port Error",
+    solutions:["Arduino IDE mein Tools > Port > correct port select karo","Serial Monitor aur upload ek saath nahi kar sakte — Serial Monitor band karo","Arduino unplug karke dobara plug karo","Doosra USB port try karo"]},
+  {pattern:/no.*function.*call|no matching function/i, title:"No Matching Function",
+    solutions:["Function ko galat number of arguments de rahe ho","Parameter ka data type galat hai (int ki jagah float etc.)","Library ka documentation check karo — function signature dekho"]},
+  {pattern:/undefined reference|linker.*error/i, title:"Linker / Undefined Reference Error",
+    solutions:["Function declare kiya hai but body define nahi ki","Library properly install nahi hui — Manage Libraries se reinstall karo","Library version compatibility check karo"]},
+  {pattern:/out of.*range|cannot.*convert.*double.*to.*int/i, title:"Data Type / Range Error",
+    solutions:["Variable ka data type chhota hai — int ki jagah long ya float use karo","Float ko int mein convert karne mein data loss ho raha hai — explicit cast karo: (int)value","Unsigned int negative value store nahi kar sakta"]},
+];
+
+function solveError() {
+  const errText = document.getElementById('errorInput').value.trim();
+  if (!errText) { alert('Error message paste karo!'); return; }
+
+  const found = ERROR_DB.find(e => e.pattern.test(errText));
+  const out   = document.getElementById('errorOutput');
+
+  if (!found) {
+    out.innerHTML = `
+      <div class="error-box">
+        <div class="error-title"><i class="ti ti-alert-triangle"></i> Error Database Mein Nahi Mila</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6">
+          Yeh specific error automatically identify nahi ho payi.<br>
+          <strong style="color:var(--cyan)">AI Chat</strong> mein poora error message paste karo — Claude detailed solution dega!
+        </div>
+        <button class="gen-btn" onclick="aiSolveError()" style="margin-top:10px">🤖 AI SE SOLVE KARWAO</button>
+      </div>`;
+    return;
+  }
+
+  const stepsHtml = found.solutions.map((s,i) =>
+    `<div class="solution-step"><span class="step-num">${i+1}.</span><span>${s}</span></div>`
+  ).join('');
+
+  out.innerHTML = `
+    <div class="error-box">
+      <div class="error-title"><i class="ti ti-alert-triangle"></i> ${found.title}</div>
+      <div style="color:var(--yellow);font-size:12px;font-weight:700;margin-bottom:4px">SOLUTIONS:</div>
+      ${stepsHtml}
+    </div>
+    <button class="gen-btn" onclick="aiSolveError()" style="margin-top:8px">🤖 AI SE DETAILED HELP LO</button>`;
+}
+
+function aiSolveError() {
+  const err = document.getElementById('errorInput').value.trim();
+  if (err) {
+    document.getElementById('chatInput').value = 'Mere Arduino mein yeh error aa raha hai, please fix karo:\n' + err;
+    switchTab('chat');
+    sendChat();
+  }
+}
+
+// ============================
+// HELP TOPICS
+// ============================
+function renderHelp() {
+  const container = document.getElementById('helpTopics');
+  container.innerHTML = HELP_TOPICS.map((t,i) => `
+    <div>
+      <div class="help-topic" onclick="toggleHelp(${i})">
+        <div>
+          <div class="help-topic-title">${t.title}</div>
+          <div class="help-topic-sub">${t.sub}</div>
+        </div>
+        <i class="ti ti-chevron-down" id="helpArrow${i}" style="color:var(--muted);transition:.2s;font-size:16px"></i>
+      </div>
+      <div class="help-content" id="helpContent${i}">${t.content.replace(/\n/g,'<br>').replace(/•/g,'&bull;')}</div>
+    </div>`).join('');
+}
+
+function toggleHelp(i) {
+  const content = document.getElementById('helpContent'+i);
+  const arrow   = document.getElementById('helpArrow'+i);
+  const isOpen  = content.classList.toggle('open');
+  arrow.style.transform = isOpen ? 'rotate(180deg)' : '';
+  arrow.style.color     = isOpen ? 'var(--cyan)' : 'var(--muted)';
+}
+
+// ============================
+// VOICE INPUT
+// ============================
+function toggleVoice() {
+  const micLabel = document.getElementById('micLabel');
+  const micBtn   = document.getElementById('micBtn');
+
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    micLabel.textContent = '❌ Aapka browser voice support nahi karta. Chrome use karo!';
+    return;
+  }
+
+  if (isListening) {
+    recognition.stop();
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'hi-IN';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isListening = true;
+    micBtn.classList.add('listening');
+    micLabel.textContent = '🔴 Sun raha hoon... boliye!';
+    document.getElementById('transcriptBox').textContent = '';
+    document.getElementById('voiceSendBtn').style.display = 'none';
+  };
+
+  recognition.onresult = (e) => {
+    let transcript = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    document.getElementById('transcriptBox').textContent = transcript;
+    if (e.results[e.results.length-1].isFinal) {
+      document.getElementById('voiceSendBtn').style.display = 'block';
+    }
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    micBtn.classList.remove('listening');
+    micLabel.textContent = 'Baat ho gayi! "AI KO BHEJO" button dabao.';
+  };
+
+  recognition.onerror = (e) => {
+    isListening = false;
+    micBtn.classList.remove('listening');
+    micLabel.textContent = '❌ Error: ' + e.error + '. Dobara try karo.';
+  };
+
+  recognition.start();
+}
+
+function sendVoiceQuery() {
+  const text = document.getElementById('transcriptBox').textContent.trim();
+  if (text) {
+    document.getElementById('chatInput').value = text;
+    switchTab('chat');
+    sendChat();
+    document.getElementById('voiceSendBtn').style.display = 'none';
+    document.getElementById('transcriptBox').textContent = 'Aapka transcript yahaan dikhega...';
+    document.getElementById('micLabel').textContent = 'Mic button dabao aur bolna shuru karo';
+  }
+}
+
+// ============================
+// IMAGE UPLOAD & ANALYSIS
+// ============================
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = document.getElementById('uploadedImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    analyzeCircuitImage(e.target.result.split(',')[1], file.type);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeCircuitImage(base64Data, mediaType) {
+  const resultDiv = document.getElementById('imageAnalysisResult');
+  resultDiv.innerHTML = '<div class="analyze-result"><span style="color:var(--cyan)">⏳ Circuit analyze ho raha hai...</span></div>';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {type:'image', source:{type:'base64', media_type: mediaType || 'image/jpeg', data: base64Data}},
+            {type:'text', text:`Is circuit image ko analyze karo aur Hinglish mein batao:
+1. Kaunse components visible hain?
+2. Connections sahi hain ya galat?
+3. Koi potential problems ya improvements?
+4. Agar Arduino circuit hai to pin connections batao.
+Short aur helpful response do.`}
+          ]
+        }]
+      })
+    });
+
+    const data = await res.json();
+    if (data.content && data.content[0]) {
+      resultDiv.innerHTML = `<div class="analyze-result"><strong style="color:var(--cyan)">🔍 Circuit Analysis:</strong><br><br>${formatBotMsg(data.content[0].text)}</div>`;
+    } else {
+      resultDiv.innerHTML = '<div class="analyze-result" style="color:var(--muted)">Analysis nahi ho payi. Dobara try karo.</div>';
+    }
+  } catch(e) {
+    resultDiv.innerHTML = `<div class="analyze-result" style="color:var(--pink)">⚠️ Error: ${e.message}</div>`;
+  }
+}
+
+// ============================
+// DRAG & DROP IMAGE
+// ============================
+const uploadArea = document.querySelector('.img-upload-area');
+if (uploadArea) {
+  uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = 'var(--cyan)'; });
+  uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = 'var(--border)'; });
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--border)';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const event = { target: { files: [file] } };
+      handleImageUpload(event);
+    }
+  });
+}
+
+// ============================
+// INIT
+// ============================
+renderProjects();
+renderHelp();
+generateCode(); // Default code load karo
+</script>
+</body>
+</html>

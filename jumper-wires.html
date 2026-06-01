@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Jumper Wires</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#08142c);
+color:white;
+padding:30px;
+overflow-x:hidden;
+}
+
+.title{
+text-align:center;
+font-size:55px;
+color:#00ffe1;
+margin-bottom:40px;
+text-shadow:0 0 15px rgba(0,255,225,0.4);
+}
+
+.chapter-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:25px;
+}
+
+.chapter{
+background:rgba(255,255,255,0.03);
+padding:25px;
+border-radius:22px;
+border:1px solid rgba(0,255,225,0.15);
+transition:0.4s;
+box-shadow:0 0 12px rgba(0,255,225,0.05);
+}
+
+.chapter:hover{
+transform:translateY(-8px);
+box-shadow:0 0 25px rgba(0,255,225,0.2);
+}
+
+.chapter h2{
+color:#00ffe1;
+margin-bottom:15px;
+font-size:30px;
+}
+
+.chapter p{
+font-size:18px;
+line-height:1.7;
+color:#d7d7d7;
+}
+
+.back-btn{
+display:block;
+width:220px;
+margin:50px auto 0;
+padding:15px;
+text-align:center;
+border-radius:40px;
+background:linear-gradient(45deg,#00d9ff,#8f44ff);
+color:white;
+font-size:20px;
+text-decoration:none;
+transition:0.3s;
+}
+
+.back-btn:hover{
+transform:scale(1.05);
+}
+
+@media(max-width:768px){
+
+.title{
+font-size:38px;
+}
+
+.chapter-grid{
+grid-template-columns:1fr;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<h1 class="title">Jumper Wires 🚀</h1>
+
+<div class="chapter-grid">
+
+<div class="chapter">
+<h2>📘 Introduction</h2>
+<p>
+Jumper wires electronic components ko connect karne ke liye use hoti hain.
+</p>
+</div>
+
+<div class="chapter">
+<h2>📍 Types</h2>
+<p>
+Male-to-Male, Male-to-Female aur Female-to-Female jumper wires hoti hain.
+</p>
+</div>
+
+<div class="chapter">
+<h2>⚡ Voltage & Current</h2>
+<p>
+Low voltage electronic circuits aur Arduino connections me use hoti hain.
+</p>
+</div>
+
+<div class="chapter">
+<h2>🖼️ Component Diagram</h2>
+<p>
+Breadboard aur Arduino connection wiring diagram yahan show hoga.
+</p>
+</div>
+
+<div class="chapter">
+<h2>🌍 Applications</h2>
+<p>
+Arduino projects, robotics aur circuit prototyping me use hoti hain.
+</p>
+</div>
+
+<div class="chapter">
+<h2>🚀 Advantages</h2>
+<p>
+Easy connection, reusable aur soldering ki zarurat nahi hoti.
+</p>
+</div>
+
+</div>
+
+<a href="arduino.html" class="back-btn">
+⬅ Back
+</a>
+
+</body>
+</html>

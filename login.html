@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Arduino AI Login</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+height:100vh;
+overflow:hidden;
+display:flex;
+justify-content:center;
+align-items:center;
+background:#020617;
+position:relative;
+}
+
+/* ================= AI GRID ================= */
+
+.grid{
+position:absolute;
+width:200%;
+height:200%;
+background:
+linear-gradient(rgba(0,255,255,0.08) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,255,255,0.08) 1px, transparent 1px);
+
+background-size:60px 60px;
+
+transform:rotateX(75deg);
+
+animation:gridMove 12s linear infinite;
+}
+
+@keyframes gridMove{
+
+0%{
+transform:
+rotateX(75deg)
+translateY(0);
+}
+
+100%{
+transform:
+rotateX(75deg)
+translateY(60px);
+}
+
+}
+
+/* ================= GLOW ================= */
+
+.glow{
+position:absolute;
+width:500px;
+height:500px;
+background:radial-gradient(circle,#00ffff55,transparent 70%);
+filter:blur(40px);
+animation:moveGlow 8s infinite alternate;
+}
+
+.glow:nth-child(2){
+background:radial-gradient(circle,#ff00ff33,transparent 70%);
+right:-100px;
+bottom:-100px;
+}
+
+@keyframes moveGlow{
+
+100%{
+transform:translate(100px,-80px);
+}
+
+}
+
+/* ================= PARTICLES ================= */
+
+.particle{
+position:absolute;
+width:4px;
+height:4px;
+background:#00ffff;
+border-radius:50%;
+animation:float 12s linear infinite;
+opacity:0.7;
+}
+
+@keyframes float{
+
+0%{
+transform:translateY(100vh) scale(0);
+}
+
+100%{
+transform:translateY(-100vh) scale(1);
+}
+
+}
+
+/* ================= LOGIN BOX ================= */
+
+.login-box{
+position:relative;
+width:420px;
+padding:40px;
+background:rgba(10,15,35,0.75);
+border:1px solid rgba(255,255,255,0.08);
+backdrop-filter:blur(20px);
+border-radius:30px;
+box-shadow:
+0 0 30px #00ffff33,
+0 0 80px #ff00ff22;
+z-index:10;
+}
+
+/* ================= LOGO ================= */
+
+.logo{
+text-align:center;
+margin-bottom:20px;
+}
+
+.logo h1{
+font-size:45px;
+color:#00ffff;
+text-shadow:0 0 20px #00ffff;
+}
+
+.logo p{
+margin-top:8px;
+font-size:13px;
+letter-spacing:4px;
+color:#9ca3af;
+}
+
+/* ================= AI STATUS ================= */
+
+.status{
+width:190px;
+margin:20px auto;
+padding:10px;
+border-radius:30px;
+background:#00ffcc11;
+border:1px solid #00ffcc55;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+color:#00ffcc;
+font-size:13px;
+}
+
+.dot{
+width:8px;
+height:8px;
+background:#00ffcc;
+border-radius:50%;
+animation:blink 1s infinite;
+}
+
+@keyframes blink{
+
+50%{
+opacity:0.3;
+}
+
+}
+
+/* ================= INPUTS ================= */
+
+.input-box{
+margin-top:22px;
+position:relative;
+}
+
+.input-box input{
+width:100%;
+padding:16px 50px;
+border:none;
+outline:none;
+border-radius:15px;
+background:#111827;
+color:white;
+font-size:16px;
+border:1px solid rgba(0,255,255,0.15);
+transition:0.3s;
+}
+
+.input-box input:focus{
+border-color:#00ffff;
+box-shadow:0 0 15px #00ffff55;
+}
+
+.input-box i{
+position:absolute;
+left:18px;
+top:18px;
+color:#00ffff;
+}
+
+/* ================= OPTIONS ================= */
+
+.options{
+display:flex;
+justify-content:space-between;
+margin-top:15px;
+font-size:14px;
+color:#aaa;
+}
+
+.options a{
+color:#00ffff;
+text-decoration:none;
+}
+
+/* ================= BUTTON ================= */
+
+.login-btn{
+width:100%;
+padding:16px;
+margin-top:28px;
+border:none;
+border-radius:16px;
+background:
+linear-gradient(90deg,
+#00ffff,
+#8b5cf6,
+#ff00ff);
+
+color:white;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+transition:0.4s;
+box-shadow:0 0 25px #00ffff55;
+}
+
+.login-btn:hover{
+transform:scale(1.04);
+}
+
+/* ================= SOCIAL ================= */
+
+.social{
+margin-top:30px;
+text-align:center;
+color:#aaa;
+}
+
+.social-buttons{
+display:flex;
+gap:15px;
+margin-top:15px;
+}
+
+.social-buttons button{
+flex:1;
+padding:13px;
+border:none;
+border-radius:14px;
+background:#111827;
+color:white;
+cursor:pointer;
+transition:0.3s;
+border:1px solid rgba(0,255,255,0.1);
+}
+
+.social-buttons button:hover{
+background:#00ffff22;
+}
+
+/* ================= TYPING TEXT ================= */
+
+.typing{
+margin-top:20px;
+text-align:center;
+font-size:13px;
+color:#00ffff;
+height:20px;
+}
+
+/* ================= FOOTER ================= */
+
+.footer{
+margin-top:25px;
+text-align:center;
+font-size:12px;
+color:#666;
+letter-spacing:2px;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:500px){
+
+.login-box{
+width:92%;
+padding:30px 20px;
+}
+
+.logo h1{
+font-size:34px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- GRID -->
+
+<div class="grid"></div>
+
+<!-- GLOW -->
+
+<div class="glow"></div>
+<div class="glow"></div>
+
+<!-- PARTICLES -->
+
+<div class="particle" style="left:10%; animation-delay:0s;"></div>
+<div class="particle" style="left:25%; animation-delay:2s;"></div>
+<div class="particle" style="left:40%; animation-delay:4s;"></div>
+<div class="particle" style="left:60%; animation-delay:1s;"></div>
+<div class="particle" style="left:75%; animation-delay:3s;"></div>
+<div class="particle" style="left:90%; animation-delay:5s;"></div>
+
+<!-- LOGIN BOX -->
+
+<div class="login-box">
+
+<div class="logo">
+
+<h1>Arduino AI ⚡</h1>
+
+<p>SMART LEARNING SYSTEM</p>
+
+</div>
+
+<div class="status">
+
+<div class="dot"></div>
+
+<span>AI System Online</span>
+
+</div>
+
+<form action="home.html">
+
+<!-- EMAIL -->
+
+<div class="input-box">
+
+<i class="fa-regular fa-envelope"></i>
+
+<input
+type="email"
+placeholder="Email Address"
+required>
+
+</div>
+
+<!-- PASSWORD -->
+
+<div class="input-box">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+placeholder="Password"
+required>
+
+</div>
+
+<!-- OPTIONS -->
+
+<div class="options">
+
+<label>
+
+<input type="checkbox">
+
+Remember me
+
+</label>
+
+<a href="#">
+Forgot password?
+</a>
+
+</div>
+
+<!-- BUTTON -->
+
+<button
+type="submit"
+class="login-btn">
+
+Login To Arduino AI 🚀
+
+</button>
+
+</form>
+
+<!-- SOCIAL -->
+
+<div class="social">
+
+<p>OR CONTINUE WITH</p>
+
+<div class="social-buttons">
+
+<button>
+
+<i class="fa-brands fa-google"></i>
+
+Google
+
+</button>
+
+<button>
+
+<i class="fa-brands fa-github"></i>
+
+GitHub
+
+</button>
+
+</div>
+
+</div>
+
+<!-- TYPING -->
+
+<div class="typing"
+id="typing"></div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+ARDUINO AI /// FUTURE TECH V3.0
+
+</div>
+
+</div>
+
+<script>
+
+const text =
+[
+"Initializing AI System...",
+"Loading Arduino Database...",
+"Connecting Smart Modules...",
+"System Ready 🚀"
+];
+
+let count = 0;
+let index = 0;
+let currentText = "";
+let letter = "";
+
+(function type(){
+
+if(count === text.length){
+count = 0;
+}
+
+currentText = text[count];
+
+letter = currentText.slice(0, ++index);
+
+document.getElementById("typing")
+.innerText = letter;
+
+if(letter.length === currentText.length){
+
+count++;
+index = 0;
+
+setTimeout(type,1500);
+
+}else{
+
+setTimeout(type,70);
+
+}
+
+})();
+
+</script>
+
+</body>
+</html>

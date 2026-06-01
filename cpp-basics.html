@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>C++ Roadmap – Beginner to Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0f1a;
+      --card-bg: #0d1626;
+      --card-border: #1a2a3a;
+      --teal: #00ffcc;
+      --teal-dim: #00c9a0;
+      --teal-glow: rgba(0,255,204,0.18);
+      --yellow: #ffd700;
+      --orange: #ff8c00;
+      --red: #ff4444;
+      --text: #cde8e0;
+      --muted: #6b8fa0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Exo 2', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── starfield ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(0,255,204,.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 10%, rgba(0,255,204,.15) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 70%, rgba(0,255,204,.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 90%, rgba(0,255,204,.1) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 60%, rgba(0,255,204,.2) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrapper { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 40px 20px 60px; }
+
+    /* ── header ── */
+    header { text-align: center; margin-bottom: 50px; }
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      color: var(--teal);
+      text-shadow: 0 0 20px var(--teal), 0 0 60px rgba(0,255,204,.3);
+      letter-spacing: 2px;
+    }
+    header p { margin-top: 10px; color: var(--muted); font-size: 1rem; letter-spacing: 1px; }
+
+    /* ── vertical line ── */
+    .timeline {
+      position: relative;
+      padding-left: 36px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 14px; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--teal), #0a5c45 60%, transparent);
+      border-radius: 4px;
+    }
+
+    /* ── phase block ── */
+    .phase {
+      position: relative;
+      margin-bottom: 36px;
+      animation: fadeUp .5s ease both;
+    }
+    .phase:nth-child(1) { animation-delay: .05s; }
+    .phase:nth-child(2) { animation-delay: .15s; }
+    .phase:nth-child(3) { animation-delay: .25s; }
+    .phase:nth-child(4) { animation-delay: .35s; }
+    .phase:nth-child(5) { animation-delay: .45s; }
+    .phase:nth-child(6) { animation-delay: .55s; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(28px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    /* dot on line */
+    .phase::before {
+      content: '';
+      position: absolute;
+      left: -29px; top: 20px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--teal);
+      background: var(--bg);
+      box-shadow: 0 0 10px var(--teal);
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: .7rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1.5px solid;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+    .badge.beginner  { color: #5af078; border-color: #5af078; background: rgba(90,240,120,.08); }
+    .badge.basic     { color: var(--teal); border-color: var(--teal); background: rgba(0,255,204,.08); }
+    .badge.inter     { color: var(--yellow); border-color: var(--yellow); background: rgba(255,215,0,.08); }
+    .badge.advanced  { color: var(--orange); border-color: var(--orange); background: rgba(255,140,0,.08); }
+    .badge.expert    { color: var(--red); border-color: var(--red); background: rgba(255,68,68,.08); }
+    .badge.pro       { color: #df80ff; border-color: #df80ff; background: rgba(223,128,255,.08); }
+
+    .phase-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .toggle-icon {
+      margin-left: auto;
+      color: var(--teal);
+      font-size: 1.2rem;
+      transition: transform .3s;
+    }
+    .phase.open .toggle-icon { transform: rotate(180deg); }
+
+    /* card grid */
+    .topics {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .4s ease, opacity .4s ease;
+      opacity: 0;
+    }
+    .phase.open .topics { max-height: 1200px; opacity: 1; }
+
+    .topic-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .25s, transform .2s, box-shadow .25s;
+    }
+    .topic-card:hover {
+      border-color: var(--teal);
+      transform: translateY(-3px);
+      box-shadow: 0 0 18px var(--teal-glow);
+    }
+    .topic-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--teal-glow) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .topic-card:hover::after { opacity: 1; }
+
+    .topic-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .topic-name { font-weight: 700; font-size: .92rem; color: #fff; margin-bottom: 4px; }
+    .topic-desc { font-size: .78rem; color: var(--muted); line-height: 1.4; }
+
+    /* completed checkbox */
+    .done-check {
+      position: absolute; top: 10px; right: 10px;
+      width: 18px; height: 18px;
+      border: 1.5px solid var(--muted);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem;
+      transition: background .2s, border-color .2s;
+    }
+    .done-check.checked { background: var(--teal); border-color: var(--teal); color: #000; }
+
+    /* progress bar */
+    .progress-wrap { margin-bottom: 48px; }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: .82rem; color: var(--muted); margin-bottom: 6px;
+    }
+    .progress-label span:last-child { color: var(--teal); font-weight: 700; }
+    .progress-bar-bg {
+      height: 8px; background: #1a2a3a; border-radius: 10px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--teal), #00a8ff);
+      border-radius: 10px;
+      transition: width .5s ease;
+      box-shadow: 0 0 10px var(--teal);
+    }
+
+    /* back button */
+    .back-btn {
+      display: block; width: fit-content;
+      margin: 48px auto 0;
+      background: var(--teal);
+      color: #000;
+      font-family: 'Orbitron', sans-serif;
+      font-size: .85rem;
+      font-weight: 700;
+      padding: 14px 36px;
+      border-radius: 40px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-decoration: none;
+      transition: box-shadow .25s, transform .2s;
+    }
+    .back-btn:hover {
+      box-shadow: 0 0 24px var(--teal);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <h1>C++ Roadmap 🚀</h1>
+    <p>Beginner se Pro tak — ek step ek time</p>
+  </header>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Overall Progress</span>
+      <span id="prog-text">0 / 30 completed</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="timeline" id="timeline">
+
+    <!-- PHASE 1 -->
+    <div class="phase open" id="ph1">
+      <div class="phase-header" onclick="togglePhase('ph1')">
+        <span class="badge beginner">PHASE 1</span>
+        <span class="phase-title">Bilkul Shuruat — Foundations</span>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="topics">
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">💻</div>
+          <div class="topic-name">C++ Setup</div>
+          <div class="topic-desc">VS Code / Code::Blocks install, pehla "Hello World" program</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🔢</div>
+          <div class="topic-name">Variables & Data Types</div>
+          <div class="topic-desc">int, float, char, bool, string — data kaise store hota hai</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">➗</div>
+          <div class="topic-name">Operators</div>
+          <div class="topic-desc">Arithmetic, Relational, Logical operators — calculations karna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">📥</div>
+          <div class="topic-name">Input / Output</div>
+          <div class="topic-desc">cin, cout — user se data lena aur screen pe dikhana</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🔀</div>
+          <div class="topic-name">Conditions (if/else)</div>
+          <div class="topic-desc">Program decisions kaise leta hai — switch statement bhi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase" id="ph2">
+      <div class="phase-header" onclick="togglePhase('ph2')">
+        <span class="badge basic">PHASE 2</span>
+        <span class="phase-title">Loops & Functions — Logic Build Karo</span>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="topics">
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🔄</div>
+          <div class="topic-name">Loops</div>
+          <div class="topic-desc">for, while, do-while — kaam repeat karna automatically</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">⚙️</div>
+          <div class="topic-name">Functions</div>
+          <div class="topic-desc">Code ko reuse karo — parameters, return values, scope</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">📦</div>
+          <div class="topic-name">Arrays</div>
+          <div class="topic-desc">Ek saath kai values store karo — 1D aur 2D arrays</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">📝</div>
+          <div class="topic-name">Strings</div>
+          <div class="topic-desc">Text processing — length, compare, concatenate karna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🔁</div>
+          <div class="topic-name">Recursion</div>
+          <div class="topic-desc">Function apne aap ko call kare — factorial, Fibonacci</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase" id="ph3">
+      <div class="phase-header" onclick="togglePhase('ph3')">
+        <span class="badge inter">PHASE 3</span>
+        <span class="phase-title">Pointers & Memory — Asli C++ Yahan Hai</span>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="topics">
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">📍</div>
+          <div class="topic-name">Pointers</div>
+          <div class="topic-desc">Memory address kya hoti hai — * aur & operators samajhna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🧠</div>
+          <div class="topic-name">Dynamic Memory</div>
+          <div class="topic-desc">new aur delete — runtime pe memory allocate karna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🔗</div>
+          <div class="topic-name">References</div>
+          <div class="topic-desc">Pass by reference — function mein original value change karo</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">📁</div>
+          <div class="topic-name">File Handling</div>
+          <div class="topic-desc">fstream — file mein data read/write karna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🧩</div>
+          <div class="topic-name">Structs</div>
+          <div class="topic-desc">Custom data types — multiple fields ek saath group karo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase" id="ph4">
+      <div class="phase-header" onclick="togglePhase('ph4')">
+        <span class="badge advanced">PHASE 4</span>
+        <span class="phase-title">OOP — Object Oriented Programming</span>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="topics">
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🏛️</div>
+          <div class="topic-name">Classes & Objects</div>
+          <div class="topic-desc">Blueprint banao, objects create karo — real world modelling</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🔒</div>
+          <div class="topic-name">Encapsulation</div>
+          <div class="topic-desc">Private/public — data ko protect karna getters/setters se</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">👨‍👧</div>
+          <div class="topic-name">Inheritance</div>
+          <div class="topic-desc">Parent se child class — code reuse, is-a relationship</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🎭</div>
+          <div class="topic-name">Polymorphism</div>
+          <div class="topic-desc">Same function, alag behavior — virtual functions, overriding</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🚧</div>
+          <div class="topic-name">Constructors & Destructors</div>
+          <div class="topic-desc">Object banate/destroy karte waqt automatic kaam — memory safe</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase" id="ph5">
+      <div class="phase-header" onclick="togglePhase('ph5')">
+        <span class="badge expert">PHASE 5</span>
+        <span class="phase-title">STL & Algorithms — Power Tools</span>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="topics">
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">📚</div>
+          <div class="topic-name">STL Vector & List</div>
+          <div class="topic-desc">Dynamic arrays — push_back, pop, iterate karna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🗺️</div>
+          <div class="topic-name">Map & Set</div>
+          <div class="topic-desc">Key-value pairs aur unique values store karna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">⚡</div>
+          <div class="topic-name">Sorting & Searching</div>
+          <div class="topic-desc">sort(), binary_search() — algorithm library use karna</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🛠️</div>
+          <div class="topic-name">Templates</div>
+          <div class="topic-desc">Generic programming — ek function multiple types ke liye</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">💥</div>
+          <div class="topic-name">Exception Handling</div>
+          <div class="topic-desc">try/catch/throw — errors gracefully handle karna</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 6 -->
+    <div class="phase" id="ph6">
+      <div class="phase-header" onclick="togglePhase('ph6')">
+        <span class="badge pro">PHASE 6</span>
+        <span class="phase-title">PRO Level — Modern C++ & Real Projects</span>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="topics">
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🚀</div>
+          <div class="topic-name">C++11/17/20 Features</div>
+          <div class="topic-desc">auto, lambda, smart pointers, range-based for — modern C++</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🧵</div>
+          <div class="topic-name">Multithreading</div>
+          <div class="topic-desc">Multiple tasks ek saath — thread, mutex, async</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🔬</div>
+          <div class="topic-name">Data Structures</div>
+          <div class="topic-desc">Linked List, Stack, Queue, Tree, Graph — khud banao</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🏆</div>
+          <div class="topic-name">Competitive Programming</div>
+          <div class="topic-desc">LeetCode, Codeforces — problems solve karo aur rank badhao</div>
+        </div>
+        <div class="topic-card">
+          <div class="done-check" onclick="toggleDone(this)"></div>
+          <div class="topic-icon">🎮</div>
+          <div class="topic-name">Real Project Banao</div>
+          <div class="topic-desc">Game, sensor system, mini OS shell — portfolio ke liye</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <a href="coding.html" class="back-btn">← Back</a>
+</div>
+
+<script>
+  const TOTAL = 30;
+
+  function togglePhase(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  function toggleDone(el) {
+    el.classList.toggle('checked');
+    el.textContent = el.classList.contains('checked') ? '✓' : '';
+    updateProgress();
+    saveProgress();
+  }
+
+  function updateProgress() {
+    const done = document.querySelectorAll('.done-check.checked').length;
+    const pct = Math.round((done / TOTAL) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-text').textContent = done + ' / ' + TOTAL + ' completed';
+  }
+
+  function saveProgress() {
+    const cards = document.querySelectorAll('.topic-card');
+    const state = [];
+    cards.forEach((c, i) => {
+      state[i] = c.querySelector('.done-check').classList.contains('checked');
+    });
+    try { localStorage.setItem('cpp_roadmap', JSON.stringify(state)); } catch(e){}
+  }
+
+  function loadProgress() {
+    try {
+      const state = JSON.parse(localStorage.getItem('cpp_roadmap') || '[]');
+      const cards = document.querySelectorAll('.topic-card');
+      cards.forEach((c, i) => {
+        if (state[i]) {
+          const ch = c.querySelector('.done-check');
+          ch.classList.add('checked');
+          ch.textContent = '✓';
+        }
+      });
+      updateProgress();
+    } catch(e){}
+  }
+
+  loadProgress();
+</script>
+</body>
+</html>
